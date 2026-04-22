@@ -1,0 +1,202 @@
+[
+  {
+    "id": 1,
+    "title": "¿Cuántas filas tiene el dataset?",
+    "difficulty": "basico",
+    "category": "lectura",
+    "points": 10,
+    "description": "Inspeccioná el dataset de estudiantes y averiguá cuántas filas (registros) contiene usando la propiedad ``shape``.",
+    "instructions": [
+      "Arrastrá el bloque de leer CSV para cargar 'estudiantes.csv' en una variable.",
+      "Usá el bloque 'shape' sobre el DataFrame para obtener las dimensiones.",
+      "Mostrá el resultado con el bloque 'imprimir en consola'."
+    ],
+    "hint": "``shape`` devuelve una tupla (filas, columnas). Para este dataset deberías ver algo como ``(5, 3)``.",
+    "csv_filename": "estudiantes.csv",
+    "csv_content": "nombre,edad,curso\nAna,17,5to A\nBruno,18,5to B\nCamila,16,4to A\nDiego,17,5to A\nElena,18,5to C\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.shape.html",
+    "expected_keyword": "(5, 3)",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.shape)\n",
+    "feedback_correct": "¡Excelente! Descubriste que el dataset tiene 5 filas y 3 columnas. ``shape`` es una de las primeras cosas que un analista mira al abrir un dataset.",
+    "feedback_incorrect": "Revisá que estés imprimiendo el ``shape`` del DataFrame completo, no de una columna en particular.",
+    "suggestion": "Probá con: leer el CSV → usar el bloque 'shape' sobre el DataFrame → imprimirlo en consola."
+  },
+  {
+    "id": 2,
+    "title": "Mostrá las primeras filas",
+    "difficulty": "basico",
+    "category": "lectura",
+    "points": 10,
+    "description": "Antes de analizar datos, siempre es útil ver un adelanto. Mostrá las primeras 3 filas del dataset de productos con ``head(3)``.",
+    "instructions": [
+      "Cargá 'productos.csv' con el bloque de leer CSV.",
+      "Usá el bloque 'head' con parámetro 3 para obtener las primeras 3 filas.",
+      "Imprimí el resultado."
+    ],
+    "hint": "``head(n)`` devuelve las primeras ``n`` filas. El producto 'Azúcar' debería aparecer en el resultado.",
+    "csv_filename": "productos.csv",
+    "csv_content": "producto,precio,stock\nArroz,850,120\nFideos,600,200\nAzúcar,950,80\nAceite,2200,60\nYerba,3500,150\nHarina,720,90\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html",
+    "expected_keyword": "Azúcar",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.head(3))\n",
+    "feedback_correct": "¡Muy bien! Ahora podés ver el principio del dataset. Esto es clave para detectar problemas en los datos antes de analizar.",
+    "feedback_incorrect": "Fijate que ``head`` devuelve las primeras filas. Si pusiste otro valor podés no estar mostrando el producto 'Azúcar'.",
+    "suggestion": "Usá ``head(3)`` — no ``head(1)`` ni ``head(2)``."
+  },
+  {
+    "id": 3,
+    "title": "Conocé tus columnas",
+    "difficulty": "basico",
+    "category": "lectura",
+    "points": 10,
+    "description": "Listá las columnas del dataset de países para saber con qué variables vas a trabajar.",
+    "instructions": [
+      "Cargá 'paises.csv'.",
+      "Usá el bloque 'columnas' (equivalente a ``df.columns``) para listarlas.",
+      "Imprimí el resultado en consola."
+    ],
+    "hint": "El atributo ``columns`` devuelve un objeto Index con los nombres de las columnas. Una de ellas se llama 'continente'.",
+    "csv_filename": "paises.csv",
+    "csv_content": "pais,continente,poblacion\nArgentina,América,46000000\nBrasil,América,215000000\nEspaña,Europa,47000000\nItalia,Europa,59000000\nJapón,Asia,125000000\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.columns.html",
+    "expected_keyword": "continente",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.columns)\n",
+    "feedback_correct": "¡Perfecto! Conocer las columnas es el primer paso antes de cualquier análisis.",
+    "feedback_incorrect": "Parece que no estás listando las columnas del DataFrame. Probá usar el bloque 'columnas' e imprimirlo.",
+    "suggestion": "Leer CSV → bloque 'columnas' → imprimir en consola."
+  },
+  {
+    "id": 4,
+    "title": "Filtrá los mayores de edad",
+    "difficulty": "intermedio",
+    "category": "filtrado",
+    "points": 25,
+    "description": "Mostrá solamente las personas del dataset que son mayores de edad (edad mayor o igual a 18).",
+    "instructions": [
+      "Cargá 'personas.csv'.",
+      "Aplicá un filtro booleano: ``df[df['edad'] >= 18]``.",
+      "Imprimí el resultado."
+    ],
+    "hint": "Usá el bloque de comparación con 'edad' mayor o igual a 18 dentro de un filtro de DataFrame. Deberías obtener 3 personas.",
+    "csv_filename": "personas.csv",
+    "csv_content": "nombre,edad,ciudad\nLucía,15,Córdoba\nMartín,22,Rosario\nSofía,19,La Plata\nJoaquín,17,Mendoza\nValentina,25,Buenos Aires\nTomás,14,Salta\nClara,30,Neuquén\nFederico,16,Tucumán\n",
+    "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
+    "expected_keyword": "Valentina",
+    "solution_code": "df = read_csv(csv_id)\nprint(df[df['edad'] >= 18])\n",
+    "feedback_correct": "¡Perfecto! Sabés filtrar con condiciones booleanas, una herramienta fundamental del análisis de datos.",
+    "feedback_incorrect": "Revisá la comparación: necesitás 'edad' MAYOR O IGUAL a 18. Valentina (25 años) debería estar en el resultado.",
+    "suggestion": "Usá el bloque de filtro con la columna 'edad' y la comparación '>= 18'."
+  },
+  {
+    "id": 5,
+    "title": "¿Cuál es el promedio?",
+    "difficulty": "intermedio",
+    "category": "estadisticas",
+    "points": 25,
+    "description": "Calculá el promedio de las notas de Matemática usando la función ``mean()`` sobre la columna 'nota'.",
+    "instructions": [
+      "Cargá 'notas.csv'.",
+      "Seleccioná la columna 'nota'.",
+      "Aplicá el bloque 'promedio' (``mean``) e imprimí el resultado."
+    ],
+    "hint": "El promedio de (8, 6, 9, 7, 10, 5) es 7.5. Buscá ese valor en el output.",
+    "csv_filename": "notas.csv",
+    "csv_content": "alumno,materia,nota\nAna,Matemática,8\nBruno,Matemática,6\nCamila,Matemática,9\nDiego,Matemática,7\nElena,Matemática,10\nFranco,Matemática,5\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.mean.html",
+    "expected_keyword": "7.5",
+    "solution_code": "df = read_csv(csv_id)\nprint(df['nota'].mean())\n",
+    "feedback_correct": "¡Muy bien! El promedio es 7.5. Las medidas estadísticas básicas son el corazón del análisis exploratorio.",
+    "feedback_incorrect": "Asegurate de estar aplicando ``mean`` SOLO sobre la columna 'nota', no sobre todo el DataFrame.",
+    "suggestion": "Leer CSV → columna 'nota' → bloque 'promedio' → imprimir."
+  },
+  {
+    "id": 6,
+    "title": "Ordená por precio",
+    "difficulty": "intermedio",
+    "category": "filtrado",
+    "points": 25,
+    "description": "Ordená el dataset de productos por la columna 'precio' de forma ascendente para ver cuáles son los más baratos.",
+    "instructions": [
+      "Cargá 'productos.csv'.",
+      "Usá el bloque de ordenamiento (``sort_values``) con la columna 'precio'.",
+      "Imprimí el resultado."
+    ],
+    "hint": "El producto más barato debería aparecer primero. Fijate que 'Fideos' con 600 pesos aparezca al principio.",
+    "csv_filename": "productos.csv",
+    "csv_content": "producto,precio,stock\nArroz,850,120\nFideos,600,200\nAzúcar,950,80\nAceite,2200,60\nYerba,3500,150\nHarina,720,90\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html",
+    "expected_keyword": "Fideos",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.sort_values('precio'))\n",
+    "feedback_correct": "¡Genial! Ordenar los datos es clave para encontrar mínimos, máximos y patrones rápidamente.",
+    "feedback_incorrect": "Revisá que estés ordenando por la columna correcta. El resultado debería incluir 'Fideos' entre los primeros (es el más barato).",
+    "suggestion": "Usá ``sort_values('precio')`` para ordenar ascendentemente."
+  },
+  {
+    "id": 7,
+    "title": "Contá por categoría",
+    "difficulty": "avanzado",
+    "category": "agrupamiento",
+    "points": 50,
+    "description": "¿Cuántos empleados hay en cada ciudad? Usá ``value_counts()`` sobre la columna 'ciudad' para descubrirlo.",
+    "instructions": [
+      "Cargá 'empleados.csv'.",
+      "Aplicá ``value_counts`` sobre la columna 'ciudad'.",
+      "Imprimí el resultado."
+    ],
+    "hint": "``value_counts`` cuenta cuántas veces aparece cada valor. Buenos Aires debería tener 4 empleados.",
+    "csv_filename": "empleados.csv",
+    "csv_content": "empleado,ciudad,area\nAna,Buenos Aires,Ventas\nBruno,Córdoba,Ventas\nCamila,Buenos Aires,Marketing\nDiego,Rosario,Sistemas\nElena,Buenos Aires,Sistemas\nFranco,Córdoba,Marketing\nGabriela,Rosario,Ventas\nHernán,Buenos Aires,Ventas\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html",
+    "expected_keyword": "Buenos Aires",
+    "solution_code": "df = read_csv(csv_id)\nprint(df['ciudad'].value_counts())\n",
+    "feedback_correct": "¡Excelente! ``value_counts`` es perfecto para descubrir la distribución de variables categóricas.",
+    "feedback_incorrect": "Debería aparecer 'Buenos Aires' en el conteo. Revisá que estés aplicando ``value_counts`` sobre la columna 'ciudad'.",
+    "suggestion": "Leer CSV → columna 'ciudad' → bloque 'conteo de valores' → imprimir."
+  },
+  {
+    "id": 8,
+    "title": "Agrupá y sumá",
+    "difficulty": "avanzado",
+    "category": "agrupamiento",
+    "points": 50,
+    "description": "Calculá el monto total de ventas por región agrupando por la columna 'region' y sumando la columna 'monto'.",
+    "instructions": [
+      "Cargá 'ventas.csv'.",
+      "Usá el bloque 'groupby' por 'region'.",
+      "Aplicá la suma (``sum``) sobre la columna 'monto'.",
+      "Imprimí el resultado."
+    ],
+    "hint": "El total de la región 'Sur' debería ser 5400 (2200 + 1200 + 2000). Buscá ese valor en el resultado.",
+    "csv_filename": "ventas.csv",
+    "csv_content": "region,producto,monto\nNorte,Arroz,1500\nNorte,Fideos,800\nSur,Arroz,2200\nSur,Fideos,1200\nCentro,Arroz,1800\nCentro,Fideos,900\nNorte,Aceite,2500\nSur,Aceite,2000\nCentro,Aceite,1700\n",
+    "theory_url": "https://pandas.pydata.org/docs/user_guide/groupby.html",
+    "expected_keyword": "5400",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.groupby('region')['monto'].sum())\n",
+    "feedback_correct": "¡Brillante! ``groupby`` + ``sum`` es una combinación muy usada para generar resúmenes ejecutivos.",
+    "feedback_incorrect": "El total de 'Sur' tiene que ser 5400. Probá agrupar por 'region' y sumar la columna 'monto'.",
+    "suggestion": "Usá ``df.groupby('region')['monto'].sum()`` o armalo con los bloques 'groupby' + 'sum'."
+  },
+  {
+    "id": 9,
+    "title": "Máximo por grupo",
+    "difficulty": "avanzado",
+    "category": "agrupamiento",
+    "points": 50,
+    "description": "Calculá la temperatura máxima registrada en cada mes agrupando por 'mes' y aplicando ``max`` sobre 'temperatura'.",
+    "instructions": [
+      "Cargá 'temperaturas.csv'.",
+      "Agrupá por la columna 'mes'.",
+      "Aplicá ``max`` sobre la columna 'temperatura'.",
+      "Imprimí el resultado."
+    ],
+    "hint": "En enero la máxima es 32 (Córdoba). Ese número debería aparecer en el resultado.",
+    "csv_filename": "temperaturas.csv",
+    "csv_content": "mes,ciudad,temperatura\nEnero,Buenos Aires,30\nEnero,Córdoba,32\nEnero,Bariloche,22\nFebrero,Buenos Aires,29\nFebrero,Córdoba,31\nFebrero,Bariloche,20\nMarzo,Buenos Aires,26\nMarzo,Córdoba,28\nMarzo,Bariloche,15\n",
+    "theory_url": "https://pandas.pydata.org/docs/user_guide/groupby.html#groupby-aggregations",
+    "expected_keyword": "32",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.groupby('mes')['temperatura'].max())\n",
+    "feedback_correct": "¡Sos un crack! Dominás agrupamientos + agregaciones, una de las técnicas más poderosas de pandas.",
+    "feedback_incorrect": "La máxima de enero es 32. Revisá que estés usando 'groupby' por mes y 'max' sobre temperatura.",
+    "suggestion": "Usá ``df.groupby('mes')['temperatura'].max()``."
+  }
+]

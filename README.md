@@ -23,4 +23,4 @@ python3 run.py
 - /bdCheck es un GET que sirve por si SQLAlchemy no crea las tablas al levantar la app, pegarle a este endpoint una vez deberia crearlas
 
 ### Contacto
-pandalyze.edu@gmail.com
+pandalyze.estebanmr@gmail.com
