@@ -1,21 +1,23 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, Boolean, DateTime
+from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey
 
 from app.extensions import db
 
 
 class ChallengeResult(db.Model):
     """
-    Modelo que persiste cada intento y resultado de un desafío.
+    Modelo que persiste cada intento y resultado de un desafío por usuario.
 
     Guardamos un registro por cada verificación (exitosa o no) para poder
     calcular la gamificación (puntos, nivel, emblemas, rachas) desde el
-    servidor en ``GET /challenges/gamification/status``.
+    servidor en ``GET /challenges/gamification/status``, siempre filtrando
+    por el usuario autenticado.
     """
 
     __tablename__ = "challenge_result"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False, index=True)
     challenge_id = Column(Integer, nullable=False, index=True)
     passed = Column(Boolean, nullable=False, default=False)
     points_earned = Column(Integer, nullable=False, default=0)
@@ -25,12 +27,14 @@ class ChallengeResult(db.Model):
 
     def __init__(
         self,
+        user_id,
         challenge_id,
         passed,
         points_earned=0,
         first_try=False,
         attempts=1,
     ):
+        self.user_id = user_id
         self.challenge_id = challenge_id
         self.passed = passed
         self.points_earned = points_earned
@@ -40,13 +44,15 @@ class ChallengeResult(db.Model):
 
     def __repr__(self):
         return (
-            f"<ChallengeResult challenge_id={self.challenge_id} "
+            f"<ChallengeResult user={self.user_id} "
+            f"challenge_id={self.challenge_id} "
             f"passed={self.passed} points={self.points_earned}>"
         )
 
     def to_dict(self):
         return {
             "id": self.id,
+            "user_id": self.user_id,
             "challenge_id": self.challenge_id,
             "passed": self.passed,
             "points_earned": self.points_earned,
@@ -56,23 +62,27 @@ class ChallengeResult(db.Model):
         }
 
     @classmethod
-    def get_attempts_for_challenge(cls, challenge_id):
-        """Cantidad total de intentos registrados para un desafío."""
-        return cls.query.filter_by(challenge_id=challenge_id).count()
+    def get_attempts_for_challenge(cls, challenge_id, user_id):
+        """Cantidad total de intentos registrados para un desafío de un usuario."""
+        return cls.query.filter_by(
+            challenge_id=challenge_id, user_id=user_id
+        ).count()
 
     @classmethod
-    def has_passed(cls, challenge_id):
-        """True si hay al menos un intento exitoso para ese desafío."""
+    def has_passed(cls, challenge_id, user_id):
+        """True si hay al menos un intento exitoso del usuario para ese desafío."""
         return (
-            cls.query.filter_by(challenge_id=challenge_id, passed=True).first()
+            cls.query.filter_by(
+                challenge_id=challenge_id, user_id=user_id, passed=True
+            ).first()
             is not None
         )
 
     @classmethod
-    def all_passed(cls):
-        """Todos los resultados exitosos, ordenados por timestamp ascendente."""
+    def all_passed_for_user(cls, user_id):
+        """Resultados exitosos del usuario, ordenados por timestamp ascendente."""
         return (
-            cls.query.filter_by(passed=True)
+            cls.query.filter_by(passed=True, user_id=user_id)
             .order_by(cls.timestamp.asc())
             .all()
         )

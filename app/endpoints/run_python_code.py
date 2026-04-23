@@ -6,14 +6,16 @@ import plotly.express as plotly
 import plotly.io as pio
 import folium
 
-from ..services.csv_service import read_csv
+from ..services.csv_service import read_csv as _read_csv_scoped
 from ..services.error_formatter_service import ExceptionFormatter
 from ..endpoints.map_visualization import generate_map
+from ..utils.request_scope import resolve_scope
 
 bp = Blueprint('run_python_code', __name__)
 
 control_structures_regex = re.compile(r'\b(if|else|elif|for|while|try|except|finally)\b')
 import_statement_regex = re.compile(r'\bimport\b')
+
 
 def is_safe_code(code):
     if control_structures_regex.search(code):
@@ -22,6 +24,7 @@ def is_safe_code(code):
         return False
     return True
 
+
 def execute_code(code, globals_dict, result_list, timeout=15):
     def exec_wrapper(code, globals_dict):
         from run import app
@@ -29,27 +32,20 @@ def execute_code(code, globals_dict, result_list, timeout=15):
             with app.app_context():
                 parsed_code = ast.parse(code.strip())
                 body = parsed_code.body
-
-                # Obtener la ultima expresion a ejecutar, si hay, y quitarla
-                # para ejecutarla luego.
-                # TODO: optimizar. empezar desde el final, 
-                # las otras expresiones no importan
                 exprs = [node for node in body if isinstance(node, ast.Expr)]
                 last_expr = body.pop(body.index(exprs[-1])) if exprs else None
-
-                # Ejecutar todo el codigo, menos la ultima expresion
-                if body: exec(
-                    compile(ast.Module(body, type_ignores=[]), "<user-code>", "exec"), 
-                    globals_dict)
-
-                # Evaluar la última expresión, si hay
-                # Contra: solo se va a mostrar solo este resultado y no lo anterior.
-                # TODO: iterar las expresiones para mostrar todo en pantalla?
+                if body:
+                    exec(
+                        compile(ast.Module(body, type_ignores=[]), "<user-code>", "exec"),
+                        globals_dict,
+                    )
                 if last_expr:
-                    result_list.append(eval(
-                        compile(ast.Expression(last_expr.value), "<user-code>", "eval"), 
-                        globals_dict))
-
+                    result_list.append(
+                        eval(
+                            compile(ast.Expression(last_expr.value), "<user-code>", "eval"),
+                            globals_dict,
+                        )
+                    )
         except Exception as e:
             result_list.append(e)
 
@@ -60,10 +56,19 @@ def execute_code(code, globals_dict, result_list, timeout=15):
     if thread.is_alive():
         result_list.append(TimeoutError("La ejecución del código superó el tiempo límite."))
 
+
 @bp.route('/runPythonCode', methods=['POST'])
 @cross_origin()
 def run_code():
+    user_id, guest_id = resolve_scope()
+    if user_id is None and guest_id is None:
+        return jsonify({"error": "Se requiere autenticación o X-Guest-Id."}), 401
+
     code = request.json['code']
+
+    def read_csv(csv_id):
+        return _read_csv_scoped(csv_id, user_id=user_id, guest_id=guest_id)
+
     try:
         if not is_safe_code(code):
             raise ValueError("El código contiene sentencias no permitidas")
@@ -82,6 +87,7 @@ def run_code():
         def custom_show(fig, *args, **kwargs):
             plot_json = pio.to_json(fig)
             json_plots.append(plot_json)
+
         pio.show = custom_show
 
         exec_globals = {
@@ -109,7 +115,7 @@ def run_code():
             map_html = result_obj._repr_html_()
             return jsonify({'output': map_html, 'type': 'map'})
 
-        if text_output.strip().startswith("<div id=\"map_"):
+        if text_output.strip().startswith('<div id="map_'):
             return jsonify({'output': text_output, 'type': 'map'})
 
         return jsonify({'output': text_output, 'plots': json_plots}), 200
@@ -127,7 +133,7 @@ def run_code():
             formatter = ExceptionFormatter(e)
             personalized_exception = formatter.get_personalized_exception()
         except Exception as formatter_error:
-            print(f"¡El formateador de excepciones falló!: {formatter_error}")
-            personalized_exception = f"Error de ejecución: {str(e)}"
+            print("Formatter fallo:", formatter_error)
+            personalized_exception = "Error de ejecucion: " + str(e)
 
         return jsonify({'error': personalized_exception}), 500

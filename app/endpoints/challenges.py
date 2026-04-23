@@ -17,6 +17,7 @@ from pathlib import Path
 
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from ..extensions import db
 from ..models.challenge_result_model import ChallengeResult
@@ -182,12 +183,14 @@ def _compute_badges(completed_ids, first_try_ids, longest_streak):
 
 @bp.route("/challenges", methods=["GET"])
 @cross_origin()
+@jwt_required()
 def list_challenges():
     return jsonify([_public_view(c) for c in CHALLENGES]), 200
 
 
 @bp.route("/challenges/<int:challenge_id>/csv", methods=["GET"])
 @cross_origin()
+@jwt_required()
 def get_challenge_csv(challenge_id):
     challenge = _get_challenge(challenge_id)
     if challenge is None:
@@ -206,7 +209,9 @@ def get_challenge_csv(challenge_id):
 
 @bp.route("/challenges/<int:challenge_id>/validate", methods=["POST"])
 @cross_origin()
+@jwt_required()
 def validate_challenge(challenge_id):
+    user_id = int(get_jwt_identity())
     challenge = _get_challenge(challenge_id)
     if challenge is None:
         return jsonify({"error": "Desafío no encontrado"}), 404
@@ -214,9 +219,11 @@ def validate_challenge(challenge_id):
     payload = request.get_json(silent=True) or {}
     user_output = (payload.get("output") or "").strip()
 
-    # Cantidad de intentos previos para este desafío
-    previous_attempts = ChallengeResult.get_attempts_for_challenge(challenge_id)
-    already_passed = ChallengeResult.has_passed(challenge_id)
+    # Cantidad de intentos previos del usuario para este desafío
+    previous_attempts = ChallengeResult.get_attempts_for_challenge(
+        challenge_id, user_id
+    )
+    already_passed = ChallengeResult.has_passed(challenge_id, user_id)
 
     expected = challenge["expected_keyword"]
     passed = expected in user_output and user_output != ""
@@ -224,13 +231,14 @@ def validate_challenge(challenge_id):
     # primer_try = pasó y no había intentos previos fallidos para este desafío
     is_first_try = passed and previous_attempts == 0
 
-    # Puntos: sólo se otorgan la primera vez que se aprueba.
+    # Puntos: sólo se otorgan la primera vez que el usuario aprueba.
     points_earned = 0
     if passed and not already_passed:
         points_earned = challenge["points"]
 
     # Persistir el intento
     result = ChallengeResult(
+        user_id=user_id,
         challenge_id=challenge_id,
         passed=passed,
         points_earned=points_earned,
@@ -266,6 +274,7 @@ def validate_challenge(challenge_id):
 
 @bp.route("/challenges/<int:challenge_id>/solution", methods=["GET"])
 @cross_origin()
+@jwt_required()
 def get_challenge_solution(challenge_id):
     challenge = _get_challenge(challenge_id)
     if challenge is None:
@@ -276,9 +285,11 @@ def get_challenge_solution(challenge_id):
 
 @bp.route("/challenges/gamification/status", methods=["GET"])
 @cross_origin()
+@jwt_required()
 def gamification_status():
+    user_id = int(get_jwt_identity())
     # Nos quedamos con el primer "pass" por challenge_id (así no sumamos puntos duplicados).
-    passed_results = ChallengeResult.all_passed()
+    passed_results = ChallengeResult.all_passed_for_user(user_id)
 
     seen = set()
     first_passes = []
