@@ -34,9 +34,12 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)
 
     # ---------- Admin ----------
-    # Email que será promovido automáticamente a rol admin al registrarse o
-    # loguearse. Si queda vacío, no existe admin en el sistema.
+    # Email del usuario admin. Si ADMIN_PASSWORD también está definido, el
+    # admin se crea automáticamente al arrancar la aplicación (bootstrap),
+    # de modo que no haga falta registrarlo manualmente. Si el usuario ya
+    # existe, sigue siendo promovido a rol admin (idempotente).
     ADMIN_EMAIL = (os.getenv("ADMIN_EMAIL") or "").strip().lower()
+    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD") or ""
 
 
 def get_config():
