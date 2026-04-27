@@ -80,8 +80,37 @@ def _serialize_user_row(u):
 @cross_origin()
 @admin_required
 def list_users():
+    """
+    Lista usuarios con filtros opcionales y paginación.
+
+    Query params:
+    - q     : substring case-insensitive sobre email.
+    - role  : alumno | docente | admin (filtra por rol exacto).
+    - page  : número de página (1-indexado, default 1).
+    - per_page : elementos por página (default 20, máximo 100).
+
+    Respuesta:
+    {
+        "users": [...],     # ya serializados
+        "total": int,       # total que matchea los filtros (sin paginar)
+        "page": int,
+        "per_page": int,
+        "pages": int        # cantidad total de páginas
+    }
+    """
     q = (request.args.get("q") or "").strip().lower()
     role_filter = (request.args.get("role") or "").strip().lower()
+
+    # Defaults pensados para una UI con tabla paginada. Si en el futuro
+    # algún cliente quiere "todo de una", puede pedir per_page=100.
+    try:
+        page = max(1, int(request.args.get("page") or 1))
+    except (TypeError, ValueError):
+        page = 1
+    try:
+        per_page = max(1, min(100, int(request.args.get("per_page") or 20)))
+    except (TypeError, ValueError):
+        per_page = 20
 
     query = User.query
     if q:
@@ -90,8 +119,24 @@ def list_users():
     if role_filter in {ROLE_ALUMNO, ROLE_DOCENTE, ROLE_ADMIN}:
         query = query.filter(User.role == role_filter)
 
-    users = query.order_by(User.email.asc()).all()
-    return jsonify({"users": [_serialize_user_row(u) for u in users]}), 200
+    total = query.count()
+    pages = (total + per_page - 1) // per_page if per_page else 1
+    users = (
+        query.order_by(User.email.asc())
+        .offset((page - 1) * per_page)
+        .limit(per_page)
+        .all()
+    )
+    return (
+        jsonify({
+            "users": [_serialize_user_row(u) for u in users],
+            "total": total,
+            "page": page,
+            "per_page": per_page,
+            "pages": pages,
+        }),
+        200,
+    )
 
 
 @bp.route("/users/<int:user_id>", methods=["PATCH"])
