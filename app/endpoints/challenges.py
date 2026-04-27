@@ -20,8 +20,9 @@ from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from ..extensions import db
+from ..extensions import db, limiter
 from ..models.challenge_result_model import ChallengeResult
+from ..models.user_model import User
 
 
 bp = Blueprint("challenges", __name__)
@@ -213,6 +214,7 @@ def get_challenge_csv(challenge_id):
 @bp.route("/challenges/<int:challenge_id>/validate", methods=["POST"])
 @cross_origin()
 @jwt_required()
+@limiter.limit("30 per minute; 200 per hour")
 def validate_challenge(challenge_id):
     user_id = int(get_jwt_identity())
     challenge = _get_challenge(challenge_id)
@@ -376,5 +378,99 @@ def gamification_status():
                 "challenges_by_difficulty": by_diff,
             }
         ),
+        200,
+    )
+
+
+def _anonymize_email(email):
+    """Anonimiza un email mostrando los primeros 2 caracteres + '***'.
+
+    Mantiene la consistencia con la lógica que usa StatsDashboard en el
+    frontend (`anonymize()`), de modo que un mismo alumno se vea igual en
+    ambos lugares y no haya forma de cruzar identidades.
+    """
+    if not email:
+        return "-"
+    at = email.find("@")
+    name = email if at <= 0 else email[:at]
+    if len(name) <= 2:
+        return name + "***"
+    return name[:2] + "***"
+
+
+@bp.route("/challenges/leaderboard", methods=["GET"])
+@cross_origin()
+@jwt_required()
+def leaderboard():
+    """
+    Top 10 alumnos por puntos acumulados, con emails anonimizados.
+
+    El leaderboard es público para cualquier usuario autenticado: sirve como
+    motivación para los alumnos. Se anonimizan los emails para preservar
+    privacidad y evitar que los alumnos identifiquen a otros alumnos por
+    nombre.
+
+    Solo se cuentan usuarios con rol "alumno"; docentes y admin no compiten.
+    """
+    # Traemos en una sola query: alumnos + sus aprobaciones únicas por desafío.
+    # Nos quedamos con el primer pass por challenge_id para no contar duplicados.
+    students = User.query.filter_by(role="alumno").all()
+
+    rows = []
+    for s in students:
+        passed = ChallengeResult.all_passed_for_user(s.id)
+        seen = set()
+        unique_first = []
+        for r in passed:
+            if r.challenge_id in seen:
+                continue
+            seen.add(r.challenge_id)
+            unique_first.append(r)
+        if not unique_first:
+            continue
+        total_points = sum(r.points_earned for r in unique_first)
+        completed = len(unique_first)
+        rows.append({
+            "anon_email": _anonymize_email(s.email),
+            "points": total_points,
+            "completed": completed,
+        })
+
+    # Orden: puntos desc, completed desc como desempate.
+    rows.sort(key=lambda r: (-r["points"], -r["completed"]))
+    top = rows[:10]
+
+    # Devolvemos también la posición del usuario autenticado (anónima en
+    # forma de "sos el #N de M") para que pueda saber donde está parado
+    # aunque no esté en el top.
+    requester_id = int(get_jwt_identity())
+    requester = User.query.get(requester_id)
+    my_rank = None
+    if requester is not None and requester.role == "alumno":
+        # Reconstruimos el ranking conservando la asociación a student_id
+        # (que perdimos en `rows` al anonimizar) para localizar al requester.
+        ranked = []
+        for s in students:
+            passed = ChallengeResult.all_passed_for_user(s.id)
+            seen2 = set()
+            uniq2 = []
+            for r in passed:
+                if r.challenge_id in seen2:
+                    continue
+                seen2.add(r.challenge_id)
+                uniq2.append(r)
+            pts = sum(r.points_earned for r in uniq2)
+            ranked.append((s.id, pts, len(uniq2)))
+        ranked.sort(key=lambda t: (-t[1], -t[2]))
+        for idx, (sid, _pts, _c) in enumerate(ranked, start=1):
+            if sid == requester_id:
+                my_rank = {"position": idx, "of": len(ranked)}
+                break
+
+    return (
+        jsonify({
+            "top": top,
+            "my_rank": my_rank,
+        }),
         200,
     )

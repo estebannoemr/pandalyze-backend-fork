@@ -3,7 +3,7 @@ from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
 from datetime import datetime
 
 from .config import get_config
-from .extensions import db, jwt
+from .extensions import db, jwt, limiter
 
 
 def create_app():
@@ -12,6 +12,12 @@ def create_app():
 
     db.init_app(app)
     jwt.init_app(app)
+    # Rate limiting: opcional. Si flask-limiter no está instalado, el stub
+    # de extensions.py absorbe init_app sin efecto.
+    try:
+        limiter.init_app(app)
+    except Exception as _e:  # pragma: no cover
+        app.logger.warning("Limiter init falló: %s", _e)
 
     with app.app_context():
         from .endpoints.health_check import bp as health_check_bp
@@ -28,6 +34,7 @@ def create_app():
         from .models.csv_model import CSVData  # noqa: F401
         from .models.challenge_result_model import ChallengeResult  # noqa: F401
         from .models.user_model import User  # noqa: F401
+        from .models.password_reset_token_model import PasswordResetToken  # noqa: F401
 
         app.register_blueprint(health_check_bp)
         app.register_blueprint(bd_check_bp)

@@ -33,3 +33,4 @@ tzdata==2025.2
 urllib3==2.5.0
 Werkzeug==3.0.1
 xyzservices==2025.4.0
+Flask-Limiter==3.8.0
