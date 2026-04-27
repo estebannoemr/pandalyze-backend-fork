@@ -38,6 +38,7 @@ DEMO_STUDENTS = [
     {"email": "alumno1.claudia@pandalyze.test", "teacher": "claudia@pandalyze.test"},
     {"email": "alumno2.claudia@pandalyze.test", "teacher": "claudia@pandalyze.test"},
     {"email": "alumno3.claudia@pandalyze.test", "teacher": "claudia@pandalyze.test"},
+    {"email": "contacto.estebanmr@gmail.com", "teacher": "claudia@pandalyze.test"},
 ]
 
 
