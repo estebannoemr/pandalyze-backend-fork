@@ -24,6 +24,13 @@ class ChallengeResult(db.Model):
     first_try = Column(Boolean, nullable=False, default=False)
     attempts = Column(Integer, nullable=False, default=1)
     timestamp = Column(DateTime, nullable=False, default=datetime.utcnow)
+    # Timing (ocultos para el alumno, visibles para docente/admin).
+    # started_at: cuando el alumno hizo click en "Comenzar" (enviado por frontend).
+    # duration_seconds: wall clock desde started_at hasta timestamp.
+    # active_seconds: suma de intervalos en que el modal estuvo abierto.
+    started_at = Column(DateTime, nullable=True)
+    duration_seconds = Column(Integer, nullable=True)
+    active_seconds = Column(Integer, nullable=True)
 
     def __init__(
         self,
@@ -33,6 +40,9 @@ class ChallengeResult(db.Model):
         points_earned=0,
         first_try=False,
         attempts=1,
+        started_at=None,
+        duration_seconds=None,
+        active_seconds=None,
     ):
         self.user_id = user_id
         self.challenge_id = challenge_id
@@ -41,6 +51,9 @@ class ChallengeResult(db.Model):
         self.first_try = first_try
         self.attempts = attempts
         self.timestamp = datetime.utcnow()
+        self.started_at = started_at
+        self.duration_seconds = duration_seconds
+        self.active_seconds = active_seconds
 
     def __repr__(self):
         return (
@@ -59,6 +72,11 @@ class ChallengeResult(db.Model):
             "first_try": self.first_try,
             "attempts": self.attempts,
             "timestamp": self.timestamp.isoformat() if self.timestamp else None,
+            "started_at": (
+                self.started_at.isoformat() if self.started_at else None
+            ),
+            "duration_seconds": self.duration_seconds,
+            "active_seconds": self.active_seconds,
         }
 
     @classmethod
