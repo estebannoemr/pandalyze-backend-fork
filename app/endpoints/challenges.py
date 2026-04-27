@@ -13,6 +13,7 @@ La persistencia de intentos se hace en ``ChallengeResult``.
 """
 
 import json
+from datetime import datetime
 from pathlib import Path
 
 from flask import Blueprint, request, jsonify
@@ -44,6 +45,8 @@ LEVELS = [
     {"min": 300, "max": 499,  "title": "Analista Semi Senior", "level": 4},
     {"min": 500, "max": 9999, "title": "Analista Senior",      "level": 5},
 ]
+# Nota: con 18 desafíos el máximo teórico de puntos es 510 (6×10 + 6×25 + 6×50).
+# El nivel 5 cubre holgadamente ese tope.
 
 BADGES = [
     {
@@ -219,6 +222,37 @@ def validate_challenge(challenge_id):
     payload = request.get_json(silent=True) or {}
     user_output = (payload.get("output") or "").strip()
 
+    # Timing (oculto para el alumno, visible sólo para docente/admin).
+    # start_time: ISO string enviado desde el frontend cuando el alumno hizo
+    # click en "Comenzar". Usamos wall clock (ahora - started_at) como duracion
+    # total y active_seconds como suma de intervalos con el modal abierto.
+    raw_start = payload.get("start_time")
+    started_at = None
+    if raw_start:
+        try:
+            # Aceptamos tanto "...Z" como offset explicito. strip final 'Z'.
+            _s = raw_start.rstrip("Z")
+            started_at = datetime.fromisoformat(_s)
+        except Exception:
+            started_at = None
+
+    now = datetime.utcnow()
+    duration_seconds = None
+    if started_at is not None:
+        try:
+            delta = now - started_at
+            duration_seconds = max(0, int(delta.total_seconds()))
+        except Exception:
+            duration_seconds = None
+
+    raw_active = payload.get("active_seconds")
+    active_seconds = None
+    try:
+        if raw_active is not None:
+            active_seconds = max(0, int(raw_active))
+    except (TypeError, ValueError):
+        active_seconds = None
+
     # Cantidad de intentos previos del usuario para este desafío
     previous_attempts = ChallengeResult.get_attempts_for_challenge(
         challenge_id, user_id
@@ -244,6 +278,9 @@ def validate_challenge(challenge_id):
         points_earned=points_earned,
         first_try=is_first_try,
         attempts=previous_attempts + 1,
+        started_at=started_at,
+        duration_seconds=duration_seconds,
+        active_seconds=active_seconds,
     )
     db.session.add(result)
     db.session.commit()

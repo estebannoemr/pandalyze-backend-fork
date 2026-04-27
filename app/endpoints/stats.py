@@ -157,6 +157,11 @@ def overview():
     total_completed = 0
     total_points = 0
 
+    # Timing agregado por dificultad: acumulamos duraciones del "primer" y
+    # "ultimo" desafio aprobado por cada alumno dentro de cada dificultad.
+    timing_firsts = {"basico": [], "intermedio": [], "avanzado": []}
+    timing_lasts = {"basico": [], "intermedio": [], "avanzado": []}
+
     if student_ids:
         # Traemos todos los resultados aprobados del scope en una sola query.
         results = (
@@ -176,6 +181,7 @@ def overview():
 
         for s in students:
             first_passes = list(per_user_first_pass.get(s.id, {}).values())
+            # Ordenados cronologicamente gracias al order_by de la query.
             pts = sum(r.points_earned for r in first_passes)
             per_student.append(
                 {
@@ -188,6 +194,10 @@ def overview():
             total_completed += len(first_passes)
             total_points += pts
 
+            # Agrupamos las duraciones por dificultad para calcular "primer" y
+            # "ultimo" por alumno y por dificultad.
+            per_diff_durations = {"basico": [], "intermedio": [], "avanzado": []}
+
             for r in first_passes:
                 diff = difficulty_map.get(r.challenge_id, "basico")
                 if diff in by_difficulty:
@@ -195,6 +205,13 @@ def overview():
                 ts_date = r.timestamp.date() if r.timestamp else None
                 if ts_date and ts_date >= start_date and ts_date <= today:
                     timeline_counter[ts_date.isoformat()] += 1
+                if diff in per_diff_durations and r.duration_seconds is not None:
+                    per_diff_durations[diff].append(r.duration_seconds)
+
+            for diff, durations in per_diff_durations.items():
+                if durations:
+                    timing_firsts[diff].append(durations[0])
+                    timing_lasts[diff].append(durations[-1])
 
     # Timeline denso: aseguramos que cada dia del rango tenga entrada.
     timeline = []
@@ -202,6 +219,19 @@ def overview():
         d = start_date + timedelta(days=i)
         key = d.isoformat()
         timeline.append({"date": key, "passed": timeline_counter.get(key, 0)})
+
+    def _avg(values):
+        if not values:
+            return None
+        return round(sum(values) / len(values), 1)
+
+    timing_avg = {}
+    for diff in ("basico", "intermedio", "avanzado"):
+        timing_avg[diff] = {
+            "first_avg_seconds": _avg(timing_firsts[diff]),
+            "last_avg_seconds": _avg(timing_lasts[diff]),
+            "sample_size": len(timing_firsts[diff]),
+        }
 
     scope_meta = {
         "type": scope_info["scope"],
@@ -221,6 +251,7 @@ def overview():
                 "per_student": per_student,
                 "by_difficulty": by_difficulty,
                 "timeline": timeline,
+                "timing_avg": timing_avg,
                 "summary": {
                     "total_students": len(students),
                     "total_completed": total_completed,
