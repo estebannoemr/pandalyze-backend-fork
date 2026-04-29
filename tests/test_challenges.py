@@ -20,9 +20,6 @@ verificación, el job falla y el merge se bloquea.
 Cómo correrlo localmente:
     pip install -r requirements.txt pytest
     pytest tests/test_challenges.py -v
-
-Replica la lógica que la sección 12.2 de DOCUMENTACION.md describía como
-"script ad-hoc". Acá la convertimos en tests reproducibles.
 """
 
 import contextlib

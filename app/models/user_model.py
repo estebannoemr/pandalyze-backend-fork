@@ -2,6 +2,7 @@
 Modelo de Usuario con soporte para roles alumno/docente/admin.
 """
 
+import re
 import secrets
 import string
 from datetime import datetime
@@ -19,6 +20,18 @@ VALID_ROLES = {ROLE_ALUMNO, ROLE_DOCENTE, ROLE_ADMIN}
 
 CLASS_CODE_ALPHABET = string.ascii_uppercase + string.digits
 CLASS_CODE_LENGTH = 6
+
+
+def _email_to_display_name(email):
+    if not email:
+        return None
+    local = email.split("@", 1)[0].strip()
+    if not local:
+        return None
+    parts = [p for p in re.split(r"[._-]+", local) if p]
+    if not parts:
+        return None
+    return " ".join(p.capitalize() for p in parts)
 
 
 class User(db.Model):
@@ -43,12 +56,22 @@ class User(db.Model):
         self.last_seen_at = datetime.utcnow()
 
     def to_dict(self):
+        teacher_email = None
+        teacher_name = None
+        if self.teacher_id:
+            teacher = self.__class__.query.get(self.teacher_id)
+            if teacher is not None:
+                teacher_email = teacher.email
+                teacher_name = _email_to_display_name(teacher.email)
+
         return {
             "id": self.id,
             "email": self.email,
             "role": self.role,
             "class_code": self.class_code,
             "teacher_id": self.teacher_id,
+            "teacher_email": teacher_email,
+            "teacher_name": teacher_name,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "last_seen_at": (
                 self.last_seen_at.isoformat() if self.last_seen_at else None
