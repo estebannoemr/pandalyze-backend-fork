@@ -18,8 +18,17 @@ class Config:
     DB_PASSWORD = os.getenv("DB_PASSWORD")
     DB_HOST = os.getenv("DB_HOST")
     DB_NAME = os.getenv("DB_NAME")
-    # SQLALCHEMY_DATABASE_URI = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
-    SQLALCHEMY_DATABASE_URI = "sqlite:///project.db"
+    # Prefer DATABASE_URL if provided (12-factor apps). Fallback to explicit
+    # DB_* vars. If neither provided, usamos SQLite para desarrollo.
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+    if not SQLALCHEMY_DATABASE_URI:
+        if DB_USER and DB_HOST and DB_NAME:
+            # Construir URI postgres si se definieron variables por separado
+            SQLALCHEMY_DATABASE_URI = (
+                f"postgresql://{DB_USER}:{DB_PASSWORD or ''}@{DB_HOST}/{DB_NAME}"
+            )
+        else:
+            SQLALCHEMY_DATABASE_URI = "sqlite:///project.db"
 
     # ---------- JWT ----------
     _jwt_secret = os.getenv("JWT_SECRET_KEY")

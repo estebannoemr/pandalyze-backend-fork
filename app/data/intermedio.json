@@ -1,6 +1,6 @@
 [
   {
-    "id": 4,
+    "id": 7,
     "title": "Filtrá los mayores de edad",
     "difficulty": "intermedio",
     "category": "filtrado",
@@ -22,7 +22,7 @@
     "suggestion": "Usá el bloque de filtro con la columna 'edad' y la comparación '>= 18'."
   },
   {
-    "id": 5,
+    "id": 8,
     "title": "¿Cuál es el promedio?",
     "difficulty": "intermedio",
     "category": "estadisticas",
@@ -44,7 +44,7 @@
     "suggestion": "Leer CSV → columna 'nota' → bloque 'promedio' → imprimir."
   },
   {
-    "id": 6,
+    "id": 9,
     "title": "Ordená por precio",
     "difficulty": "intermedio",
     "category": "filtrado",
@@ -66,7 +66,7 @@
     "suggestion": "Usá ``sort_values('precio')`` para ordenar ascendentemente."
   },
   {
-    "id": 13,
+    "id": 10,
     "title": "Clientes frecuentes",
     "difficulty": "intermedio",
     "category": "filtrado",
@@ -88,7 +88,7 @@
     "suggestion": "Usá el filtro ``df[df['compras'] > 5]``."
   },
   {
-    "id": 14,
+    "id": 11,
     "title": "Top 3 goleadores",
     "difficulty": "intermedio",
     "category": "filtrado",
@@ -111,7 +111,7 @@
     "suggestion": "Usá ``df.sort_values('goles', ascending=False).head(3)``."
   },
   {
-    "id": 15,
+    "id": 12,
     "title": "IMC de pacientes",
     "difficulty": "intermedio",
     "category": "estadisticas",

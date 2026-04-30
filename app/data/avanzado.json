@@ -1,6 +1,6 @@
 [
   {
-    "id": 7,
+    "id": 13,
     "title": "Contá por categoría",
     "difficulty": "avanzado",
     "category": "agrupamiento",
@@ -22,7 +22,7 @@
     "suggestion": "Leer CSV → columna 'ciudad' → bloque 'conteo de valores' → imprimir."
   },
   {
-    "id": 8,
+    "id": 14,
     "title": "Agrupá y sumá",
     "difficulty": "avanzado",
     "category": "agrupamiento",
@@ -45,7 +45,7 @@
     "suggestion": "Usá ``df.groupby('region')['monto'].sum()`` o armalo con los bloques 'groupby' + 'sum'."
   },
   {
-    "id": 9,
+    "id": 15,
     "title": "Máximo por grupo",
     "difficulty": "avanzado",
     "category": "agrupamiento",

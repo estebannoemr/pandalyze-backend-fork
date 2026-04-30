@@ -17,8 +17,10 @@ del bootstrap de admin, así puede asociar alumnos a docentes recién creados.
 """
 
 import os
+from datetime import datetime, timedelta
 
 from .extensions import db
+from .models.challenge_result_model import ChallengeResult
 from .models.user_model import User, ROLE_DOCENTE, ROLE_ALUMNO
 
 
@@ -39,6 +41,17 @@ DEMO_STUDENTS = [
     {"email": "alumno2.claudia@pandalyze.test", "teacher": "claudia@pandalyze.test"},
     {"email": "alumno3.claudia@pandalyze.test", "teacher": "claudia@pandalyze.test"},
     {"email": "contacto.estebanmr@gmail.com", "teacher": "claudia@pandalyze.test"},
+]
+
+DEMO_CONTACT_COMPLETED_CHALLENGES = [
+    # Primeros 3 básicos, primeros 2 intermedios y primer avanzado.
+    # El orden sigue el orden de la lista cargada por la API.
+    {"challenge_id": 1, "duration_seconds": 180, "points": 10},
+    {"challenge_id": 2, "duration_seconds": 140, "points": 10},
+    {"challenge_id": 3, "duration_seconds": 95, "points": 10},
+    {"challenge_id": 7, "duration_seconds": 160, "points": 25},
+    {"challenge_id": 8, "duration_seconds": 115, "points": 25},
+    {"challenge_id": 13, "duration_seconds": 130, "points": 50},
 ]
 
 
@@ -63,6 +76,7 @@ def seed_demo_users(app):
 
     created_teachers = 0
     created_students = 0
+    created_results = 0
 
     teacher_by_email = {}
 
@@ -104,12 +118,39 @@ def seed_demo_users(app):
         db.session.add(student)
         created_students += 1
 
-    if created_teachers or created_students:
+    # 3) Progreso demo para la cuenta de contacto
+    contact = User.query.filter_by(email="contacto.estebanmr@gmail.com").first()
+    if contact is not None:
+        base_timestamp = datetime.utcnow() - timedelta(days=1)
+        for index, spec in enumerate(DEMO_CONTACT_COMPLETED_CHALLENGES):
+            already_passed = ChallengeResult.query.filter_by(
+                user_id=contact.id,
+                challenge_id=spec["challenge_id"],
+                passed=True,
+            ).first()
+            if already_passed is not None:
+                continue
+            result = ChallengeResult(
+                user_id=contact.id,
+                challenge_id=spec["challenge_id"],
+                passed=True,
+                points_earned=spec["points"],
+                first_try=True,
+                attempts=1,
+                started_at=base_timestamp + timedelta(minutes=index * 15),
+                duration_seconds=spec["duration_seconds"],
+                active_seconds=spec["duration_seconds"],
+            )
+            db.session.add(result)
+            created_results += 1
+
+    if created_teachers or created_students or created_results:
         db.session.commit()
         app.logger.info(
-            "Seed demo: %d docente(s) y %d alumno(s) creados.",
+            "Seed demo: %d docente(s), %d alumno(s) y %d resultado(s) creados.",
             created_teachers,
             created_students,
+            created_results,
         )
     else:
         app.logger.info("Seed demo: nada que crear (ya estaba todo).")
@@ -117,5 +158,6 @@ def seed_demo_users(app):
     return {
         "created_teachers": created_teachers,
         "created_students": created_students,
+        "created_results": created_results,
         "password": password,
     }

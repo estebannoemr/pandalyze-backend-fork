@@ -66,7 +66,7 @@
     "suggestion": "Leer CSV → bloque 'columnas' → imprimir en consola."
   },
   {
-    "id": 10,
+    "id": 4,
     "title": "El producto más caro",
     "difficulty": "basico",
     "category": "estadisticas",
@@ -88,7 +88,7 @@
     "suggestion": "Leer CSV → columna 'precio' → bloque 'máximo' → imprimir."
   },
   {
-    "id": 11,
+    "id": 5,
     "title": "Ciudad más lluviosa",
     "difficulty": "basico",
     "category": "lectura",
@@ -110,7 +110,7 @@
     "suggestion": "Leer CSV → bloque 'tail' con 2 → imprimir."
   },
   {
-    "id": 12,
+    "id": 6,
     "title": "Total de goles",
     "difficulty": "basico",
     "category": "estadisticas",
