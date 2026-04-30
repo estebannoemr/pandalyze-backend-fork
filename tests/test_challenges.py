@@ -1,11 +1,12 @@
 """
 Tests automáticos del banco de desafíos.
 
-Cada vez que ``app/data/challenges.json`` cambia (se agrega un desafío,
-se edita un solution_code, se cambia un expected_keyword), este módulo
-detecta inconsistencias antes de que lleguen al alumno:
+Cada vez que los archivos ``app/data/basico.json``, ``app/data/intermedio.json``
+o ``app/data/avanzado.json`` cambian (se agrega un desafío, se edita un
+solution_code, se cambia un expected_keyword), este módulo detecta
+inconsistencias antes de que lleguen al alumno:
 
-- Carga el JSON.
+- Carga los JSONs en orden (básico → intermedio → avanzado).
 - Para cada desafío:
     1. Verifica los campos obligatorios.
     2. Parsea el ``csv_content`` embebido como un DataFrame.
@@ -32,9 +33,12 @@ import pandas as pd
 import pytest
 
 
-CHALLENGES_PATH = (
-    Path(__file__).resolve().parent.parent / "app" / "data" / "challenges.json"
-)
+DATA_DIR = Path(__file__).resolve().parent.parent / "app" / "data"
+CHALLENGES_PATHS = [
+    DATA_DIR / "basico.json",
+    DATA_DIR / "intermedio.json",
+    DATA_DIR / "avanzado.json",
+]
 
 
 REQUIRED_FIELDS = {
@@ -55,8 +59,12 @@ EXPECTED_POINTS = {"basico": 10, "intermedio": 25, "avanzado": 50}
 
 
 def _load_challenges():
-    with open(CHALLENGES_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    """Carga los desafíos desde los 3 archivos JSON en orden."""
+    all_challenges = []
+    for path in CHALLENGES_PATHS:
+        with open(path, "r", encoding="utf-8") as f:
+            all_challenges.extend(json.load(f))
+    return all_challenges
 
 
 def _execute_solution(challenge):

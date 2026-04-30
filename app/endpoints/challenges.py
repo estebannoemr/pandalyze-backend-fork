@@ -27,12 +27,17 @@ from ..models.user_model import User
 
 bp = Blueprint("challenges", __name__)
 
-# Carga de desafíos desde JSON externo — facilita mover la fuente a otro lugar
-# (DB, CMS, archivo remoto) sin tocar este blueprint.
-_CHALLENGES_JSON_PATH = Path(__file__).resolve().parent.parent / "data" / "challenges.json"
+# Carga de desafíos desde JSONs externos en orden: básico → intermedio → avanzado
+# Facilita mantener los desafíos organizados por dificultad
+_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+_BASICO_PATH = _DATA_DIR / "basico.json"
+_INTERMEDIO_PATH = _DATA_DIR / "intermedio.json"
+_AVANZADO_PATH = _DATA_DIR / "avanzado.json"
 
-with open(_CHALLENGES_JSON_PATH, "r", encoding="utf-8") as _f:
-    CHALLENGES = json.load(_f)
+CHALLENGES = []
+for path in [_BASICO_PATH, _INTERMEDIO_PATH, _AVANZADO_PATH]:
+    with open(path, "r", encoding="utf-8") as _f:
+        CHALLENGES.extend(json.load(_f))
 
 
 # ---------------------------------------------------------------------------

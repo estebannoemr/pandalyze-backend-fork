@@ -1,0 +1,134 @@
+[
+  {
+    "id": 1,
+    "title": "¿Cuántas filas tiene el dataset?",
+    "difficulty": "basico",
+    "category": "lectura",
+    "points": 10,
+    "description": "Inspeccioná el dataset de estudiantes y averiguá cuántas filas (registros) contiene usando la propiedad ``shape``.",
+    "instructions": [
+      "Arrastrá el bloque de leer CSV para cargar 'estudiantes.csv' en una variable.",
+      "Usá el bloque 'shape' sobre el DataFrame para obtener las dimensiones.",
+      "Mostrá el resultado con el bloque 'imprimir en consola'."
+    ],
+    "hint": "``shape`` devuelve una tupla (filas, columnas). Para este dataset deberías ver algo como ``(5, 3)``.",
+    "csv_filename": "estudiantes.csv",
+    "csv_content": "nombre,edad,curso\nAna,17,5to A\nBruno,18,5to B\nCamila,16,4to A\nDiego,17,5to A\nElena,18,5to C\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.shape.html",
+    "expected_keyword": "(5, 3)",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.shape)\n",
+    "feedback_correct": "¡Excelente! Descubriste que el dataset tiene 5 filas y 3 columnas. ``shape`` es una de las primeras cosas que un analista mira al abrir un dataset.",
+    "feedback_incorrect": "Revisá que estés imprimiendo el ``shape`` del DataFrame completo, no de una columna en particular.",
+    "suggestion": "Probá con: leer el CSV → usar el bloque 'shape' sobre el DataFrame → imprimirlo en consola."
+  },
+  {
+    "id": 2,
+    "title": "Mostrá las primeras filas",
+    "difficulty": "basico",
+    "category": "lectura",
+    "points": 10,
+    "description": "Antes de analizar datos, siempre es útil ver un adelanto. Mostrá las primeras 3 filas del dataset de productos con ``head(3)``.",
+    "instructions": [
+      "Cargá 'productos.csv' con el bloque de leer CSV.",
+      "Usá el bloque 'head' con parámetro 3 para obtener las primeras 3 filas.",
+      "Imprimí el resultado."
+    ],
+    "hint": "``head(n)`` devuelve las primeras ``n`` filas. El producto 'Azúcar' debería aparecer en el resultado.",
+    "csv_filename": "productos.csv",
+    "csv_content": "producto,precio,stock\nArroz,850,120\nFideos,600,200\nAzúcar,950,80\nAceite,2200,60\nYerba,3500,150\nHarina,720,90\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html",
+    "expected_keyword": "Azúcar",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.head(3))\n",
+    "feedback_correct": "¡Muy bien! Ahora podés ver el principio del dataset. Esto es clave para detectar problemas en los datos antes de analizar.",
+    "feedback_incorrect": "Fijate que ``head`` devuelve las primeras filas. Si pusiste otro valor podés no estar mostrando el producto 'Azúcar'.",
+    "suggestion": "Usá ``head(3)`` — no ``head(1)`` ni ``head(2)``."
+  },
+  {
+    "id": 3,
+    "title": "Conocé tus columnas",
+    "difficulty": "basico",
+    "category": "lectura",
+    "points": 10,
+    "description": "Listá las columnas del dataset de países para saber con qué variables vas a trabajar.",
+    "instructions": [
+      "Cargá 'paises.csv'.",
+      "Usá el bloque 'columnas' (equivalente a ``df.columns``) para listarlas.",
+      "Imprimí el resultado en consola."
+    ],
+    "hint": "El atributo ``columns`` devuelve un objeto Index con los nombres de las columnas. Una de ellas se llama 'continente'.",
+    "csv_filename": "paises.csv",
+    "csv_content": "pais,continente,poblacion\nArgentina,América,46000000\nBrasil,América,215000000\nEspaña,Europa,47000000\nItalia,Europa,59000000\nJapón,Asia,125000000\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.columns.html",
+    "expected_keyword": "continente",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.columns)\n",
+    "feedback_correct": "¡Perfecto! Conocer las columnas es el primer paso antes de cualquier análisis.",
+    "feedback_incorrect": "Parece que no estás listando las columnas del DataFrame. Probá usar el bloque 'columnas' e imprimirlo.",
+    "suggestion": "Leer CSV → bloque 'columnas' → imprimir en consola."
+  },
+  {
+    "id": 10,
+    "title": "El producto más caro",
+    "difficulty": "basico",
+    "category": "estadisticas",
+    "points": 10,
+    "description": "Una cadena de supermercados quiere saber cuál es el precio máximo en su catálogo. Aplicá ``max()`` sobre la columna 'precio'.",
+    "instructions": [
+      "Cargá 'catalogo.csv'.",
+      "Seleccioná la columna 'precio'.",
+      "Aplicá el bloque ``max`` e imprimí el resultado."
+    ],
+    "hint": "El valor más alto de la columna 'precio' es 4800.",
+    "csv_filename": "catalogo.csv",
+    "csv_content": "producto,precio,categoria\nLeche,1200,Lacteos\nPan,800,Panaderia\nQueso,4800,Lacteos\nManteca,1500,Lacteos\nGaseosa,2300,Bebidas\nJugo,1100,Bebidas\nGalletitas,950,Almacen\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.max.html",
+    "expected_keyword": "4800",
+    "solution_code": "df = read_csv(csv_id)\nprint(df['precio'].max())\n",
+    "feedback_correct": "¡Muy bien! ``max()`` es una de las funciones de agregación más usadas: sirve para detectar outliers, topes de precios o récords.",
+    "feedback_incorrect": "El valor buscado es 4800. Asegurate de aplicar ``max`` sobre la columna 'precio', no sobre el DataFrame entero.",
+    "suggestion": "Leer CSV → columna 'precio' → bloque 'máximo' → imprimir."
+  },
+  {
+    "id": 11,
+    "title": "Ciudad más lluviosa",
+    "difficulty": "basico",
+    "category": "lectura",
+    "points": 10,
+    "description": "Un meteorólogo anota los milímetros de lluvia de la última semana en varias ciudades. Mostrá las últimas 2 filas del dataset con ``tail(2)``.",
+    "instructions": [
+      "Cargá 'lluvias.csv'.",
+      "Usá el bloque ``tail`` con parámetro 2.",
+      "Imprimí el resultado."
+    ],
+    "hint": "``tail(n)`` devuelve las últimas ``n`` filas. En el resultado debería aparecer 'Ushuaia'.",
+    "csv_filename": "lluvias.csv",
+    "csv_content": "ciudad,mm,dia\nBuenos Aires,12,Lunes\nCordoba,5,Lunes\nRosario,8,Lunes\nMendoza,0,Lunes\nSalta,18,Lunes\nUshuaia,25,Lunes\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.tail.html",
+    "expected_keyword": "Ushuaia",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.tail(2))\n",
+    "feedback_correct": "¡Muy bien! ``tail`` complementa a ``head``: mientras ``head`` muestra el comienzo, ``tail`` te deja ver el final del dataset.",
+    "feedback_incorrect": "Revisá que estés usando ``tail(2)``. Si ponés otro número 'Ushuaia' puede no aparecer en el resultado.",
+    "suggestion": "Leer CSV → bloque 'tail' con 2 → imprimir."
+  },
+  {
+    "id": 12,
+    "title": "Total de goles",
+    "difficulty": "basico",
+    "category": "estadisticas",
+    "points": 10,
+    "description": "Sumá todos los goles que convirtió el equipo durante la temporada usando ``sum()`` sobre la columna 'goles'.",
+    "instructions": [
+      "Cargá 'goles.csv'.",
+      "Seleccioná la columna 'goles'.",
+      "Aplicá ``sum`` e imprimí el resultado."
+    ],
+    "hint": "La suma de 2 + 1 + 3 + 0 + 2 + 4 + 1 + 2 + 1 + 0 es 16.",
+    "csv_filename": "goles.csv",
+    "csv_content": "fecha,rival,goles\nF1,Racing,2\nF2,Boca,1\nF3,Talleres,3\nF4,Lanus,0\nF5,Estudiantes,2\nF6,Velez,4\nF7,Defensa,1\nF8,Gimnasia,2\nF9,Huracan,1\nF10,Independiente,0\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.sum.html",
+    "expected_keyword": "16",
+    "solution_code": "df = read_csv(csv_id)\nprint(df['goles'].sum())\n",
+    "feedback_correct": "¡Perfecto! ``sum()`` es la operación más básica de acumulación. La vas a usar muchísimo combinada con ``groupby``.",
+    "feedback_incorrect": "El total buscado es 16. Asegurate de aplicar ``sum`` solamente sobre la columna 'goles'.",
+    "suggestion": "Leer CSV → columna 'goles' → bloque 'suma' → imprimir."
+  }
+]

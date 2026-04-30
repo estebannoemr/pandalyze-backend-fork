@@ -29,16 +29,19 @@ _CHALLENGES_CACHE = None
 
 
 def _load_challenges_difficulty_map():
-    """Devuelve dict {challenge_id: difficulty} leido del JSON."""
+    """Devuelve dict {challenge_id: difficulty} leido de los JSONs en orden."""
     global _CHALLENGES_CACHE
     if _CHALLENGES_CACHE is not None:
         return _CHALLENGES_CACHE
     here = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.normpath(os.path.join(here, "..", "data", "challenges.json"))
+    data_dir = os.path.normpath(os.path.join(here, "..", "data"))
     try:
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        _CHALLENGES_CACHE = {int(c["id"]): c.get("difficulty", "basico") for c in data}
+        _CHALLENGES_CACHE = {}
+        for filename in ["basico.json", "intermedio.json", "avanzado.json"]:
+            path = os.path.join(data_dir, filename)
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            _CHALLENGES_CACHE.update({int(c["id"]): c.get("difficulty", "basico") for c in data})
     except Exception:
         _CHALLENGES_CACHE = {}
     return _CHALLENGES_CACHE

@@ -1,0 +1,135 @@
+[
+  {
+    "id": 4,
+    "title": "Filtrá los mayores de edad",
+    "difficulty": "intermedio",
+    "category": "filtrado",
+    "points": 25,
+    "description": "Mostrá solamente las personas del dataset que son mayores de edad (edad mayor o igual a 18).",
+    "instructions": [
+      "Cargá 'personas.csv'.",
+      "Aplicá un filtro booleano: ``df[df['edad'] >= 18]``.",
+      "Imprimí el resultado."
+    ],
+    "hint": "Usá el bloque de comparación con 'edad' mayor o igual a 18 dentro de un filtro de DataFrame. Deberías obtener 3 personas.",
+    "csv_filename": "personas.csv",
+    "csv_content": "nombre,edad,ciudad\nLucía,15,Córdoba\nMartín,22,Rosario\nSofía,19,La Plata\nJoaquín,17,Mendoza\nValentina,25,Buenos Aires\nTomás,14,Salta\nClara,30,Neuquén\nFederico,16,Tucumán\n",
+    "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
+    "expected_keyword": "Valentina",
+    "solution_code": "df = read_csv(csv_id)\nprint(df[df['edad'] >= 18])\n",
+    "feedback_correct": "¡Perfecto! Sabés filtrar con condiciones booleanas, una herramienta fundamental del análisis de datos.",
+    "feedback_incorrect": "Revisá la comparación: necesitás 'edad' MAYOR O IGUAL a 18. Valentina (25 años) debería estar en el resultado.",
+    "suggestion": "Usá el bloque de filtro con la columna 'edad' y la comparación '>= 18'."
+  },
+  {
+    "id": 5,
+    "title": "¿Cuál es el promedio?",
+    "difficulty": "intermedio",
+    "category": "estadisticas",
+    "points": 25,
+    "description": "Calculá el promedio de las notas de Matemática usando la función ``mean()`` sobre la columna 'nota'.",
+    "instructions": [
+      "Cargá 'notas.csv'.",
+      "Seleccioná la columna 'nota'.",
+      "Aplicá el bloque 'promedio' (``mean``) e imprimí el resultado."
+    ],
+    "hint": "El promedio de (8, 6, 9, 7, 10, 5) es 7.5. Buscá ese valor en el output.",
+    "csv_filename": "notas.csv",
+    "csv_content": "alumno,materia,nota\nAna,Matemática,8\nBruno,Matemática,6\nCamila,Matemática,9\nDiego,Matemática,7\nElena,Matemática,10\nFranco,Matemática,5\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.mean.html",
+    "expected_keyword": "7.5",
+    "solution_code": "df = read_csv(csv_id)\nprint(df['nota'].mean())\n",
+    "feedback_correct": "¡Muy bien! El promedio es 7.5. Las medidas estadísticas básicas son el corazón del análisis exploratorio.",
+    "feedback_incorrect": "Asegurate de estar aplicando ``mean`` SOLO sobre la columna 'nota', no sobre todo el DataFrame.",
+    "suggestion": "Leer CSV → columna 'nota' → bloque 'promedio' → imprimir."
+  },
+  {
+    "id": 6,
+    "title": "Ordená por precio",
+    "difficulty": "intermedio",
+    "category": "filtrado",
+    "points": 25,
+    "description": "Ordená el dataset de productos por la columna 'precio' de forma ascendente para ver cuáles son los más baratos.",
+    "instructions": [
+      "Cargá 'productos.csv'.",
+      "Usá el bloque de ordenamiento (``sort_values``) con la columna 'precio'.",
+      "Imprimí el resultado."
+    ],
+    "hint": "El producto más barato debería aparecer primero. Fijate que 'Fideos' con 600 pesos aparezca al principio.",
+    "csv_filename": "productos.csv",
+    "csv_content": "producto,precio,stock\nArroz,850,120\nFideos,600,200\nAzúcar,950,80\nAceite,2200,60\nYerba,3500,150\nHarina,720,90\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html",
+    "expected_keyword": "Fideos",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.sort_values('precio'))\n",
+    "feedback_correct": "¡Genial! Ordenar los datos es clave para encontrar mínimos, máximos y patrones rápidamente.",
+    "feedback_incorrect": "Revisá que estés ordenando por la columna correcta. El resultado debería incluir 'Fideos' entre los primeros (es el más barato).",
+    "suggestion": "Usá ``sort_values('precio')`` para ordenar ascendentemente."
+  },
+  {
+    "id": 13,
+    "title": "Clientes frecuentes",
+    "difficulty": "intermedio",
+    "category": "filtrado",
+    "points": 25,
+    "description": "El área de fidelización busca a los clientes que hicieron más de 5 compras en el mes. Filtrá el dataset con la condición 'compras > 5'.",
+    "instructions": [
+      "Cargá 'clientes.csv'.",
+      "Aplicá un filtro booleano: ``df[df['compras'] > 5]``.",
+      "Imprimí el resultado."
+    ],
+    "hint": "Los clientes frecuentes son los que tienen más de 5 compras. 'Martinez' con 9 compras tiene que aparecer en el resultado.",
+    "csv_filename": "clientes.csv",
+    "csv_content": "cliente,compras,gasto_total\nGomez,3,4200\nPerez,7,9800\nMartinez,9,15300\nLopez,2,1500\nFernandez,6,7200\nRodriguez,4,3800\nSanchez,8,11200\nTorres,1,600\n",
+    "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
+    "expected_keyword": "Martinez",
+    "solution_code": "df = read_csv(csv_id)\nprint(df[df['compras'] > 5])\n",
+    "feedback_correct": "¡Excelente! Este tipo de segmentación es la base del CRM: separar clientes VIP del resto a partir de una métrica objetiva.",
+    "feedback_incorrect": "'Martinez' (9 compras) tiene que aparecer. Revisá que la condición sea 'compras MAYOR A 5' (estrictamente mayor).",
+    "suggestion": "Usá el filtro ``df[df['compras'] > 5]``."
+  },
+  {
+    "id": 14,
+    "title": "Top 3 goleadores",
+    "difficulty": "intermedio",
+    "category": "filtrado",
+    "points": 25,
+    "description": "Ordená el dataset de jugadores por goles de forma descendente y mostrá solamente los 3 primeros con ``head(3)``.",
+    "instructions": [
+      "Cargá 'jugadores.csv'.",
+      "Ordená con ``sort_values`` por 'goles' con ``ascending=False``.",
+      "Aplicá ``head(3)`` al resultado.",
+      "Imprimí."
+    ],
+    "hint": "El máximo goleador es 'Alvarez' con 18 goles; debería aparecer primero en el top 3.",
+    "csv_filename": "jugadores.csv",
+    "csv_content": "jugador,equipo,goles\nAlvarez,Equipo A,18\nSuarez,Equipo B,12\nBenitez,Equipo A,5\nRamos,Equipo C,9\nOrtiz,Equipo B,15\nPena,Equipo C,3\nNavarro,Equipo A,7\nCorrea,Equipo B,11\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html",
+    "expected_keyword": "Alvarez",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.sort_values('goles', ascending=False).head(3))\n",
+    "feedback_correct": "¡Muy bien! Ordenar + ``head`` es el patrón clásico para calcular rankings y tops en cualquier dataset.",
+    "feedback_incorrect": "'Alvarez' (18 goles) tiene que estar entre los 3 primeros. Asegurate de ordenar descendente (``ascending=False``).",
+    "suggestion": "Usá ``df.sort_values('goles', ascending=False).head(3)``."
+  },
+  {
+    "id": 15,
+    "title": "IMC de pacientes",
+    "difficulty": "intermedio",
+    "category": "estadisticas",
+    "points": 25,
+    "description": "Creá una nueva columna 'imc' a partir del peso y la altura: ``imc = peso / (altura ** 2)``. Después imprimí el DataFrame completo.",
+    "instructions": [
+      "Cargá 'pacientes.csv'.",
+      "Creá una columna nueva: ``df['imc'] = df['peso'] / (df['altura'] ** 2)``.",
+      "Imprimí el DataFrame."
+    ],
+    "hint": "Para un paciente de 70 kg y 1.75 m el IMC es 22.857 aproximadamente. Ese valor debería aparecer en la columna nueva.",
+    "csv_filename": "pacientes.csv",
+    "csv_content": "paciente,peso,altura\nP1,70,1.75\nP2,85,1.80\nP3,60,1.65\nP4,95,1.90\nP5,55,1.60\n",
+    "theory_url": "https://pandas.pydata.org/docs/user_guide/basics.html#creating-new-columns",
+    "expected_keyword": "22.857",
+    "solution_code": "df = read_csv(csv_id)\ndf['imc'] = df['peso'] / (df['altura'] ** 2)\nprint(df)\n",
+    "feedback_correct": "¡Brillante! Crear columnas derivadas es fundamental en ciencia de datos: muchas variables útiles se construyen a partir de otras.",
+    "feedback_incorrect": "Para P1 (70 / 1.75²) el IMC es ≈ 22.857. Revisá que estés dividiendo 'peso' por 'altura' al cuadrado.",
+    "suggestion": "Asigná ``df['imc'] = df['peso'] / (df['altura'] ** 2)`` y después imprimí el DataFrame."
+  }
+]

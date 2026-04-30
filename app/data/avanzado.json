@@ -1,0 +1,138 @@
+[
+  {
+    "id": 7,
+    "title": "Contá por categoría",
+    "difficulty": "avanzado",
+    "category": "agrupamiento",
+    "points": 50,
+    "description": "¿Cuántos empleados hay en cada ciudad? Usá ``value_counts()`` sobre la columna 'ciudad' para descubrirlo.",
+    "instructions": [
+      "Cargá 'empleados.csv'.",
+      "Aplicá ``value_counts`` sobre la columna 'ciudad'.",
+      "Imprimí el resultado."
+    ],
+    "hint": "``value_counts`` cuenta cuántas veces aparece cada valor. Buenos Aires debería tener 4 empleados.",
+    "csv_filename": "empleados.csv",
+    "csv_content": "empleado,ciudad,area\nAna,Buenos Aires,Ventas\nBruno,Córdoba,Ventas\nCamila,Buenos Aires,Marketing\nDiego,Rosario,Sistemas\nElena,Buenos Aires,Sistemas\nFranco,Córdoba,Marketing\nGabriela,Rosario,Ventas\nHernán,Buenos Aires,Ventas\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html",
+    "expected_keyword": "Buenos Aires",
+    "solution_code": "df = read_csv(csv_id)\nprint(df['ciudad'].value_counts())\n",
+    "feedback_correct": "¡Excelente! ``value_counts`` es perfecto para descubrir la distribución de variables categóricas.",
+    "feedback_incorrect": "Debería aparecer 'Buenos Aires' en el conteo. Revisá que estés aplicando ``value_counts`` sobre la columna 'ciudad'.",
+    "suggestion": "Leer CSV → columna 'ciudad' → bloque 'conteo de valores' → imprimir."
+  },
+  {
+    "id": 8,
+    "title": "Agrupá y sumá",
+    "difficulty": "avanzado",
+    "category": "agrupamiento",
+    "points": 50,
+    "description": "Calculá el monto total de ventas por región agrupando por la columna 'region' y sumando la columna 'monto'.",
+    "instructions": [
+      "Cargá 'ventas.csv'.",
+      "Usá el bloque 'groupby' por 'region'.",
+      "Aplicá la suma (``sum``) sobre la columna 'monto'.",
+      "Imprimí el resultado."
+    ],
+    "hint": "El total de la región 'Sur' debería ser 5400 (2200 + 1200 + 2000). Buscá ese valor en el resultado.",
+    "csv_filename": "ventas.csv",
+    "csv_content": "region,producto,monto\nNorte,Arroz,1500\nNorte,Fideos,800\nSur,Arroz,2200\nSur,Fideos,1200\nCentro,Arroz,1800\nCentro,Fideos,900\nNorte,Aceite,2500\nSur,Aceite,2000\nCentro,Aceite,1700\n",
+    "theory_url": "https://pandas.pydata.org/docs/user_guide/groupby.html",
+    "expected_keyword": "5400",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.groupby('region')['monto'].sum())\n",
+    "feedback_correct": "¡Brillante! ``groupby`` + ``sum`` es una combinación muy usada para generar resúmenes ejecutivos.",
+    "feedback_incorrect": "El total de 'Sur' tiene que ser 5400. Probá agrupar por 'region' y sumar la columna 'monto'.",
+    "suggestion": "Usá ``df.groupby('region')['monto'].sum()`` o armalo con los bloques 'groupby' + 'sum'."
+  },
+  {
+    "id": 9,
+    "title": "Máximo por grupo",
+    "difficulty": "avanzado",
+    "category": "agrupamiento",
+    "points": 50,
+    "description": "Calculá la temperatura máxima registrada en cada mes agrupando por 'mes' y aplicando ``max`` sobre 'temperatura'.",
+    "instructions": [
+      "Cargá 'temperaturas.csv'.",
+      "Agrupá por la columna 'mes'.",
+      "Aplicá ``max`` sobre la columna 'temperatura'.",
+      "Imprimí el resultado."
+    ],
+    "hint": "En enero la máxima es 32 (Córdoba). Ese número debería aparecer en el resultado.",
+    "csv_filename": "temperaturas.csv",
+    "csv_content": "mes,ciudad,temperatura\nEnero,Buenos Aires,30\nEnero,Córdoba,32\nEnero,Bariloche,22\nFebrero,Buenos Aires,29\nFebrero,Córdoba,31\nFebrero,Bariloche,20\nMarzo,Buenos Aires,26\nMarzo,Córdoba,28\nMarzo,Bariloche,15\n",
+    "theory_url": "https://pandas.pydata.org/docs/user_guide/groupby.html#groupby-aggregations",
+    "expected_keyword": "32",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.groupby('mes')['temperatura'].max())\n",
+    "feedback_correct": "¡Sos un crack! Dominás agrupamientos + agregaciones, una de las técnicas más poderosas de pandas.",
+    "feedback_incorrect": "La máxima de enero es 32. Revisá que estés usando 'groupby' por mes y 'max' sobre temperatura.",
+    "suggestion": "Usá ``df.groupby('mes')['temperatura'].max()``."
+  },
+  {
+    "id": 16,
+    "title": "Venta promedio por región",
+    "difficulty": "avanzado",
+    "category": "agrupamiento",
+    "points": 50,
+    "description": "Calculá el monto promedio de venta por región usando ``groupby`` sobre 'region' y ``mean`` sobre 'monto'.",
+    "instructions": [
+      "Cargá 'ventas_regiones.csv'.",
+      "Agrupá por 'region'.",
+      "Aplicá ``mean`` sobre la columna 'monto'.",
+      "Imprimí el resultado."
+    ],
+    "hint": "En 'Sur' hay 3 ventas de 1500, 2100 y 1800. El promedio es 1800. Buscá ese valor en el output.",
+    "csv_filename": "ventas_regiones.csv",
+    "csv_content": "region,vendedor,monto\nNorte,Ana,1200\nNorte,Bruno,1600\nSur,Camila,1500\nSur,Diego,2100\nCentro,Elena,2000\nCentro,Franco,2400\nSur,Gabriela,1800\nNorte,Hernan,2000\nCentro,Ivana,2200\n",
+    "theory_url": "https://pandas.pydata.org/docs/user_guide/groupby.html",
+    "expected_keyword": "1800",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.groupby('region')['monto'].mean())\n",
+    "feedback_correct": "¡Genial! Este tipo de análisis es el pan de cada día en reportes de ventas: comparar promedios por segmento.",
+    "feedback_incorrect": "El promedio de 'Sur' debería ser 1800. Asegurate de agrupar por 'region' y aplicar ``mean`` sobre 'monto'.",
+    "suggestion": "Usá ``df.groupby('region')['monto'].mean()``."
+  },
+  {
+    "id": 17,
+    "title": "Días con lluvia fuerte",
+    "difficulty": "avanzado",
+    "category": "filtrado",
+    "points": 50,
+    "description": "Filtrá los días con lluvia mayor o igual a 20mm en Buenos Aires. Combiná dos condiciones con ``&``: ``ciudad == 'Buenos Aires'`` y ``mm >= 20``.",
+    "instructions": [
+      "Cargá 'clima_diario.csv'.",
+      "Aplicá un filtro combinado: ``df[(df['ciudad'] == 'Buenos Aires') & (df['mm'] >= 20)]``.",
+      "Imprimí el resultado."
+    ],
+    "hint": "Solo hay 2 días que cumplen ambas condiciones: los del 2024-03-15 y 2024-03-22. Buscá '2024-03-15' en el resultado.",
+    "csv_filename": "clima_diario.csv",
+    "csv_content": "fecha,ciudad,mm\n2024-03-10,Buenos Aires,5\n2024-03-11,Cordoba,22\n2024-03-12,Buenos Aires,15\n2024-03-15,Buenos Aires,28\n2024-03-18,Rosario,30\n2024-03-20,Buenos Aires,8\n2024-03-22,Buenos Aires,20\n2024-03-25,Cordoba,12\n",
+    "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
+    "expected_keyword": "2024-03-15",
+    "solution_code": "df = read_csv(csv_id)\nprint(df[(df['ciudad'] == 'Buenos Aires') & (df['mm'] >= 20)])\n",
+    "feedback_correct": "¡Brillante! Combinar condiciones con ``&`` y ``|`` te permite armar filtros arbitrariamente complejos. Es la base del análisis exploratorio.",
+    "feedback_incorrect": "La fecha '2024-03-15' tiene que aparecer en el resultado (Buenos Aires, 28mm). Revisá que uses ``&`` y paréntesis alrededor de cada condición.",
+    "suggestion": "Usá ``df[(df['ciudad'] == 'Buenos Aires') & (df['mm'] >= 20)]`` con paréntesis en cada condición."
+  },
+  {
+    "id": 18,
+    "title": "Margen promedio por categoría",
+    "difficulty": "avanzado",
+    "category": "agrupamiento",
+    "points": 50,
+    "description": "Creá una columna 'margen' (= precio_venta - costo) y después calculá el margen promedio agrupando por 'categoria'.",
+    "instructions": [
+      "Cargá 'productos_margen.csv'.",
+      "Creá la columna: ``df['margen'] = df['precio_venta'] - df['costo']``.",
+      "Agrupá por 'categoria' y aplicá ``mean`` sobre 'margen'.",
+      "Imprimí el resultado."
+    ],
+    "hint": "Para la categoría 'Bebidas' los márgenes son 500 y 700, promedio 600. Ese número debería aparecer en el resultado.",
+    "csv_filename": "productos_margen.csv",
+    "csv_content": "producto,categoria,costo,precio_venta\nA,Almacen,100,150\nB,Almacen,200,280\nC,Bebidas,500,1000\nD,Bebidas,800,1500\nE,Lacteos,300,450\nF,Lacteos,400,600\nG,Almacen,150,210\n",
+    "theory_url": "https://pandas.pydata.org/docs/user_guide/groupby.html",
+    "expected_keyword": "600",
+    "solution_code": "df = read_csv(csv_id)\ndf['margen'] = df['precio_venta'] - df['costo']\nprint(df.groupby('categoria')['margen'].mean())\n",
+    "feedback_correct": "¡Sos un fenómeno! Combinar columnas derivadas con ``groupby`` es exactamente lo que hacen los analistas senior todos los días.",
+    "feedback_incorrect": "El promedio de 'Bebidas' debería ser 600. Primero creá la columna 'margen' (precio_venta - costo), después agrupá y aplicá ``mean``.",
+    "suggestion": "Primero ``df['margen'] = df['precio_venta'] - df['costo']``, después ``df.groupby('categoria')['margen'].mean()``."
+  }
+]
