@@ -131,5 +131,52 @@
     "feedback_correct": "¡Brillante! Crear columnas derivadas es fundamental en ciencia de datos: muchas variables útiles se construyen a partir de otras.",
     "feedback_incorrect": "Para P1 (70 / 1.75²) el IMC es ≈ 22.857. Revisá que estés dividiendo 'peso' por 'altura' al cuadrado.",
     "suggestion": "Asigná ``df['imc'] = df['peso'] / (df['altura'] ** 2)`` y después imprimí el DataFrame."
+  },
+  {
+    "id": 21,
+    "title": "Aprobados express (contrareloj)",
+    "difficulty": "intermedio",
+    "category": "filtrado",
+    "points": 25,
+    "time_limit_seconds": 180,
+    "description": "Tenés 3 minutos para listar los alumnos aprobados (nota mayor o igual a 7) usando un filtro booleano sobre la columna 'nota'.",
+    "instructions": [
+      "Cargá 'examen.csv'.",
+      "Aplicá un filtro booleano: ``df[df['nota'] >= 7]``.",
+      "Imprimí el resultado antes de que se acabe el tiempo."
+    ],
+    "hint": "Los aprobados son los que tienen nota >= 7. 'Gabriel' (10) tiene que aparecer en el resultado.",
+    "csv_filename": "examen.csv",
+    "csv_content": "alumno,nota\nAna,8\nBruno,5\nCamila,9\nDiego,4\nElena,7\nFranco,6\nGabriel,10\nHelena,3\n",
+    "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
+    "expected_keyword": "Gabriel",
+    "solution_code": "df = read_csv(csv_id)\nprint(df[df['nota'] >= 7])\n",
+    "feedback_correct": "¡Genial! Lo resolviste a tiempo. Filtrar por condición es la operación más cotidiana del análisis exploratorio.",
+    "feedback_incorrect": "El filtro tiene que dejar a los alumnos con nota mayor o igual a 7. 'Gabriel' (10) debería aparecer en el resultado.",
+    "suggestion": "Usá el bloque de filtro con la columna 'nota' y la comparación '>= 7'."
+  },
+  {
+    "id": 22,
+    "title": "Top 3 ventas (contrareloj)",
+    "difficulty": "intermedio",
+    "category": "filtrado",
+    "points": 25,
+    "time_limit_seconds": 240,
+    "description": "Cuatro minutos para armar el podio: ordená el dataset de vendedores por la columna 'ventas' de forma DESCENDENTE y mostrá los 3 primeros con ``head(3)``.",
+    "instructions": [
+      "Cargá 'ranking.csv'.",
+      "Ordená el DataFrame con ``sort_values('ventas', ascending=False)``.",
+      "Aplicá ``head(3)`` para quedarte con el podio.",
+      "Imprimí el resultado."
+    ],
+    "hint": "El líder del ranking debería ser 'Silvia' con 9500 ventas. Buscá ese nombre en el output.",
+    "csv_filename": "ranking.csv",
+    "csv_content": "vendedor,ventas\nLaura,4500\nMatías,7200\nNatalia,3100\nOscar,8900\nPaola,5600\nRamón,2400\nSilvia,9500\nTomás,6300\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html",
+    "expected_keyword": "Silvia",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.sort_values('ventas', ascending=False).head(3))\n",
+    "feedback_correct": "¡Perfecto! Combinar ``sort_values`` con ``head`` es una receta clásica para construir rankings.",
+    "feedback_incorrect": "Revisá que estés ordenando descendente (``ascending=False``) y tomando ``head(3)``. 'Silvia' tiene que estar en el resultado.",
+    "suggestion": "Encadená: ``df.sort_values('ventas', ascending=False).head(3)``."
   }
 ]

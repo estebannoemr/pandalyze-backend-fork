@@ -130,5 +130,51 @@
     "feedback_correct": "¡Perfecto! ``sum()`` es la operación más básica de acumulación. La vas a usar muchísimo combinada con ``groupby``.",
     "feedback_incorrect": "El total buscado es 16. Asegurate de aplicar ``sum`` solamente sobre la columna 'goles'.",
     "suggestion": "Leer CSV → columna 'goles' → bloque 'suma' → imprimir."
+  },
+  {
+    "id": 19,
+    "title": "Récord goleador (contrareloj)",
+    "difficulty": "basico",
+    "category": "estadisticas",
+    "points": 10,
+    "time_limit_seconds": 90,
+    "description": "Tenés 90 segundos para descubrir cuántos goles hizo el goleador del torneo. Aplicá ``max()`` sobre la columna 'goles'.",
+    "instructions": [
+      "Cargá 'goleadores.csv'.",
+      "Seleccioná la columna 'goles'.",
+      "Aplicá el bloque ``max`` e imprimí el resultado antes de que se acabe el tiempo."
+    ],
+    "hint": "El goleador del torneo metió 28 goles. Buscá ese número en el output.",
+    "csv_filename": "goleadores.csv",
+    "csv_content": "jugador,goles,equipo\nMessi,28,Inter Miami\nLautaro,21,Inter\nDybala,12,Roma\nDi María,7,Benfica\nÁlvarez,18,Atlético\nMcAllister,5,Liverpool\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.max.html",
+    "expected_keyword": "28",
+    "solution_code": "df = read_csv(csv_id)\nprint(df['goles'].max())\n",
+    "feedback_correct": "¡Goooool! Llegaste antes de que se acabe el tiempo. ``max`` sobre una columna es una de las operaciones más rápidas que vas a usar a diario.",
+    "feedback_incorrect": "El máximo es 28. Acordate de aplicar ``max`` SOLO sobre la columna 'goles', no sobre todo el DataFrame.",
+    "suggestion": "Leer CSV → columna 'goles' → bloque 'máximo' → imprimir."
+  },
+  {
+    "id": 20,
+    "title": "Inventario rápido (contrareloj)",
+    "difficulty": "basico",
+    "category": "lectura",
+    "points": 10,
+    "time_limit_seconds": 60,
+    "description": "Tenés 60 segundos para reportar las dimensiones del inventario de la librería. Imprimí el ``shape`` del DataFrame.",
+    "instructions": [
+      "Cargá 'inventario.csv'.",
+      "Aplicá el bloque ``shape`` sobre el DataFrame.",
+      "Imprimí el resultado en consola antes de que el reloj llegue a cero."
+    ],
+    "hint": "``shape`` devuelve una tupla ``(filas, columnas)``. Para este inventario el resultado es ``(8, 2)``.",
+    "csv_filename": "inventario.csv",
+    "csv_content": "producto,stock\nLapicera,120\nCuaderno,80\nGoma,200\nRegla,45\nMarcador,60\nResaltador,35\nCompás,15\nTijera,25\n",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.shape.html",
+    "expected_keyword": "(8, 2)",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.shape)\n",
+    "feedback_correct": "¡Listo a tiempo! Reportar ``shape`` es uno de los reflejos básicos del análisis: te dice de qué tamaño es el problema.",
+    "feedback_incorrect": "Tenés que imprimir ``shape`` del DataFrame entero. Debería verse ``(8, 2)``.",
+    "suggestion": "Leer CSV → bloque 'shape' → imprimir en consola."
   }
 ]

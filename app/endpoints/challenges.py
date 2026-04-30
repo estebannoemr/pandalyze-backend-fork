@@ -133,6 +133,10 @@ def _public_view(challenge):
         "csv_filename",
         "theory_url",
         "category",
+        # Campo opcional para desafíos contrareloj. Si está presente, el
+        # frontend muestra un countdown visible al alumno; si no, el desafío
+        # se comporta exactamente como antes (sin reloj).
+        "time_limit_seconds",
     )
     return {k: challenge.get(k) for k in keys}
 

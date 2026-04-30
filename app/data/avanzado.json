@@ -134,5 +134,30 @@
     "feedback_correct": "¡Sos un fenómeno! Combinar columnas derivadas con ``groupby`` es exactamente lo que hacen los analistas senior todos los días.",
     "feedback_incorrect": "El promedio de 'Bebidas' debería ser 600. Primero creá la columna 'margen' (precio_venta - costo), después agrupá y aplicá ``mean``.",
     "suggestion": "Primero ``df['margen'] = df['precio_venta'] - df['costo']``, después ``df.groupby('categoria')['margen'].mean()``."
+  },
+  {
+    "id": 23,
+    "title": "Stock crítico por categoría (contrareloj)",
+    "difficulty": "avanzado",
+    "category": "agrupamiento",
+    "points": 50,
+    "time_limit_seconds": 360,
+    "description": "Tenés 6 minutos para ayudar al gerente del supermercado a encontrar la categoría con menor stock total. Agrupá por 'categoria', sumá el 'stock' y ordená el resultado de menor a mayor.",
+    "instructions": [
+      "Cargá 'stock.csv'.",
+      "Agrupá por la columna 'categoria'.",
+      "Aplicá ``sum`` sobre la columna 'stock'.",
+      "Ordená el resultado ascendentemente con ``sort_values()``.",
+      "Imprimí la salida antes de que se acabe el tiempo."
+    ],
+    "hint": "La categoría 'Lácteos' debería sumar 160 unidades en total y aparecer entre las primeras del orden ascendente.",
+    "csv_filename": "stock.csv",
+    "csv_content": "producto,categoria,stock\nLeche,Lácteos,40\nQueso,Lácteos,15\nYogur,Lácteos,80\nPan,Panadería,30\nFacturas,Panadería,12\nGalletitas,Almacén,200\nArroz,Almacén,150\nFideos,Almacén,90\nManteca,Lácteos,25\n",
+    "theory_url": "https://pandas.pydata.org/docs/user_guide/groupby.html",
+    "expected_keyword": "160",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.groupby('categoria')['stock'].sum().sort_values())\n",
+    "feedback_correct": "¡Imparable! Combinar ``groupby`` + ``sum`` + ``sort_values`` es el patrón clásico del trabajo de analista cuando hay que priorizar.",
+    "feedback_incorrect": "El total de 'Lácteos' tiene que dar 160 (40 + 15 + 80 + 25). Verificá la cadena ``groupby`` → ``sum`` → ``sort_values``.",
+    "suggestion": "Encadená: ``df.groupby('categoria')['stock'].sum().sort_values()`` y después imprimí."
   }
 ]
