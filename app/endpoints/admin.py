@@ -23,6 +23,7 @@ from ..models.user_model import (
     ROLE_DOCENTE,
     ROLE_ADMIN,
 )
+from ..models.class_model import Class
 from ..models.csv_model import CSVData
 from ..models.challenge_result_model import ChallengeResult
 
@@ -62,11 +63,32 @@ def _serialize_user_row(u):
         t = User.query.get(u.teacher_id)
         teacher_email = t.email if t else None
 
+    # Obtener todos los códigos de clase si es docente
+    class_codes = []
+    if u.role == ROLE_DOCENTE:
+        classes = Class.query.filter_by(teacher_id=u.id).order_by(Class.name).all()
+        class_codes = [c.class_code for c in classes]
+        # Incluir también el class_code legacy si existe
+        if u.class_code and u.class_code not in class_codes:
+            class_codes.append(u.class_code)
+
+    # Para alumnos: obtener datos de la clase a la que está asociado
+    class_id = None
+    class_name = None
+    if u.role == ROLE_ALUMNO and u.class_id:
+        klass = Class.query.get(u.class_id)
+        if klass:
+            class_id = klass.id
+            class_name = klass.name
+
     return {
         "id": u.id,
         "email": u.email,
         "role": u.role,
         "class_code": u.class_code,
+        "class_codes": class_codes,
+        "class_id": class_id,
+        "class_name": class_name,
         "teacher_id": u.teacher_id,
         "teacher_email": teacher_email,
         "total_points": total_points,
@@ -127,9 +149,23 @@ def list_users():
         .limit(per_page)
         .all()
     )
+    
+    # Obtener todas las clases disponibles para el selector en el frontend
+    all_classes = Class.query.order_by(Class.name).all()
+    classes_data = [
+        {
+            "id": c.id,
+            "name": c.name,
+            "code": c.class_code,
+            "teacher_id": c.teacher_id,
+        }
+        for c in all_classes
+    ]
+    
     return (
         jsonify({
             "users": [_serialize_user_row(u) for u in users],
+            "classes": classes_data,
             "total": total,
             "page": page,
             "per_page": per_page,
@@ -205,6 +241,31 @@ def update_user(user_id):
                     400,
                 )
             user.teacher_id = teacher.id
+
+    # --- Cambio de class_id (solo aplica si es alumno) ---
+    if "class_id" in data:
+        if user.role != ROLE_ALUMNO:
+            return (
+                jsonify(
+                    {"error": "Solo los alumnos pueden estar asociados a una clase."}
+                ),
+                400,
+            )
+        raw = data.get("class_id")
+        if raw is None or raw == "":
+            user.class_id = None
+        else:
+            try:
+                cid = int(raw)
+            except (TypeError, ValueError):
+                return jsonify({"error": "class_id inválido."}), 400
+            klass = Class.query.get(cid)
+            if klass is None:
+                return (
+                    jsonify({"error": "La clase indicada no existe."}),
+                    400,
+                )
+            user.class_id = klass.id
 
     db.session.commit()
     return jsonify({"user": _serialize_user_row(user)}), 200
