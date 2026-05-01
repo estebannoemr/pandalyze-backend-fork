@@ -13,16 +13,24 @@ La persistencia de intentos se hace en ``ChallengeResult``.
 """
 
 import json
+import os
 from datetime import datetime
 from pathlib import Path
+from functools import wraps
+from urllib.parse import urlparse
+from urllib.request import urlopen, Request
+from urllib.error import URLError, HTTPError
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from flask_cors import cross_origin
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from ..extensions import db, limiter
 from ..models.challenge_result_model import ChallengeResult
-from ..models.user_model import User
+from ..models.user_model import User, ROLE_ALUMNO, ROLE_DOCENTE, ROLE_ADMIN
+from ..models.custom_challenge_model import (
+    CustomChallenge,
+)
 
 
 bp = Blueprint("challenges", __name__)
@@ -38,6 +46,21 @@ CHALLENGES = []
 for path in [_BASICO_PATH, _INTERMEDIO_PATH, _AVANZADO_PATH]:
     with open(path, "r", encoding="utf-8") as _f:
         CHALLENGES.extend(json.load(_f))
+
+
+def _all_challenges():
+    try:
+        custom = [
+            c.to_runtime_dict()
+            for c in CustomChallenge.query.filter_by(is_active=True)
+            .order_by(CustomChallenge.created_at.asc())
+            .all()
+        ]
+        return CHALLENGES + custom
+    except Exception:
+        # Fallback defensivo: si hay un desajuste de esquema en
+        # custom_challenge, no rompemos los desafíos base.
+        return CHALLENGES
 
 
 # ---------------------------------------------------------------------------
@@ -114,10 +137,39 @@ POINTS_BY_DIFFICULTY = {
 # ---------------------------------------------------------------------------
 
 def _get_challenge(challenge_id):
-    for ch in CHALLENGES:
+    for ch in _all_challenges():
         if ch["id"] == challenge_id:
             return ch
     return None
+
+
+def _get_custom_challenge(challenge_id):
+    try:
+        return CustomChallenge.from_external_id(int(challenge_id))
+    except Exception:
+        return None
+
+
+def _can_manage_custom(user, custom_challenge):
+    if user is None or custom_challenge is None:
+        return False
+    if user.role == ROLE_ADMIN:
+        return True
+    return int(custom_challenge.creator_id) == int(user.id)
+
+
+def teacher_or_admin_required(fn):
+    @wraps(fn)
+    @jwt_required()
+    def wrapper(*args, **kwargs):
+        uid = get_jwt_identity()
+        user = User.query.get(int(uid)) if uid is not None else None
+        if user is None or user.role not in (ROLE_DOCENTE, ROLE_ADMIN):
+            return jsonify({"error": "No autorizado."}), 403
+        request._pandalyze_user = user
+        return fn(*args, **kwargs)
+
+    return wrapper
 
 
 def _public_view(challenge):
@@ -139,6 +191,67 @@ def _public_view(challenge):
         "time_limit_seconds",
     )
     return {k: challenge.get(k) for k in keys}
+
+
+def _fetch_csv_from_url(csv_url):
+    """Descarga contenido CSV desde una URL http/https de forma acotada."""
+    if not csv_url:
+        return None
+    parsed = urlparse(csv_url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError("La URL del CSV debe empezar con http:// o https://")
+
+    req = Request(csv_url, headers={"User-Agent": "Pandalyze/1.0"})
+    with urlopen(req, timeout=12) as response:
+        raw = response.read()
+    return raw.decode("utf-8", errors="replace")
+
+
+def _resolve_challenge_csv(challenge):
+    """
+    Resuelve el CSV fuente de un desafío:
+    1) csv_content (embebido)
+    2) csv_url (descarga on-demand)
+    """
+    csv_content = challenge.get("csv_content") or ""
+    if csv_content.strip():
+        return csv_content
+
+    csv_url = challenge.get("csv_url")
+    if csv_url:
+        return _fetch_csv_from_url(csv_url)
+
+    return ""
+
+
+def _ensure_csv_filename(filename):
+    value = (filename or "").strip()
+    if not value:
+        return ""
+    return value if value.lower().endswith(".csv") else f"{value}.csv"
+
+
+def _upload_csv_via_webhook(filename, content):
+    """
+    Hook opcional para subir CSV a Drive mediante un webhook externo.
+    Espera env var GOOGLE_DRIVE_UPLOAD_WEBHOOK_URL y respuesta JSON con {url}.
+    """
+    webhook_url = (os.getenv("GOOGLE_DRIVE_UPLOAD_WEBHOOK_URL") or "").strip()
+    if not webhook_url:
+        return None
+
+    body = json.dumps({"filename": filename, "content": content}).encode("utf-8")
+    req = Request(
+        webhook_url,
+        data=body,
+        headers={"Content-Type": "application/json", "User-Agent": "Pandalyze/1.0"},
+        method="POST",
+    )
+    with urlopen(req, timeout=15) as response:
+        raw = response.read().decode("utf-8", errors="replace")
+    payload = json.loads(raw or "{}")
+    url = (payload.get("url") or "").strip()
+    return url or None
 
 
 def _get_level_info(total_points):
@@ -211,20 +324,291 @@ def list_challenges():
     uid = get_jwt_identity()
     user = User.query.get(int(uid)) if uid is not None else None
 
-    visible = CHALLENGES
-    # Import diferido para evitar ciclo en tiempo de import del módulo.
-    from ..models.user_model import ROLE_ALUMNO as _ROLE_ALUMNO
+    visible = _all_challenges()
 
-    if user is not None and user.role == _ROLE_ALUMNO and user.class_id is not None:
+    if user is not None and user.role == ROLE_ALUMNO and user.class_id is not None:
         # Import diferido para evitar ciclo de imports.
         from ..models.class_model import Class as _Class
 
         klass = _Class.query.get(user.class_id)
         if klass is not None:
             allowed = set(klass.get_selected_ids())
-            visible = [c for c in CHALLENGES if c["id"] in allowed]
+            visible = [c for c in visible if c["id"] in allowed]
 
-    return jsonify([_public_view(c) for c in visible]), 200
+    public_rows = []
+    for c in visible:
+        row = _public_view(c)
+        is_custom = bool(c.get("is_custom"))
+        row["is_custom"] = is_custom
+        if is_custom:
+            creator_id = c.get("creator_id")
+            row["can_manage"] = bool(
+                user
+                and (
+                    user.role == ROLE_ADMIN
+                    or (creator_id is not None and int(creator_id) == int(user.id))
+                )
+            )
+        else:
+            row["can_manage"] = False
+        public_rows.append(row)
+
+    return jsonify(public_rows), 200
+
+
+@bp.route("/challenges", methods=["POST"])
+@cross_origin()
+@teacher_or_admin_required
+def create_challenge():
+    """
+    Crea un desafío custom persistido en DB.
+    Disponible para docente/admin.
+    """
+    user = request._pandalyze_user
+    payload = request.get_json(silent=True) or {}
+
+    title = (payload.get("title") or "").strip()
+    difficulty = (payload.get("difficulty") or "").strip().lower()
+    description = (payload.get("description") or "").strip()
+    csv_filename = _ensure_csv_filename(payload.get("csv_filename"))
+    csv_content = payload.get("csv_content") or ""
+    csv_url = (payload.get("csv_url") or "").strip()
+    expected_keyword = (payload.get("expected_keyword") or "").strip()
+    solution_code = payload.get("solution_code") or ""
+
+    if not title:
+        return jsonify({"error": "El título es obligatorio."}), 400
+    if difficulty not in POINTS_BY_DIFFICULTY:
+        return jsonify({"error": "Dificultad inválida."}), 400
+    if not description:
+        return jsonify({"error": "La descripción es obligatoria."}), 400
+    has_csv_content = isinstance(csv_content, str) and csv_content.strip() != ""
+    has_csv_url = csv_url != ""
+
+    if not has_csv_content and not has_csv_url:
+        return jsonify({"error": "Debés enviar csv_content o csv_url."}), 400
+
+    if has_csv_url:
+        parsed = urlparse(csv_url)
+        if parsed.scheme not in ("http", "https"):
+            return jsonify({"error": "csv_url debe ser http:// o https://"}), 400
+        if not csv_filename:
+            path_name = (parsed.path or "").split("/")[-1].strip()
+            csv_filename = _ensure_csv_filename(path_name or "challenge.csv")
+
+    if not csv_filename:
+        return jsonify({"error": "El nombre del CSV es obligatorio."}), 400
+
+    # Opcional: si se envía contenido CSV y hay webhook configurado,
+    # intentamos subirlo a Drive y guardar sólo la URL resultante.
+    if has_csv_content and not has_csv_url:
+        try:
+            uploaded_url = _upload_csv_via_webhook(csv_filename, csv_content)
+            if uploaded_url:
+                csv_url = uploaded_url
+                has_csv_url = True
+        except Exception:
+            # No bloqueamos creación del desafío por falla del webhook.
+            pass
+    if not expected_keyword:
+        return jsonify({"error": "La palabra clave esperada es obligatoria."}), 400
+    if not isinstance(solution_code, str) or not solution_code.strip():
+        return jsonify({"error": "La solución de referencia es obligatoria."}), 400
+
+    instructions = payload.get("instructions")
+    if isinstance(instructions, str):
+        instructions = [x.strip() for x in instructions.split("\n") if x.strip()]
+    if not isinstance(instructions, list):
+        instructions = []
+
+    points = payload.get("points")
+    try:
+        points = int(points) if points is not None else POINTS_BY_DIFFICULTY[difficulty]
+    except (TypeError, ValueError):
+        return jsonify({"error": "Puntos inválidos."}), 400
+    if points < 1 or points > 1000:
+        return jsonify({"error": "Los puntos deben estar entre 1 y 1000."}), 400
+
+    time_limit_seconds = payload.get("time_limit_seconds")
+    if time_limit_seconds in (None, ""):
+        time_limit_seconds = None
+    else:
+        try:
+            time_limit_seconds = int(time_limit_seconds)
+        except (TypeError, ValueError):
+            return jsonify({"error": "Límite de tiempo inválido."}), 400
+        if time_limit_seconds <= 0:
+            time_limit_seconds = None
+
+    challenge = CustomChallenge(
+        creator_id=user.id,
+        title=title,
+        difficulty=difficulty,
+        category=(payload.get("category") or "").strip().lower() or None,
+        points=points,
+        description=description,
+        instructions_json=json.dumps(instructions),
+        hint=(payload.get("hint") or "").strip(),
+        csv_filename=csv_filename,
+        csv_content=csv_content if (has_csv_content and not has_csv_url) else "",
+        csv_url=csv_url or None,
+        theory_url=(payload.get("theory_url") or "").strip() or None,
+        expected_keyword=expected_keyword,
+        solution_code=solution_code,
+        feedback_correct=(payload.get("feedback_correct") or "¡Excelente trabajo!").strip(),
+        feedback_incorrect=(payload.get("feedback_incorrect") or "Todavía no coincide con lo esperado.").strip(),
+        suggestion=(payload.get("suggestion") or "").strip() or None,
+        time_limit_seconds=time_limit_seconds,
+        is_active=True,
+    )
+    db.session.add(challenge)
+    db.session.commit()
+
+    return jsonify({"challenge": _public_view(challenge.to_runtime_dict())}), 201
+
+
+@bp.route("/challenges/<int:challenge_id>/manage", methods=["GET"])
+@cross_origin()
+@teacher_or_admin_required
+def get_challenge_manage(challenge_id):
+    user = request._pandalyze_user
+    custom = _get_custom_challenge(challenge_id)
+    if custom is None or not custom.is_active:
+        return jsonify({"error": "Sólo se pueden gestionar desafíos custom."}), 404
+    if not _can_manage_custom(user, custom):
+        return jsonify({"error": "No autorizado para editar este desafío."}), 403
+    return jsonify({"challenge": custom.to_runtime_dict()}), 200
+
+
+@bp.route("/challenges/<int:challenge_id>", methods=["PATCH"])
+@cross_origin()
+@teacher_or_admin_required
+def update_challenge(challenge_id):
+    user = request._pandalyze_user
+    custom = _get_custom_challenge(challenge_id)
+    if custom is None or not custom.is_active:
+        return jsonify({"error": "Sólo se pueden editar desafíos custom."}), 404
+    if not _can_manage_custom(user, custom):
+        return jsonify({"error": "No autorizado para editar este desafío."}), 403
+
+    payload = request.get_json(silent=True) or {}
+
+    if "title" in payload:
+        title = (payload.get("title") or "").strip()
+        if not title:
+            return jsonify({"error": "El título es obligatorio."}), 400
+        custom.title = title
+
+    if "difficulty" in payload:
+        difficulty = (payload.get("difficulty") or "").strip().lower()
+        if difficulty not in POINTS_BY_DIFFICULTY:
+            return jsonify({"error": "Dificultad inválida."}), 400
+        custom.difficulty = difficulty
+
+    if "description" in payload:
+        description = (payload.get("description") or "").strip()
+        if not description:
+            return jsonify({"error": "La descripción es obligatoria."}), 400
+        custom.description = description
+
+    if "csv_filename" in payload:
+        custom.csv_filename = _ensure_csv_filename(payload.get("csv_filename"))
+
+    if "csv_content" in payload:
+        csv_content = payload.get("csv_content") or ""
+        custom.csv_content = csv_content
+        if csv_content.strip():
+            custom.csv_url = None
+
+    if "csv_url" in payload:
+        csv_url = (payload.get("csv_url") or "").strip()
+        if csv_url:
+            parsed = urlparse(csv_url)
+            if parsed.scheme not in ("http", "https"):
+                return jsonify({"error": "csv_url debe ser http:// o https://"}), 400
+            custom.csv_url = csv_url
+            custom.csv_content = ""
+            if not custom.csv_filename:
+                path_name = (parsed.path or "").split("/")[-1].strip()
+                custom.csv_filename = _ensure_csv_filename(path_name or "challenge.csv")
+        else:
+            custom.csv_url = None
+
+    if not custom.csv_filename:
+        return jsonify({"error": "El nombre del CSV es obligatorio."}), 400
+    if not (custom.csv_content or custom.csv_url):
+        return jsonify({"error": "Debés definir csv_content o csv_url."}), 400
+
+    if "category" in payload:
+        custom.category = (payload.get("category") or "").strip().lower() or None
+    if "hint" in payload:
+        custom.hint = (payload.get("hint") or "").strip()
+    if "theory_url" in payload:
+        custom.theory_url = (payload.get("theory_url") or "").strip() or None
+    if "expected_keyword" in payload:
+        expected_keyword = (payload.get("expected_keyword") or "").strip()
+        if not expected_keyword:
+            return jsonify({"error": "La palabra clave esperada es obligatoria."}), 400
+        custom.expected_keyword = expected_keyword
+    if "solution_code" in payload:
+        solution_code = payload.get("solution_code") or ""
+        if not solution_code.strip():
+            return jsonify({"error": "La solución de referencia es obligatoria."}), 400
+        custom.solution_code = solution_code
+    if "feedback_correct" in payload:
+        custom.feedback_correct = (payload.get("feedback_correct") or "").strip() or "¡Excelente trabajo!"
+    if "feedback_incorrect" in payload:
+        custom.feedback_incorrect = (payload.get("feedback_incorrect") or "").strip() or "Todavía no coincide con lo esperado."
+    if "suggestion" in payload:
+        custom.suggestion = (payload.get("suggestion") or "").strip() or None
+    if "instructions" in payload:
+        instructions = payload.get("instructions")
+        if isinstance(instructions, str):
+            instructions = [x.strip() for x in instructions.split("\n") if x.strip()]
+        if not isinstance(instructions, list):
+            instructions = []
+        custom.instructions_json = json.dumps(instructions)
+
+    if "points" in payload:
+        try:
+            points = int(payload.get("points"))
+        except (TypeError, ValueError):
+            return jsonify({"error": "Puntos inválidos."}), 400
+        if points < 1 or points > 1000:
+            return jsonify({"error": "Los puntos deben estar entre 1 y 1000."}), 400
+        custom.points = points
+
+    if "time_limit_seconds" in payload:
+        raw_t = payload.get("time_limit_seconds")
+        if raw_t in (None, ""):
+            custom.time_limit_seconds = None
+        else:
+            try:
+                t = int(raw_t)
+            except (TypeError, ValueError):
+                return jsonify({"error": "Límite de tiempo inválido."}), 400
+            custom.time_limit_seconds = t if t > 0 else None
+
+    db.session.commit()
+    out = custom.to_runtime_dict()
+    out["can_manage"] = True
+    return jsonify({"challenge": out}), 200
+
+
+@bp.route("/challenges/<int:challenge_id>", methods=["DELETE"])
+@cross_origin()
+@teacher_or_admin_required
+def delete_challenge(challenge_id):
+    user = request._pandalyze_user
+    custom = _get_custom_challenge(challenge_id)
+    if custom is None or not custom.is_active:
+        return jsonify({"error": "Sólo se pueden eliminar desafíos custom."}), 404
+    if not _can_manage_custom(user, custom):
+        return jsonify({"error": "No autorizado para eliminar este desafío."}), 403
+
+    custom.is_active = False
+    db.session.commit()
+    return jsonify({"ok": True}), 200
 
 
 @bp.route("/challenges/<int:challenge_id>/csv", methods=["GET"])
@@ -235,15 +619,59 @@ def get_challenge_csv(challenge_id):
     if challenge is None:
         return jsonify({"error": "Desafío no encontrado"}), 404
 
+    try:
+        csv_content = _resolve_challenge_csv(challenge)
+    except (ValueError, URLError, HTTPError) as e:
+        return jsonify({"error": f"No se pudo obtener el CSV: {str(e)}"}), 502
+
     return (
         jsonify(
             {
-                "csv_content": challenge["csv_content"],
+                "csv_content": csv_content,
                 "csv_filename": challenge["csv_filename"],
             }
         ),
         200,
     )
+
+
+@bp.route("/challenges/<int:challenge_id>/download", methods=["GET"])
+@cross_origin()
+@jwt_required()
+def download_challenge_csv(challenge_id):
+    """
+    Devuelve el CSV del desafío como un archivo descargable (text/csv) con
+    Content-Disposition: attachment, listo para que el cliente lo guarde
+    o lo cargue en memoria sin que el servidor persista nada.
+
+    Esta ruta complementa a ``/csv`` (que devuelve JSON con el contenido):
+    es la ruta canónica que el frontend usa para el flujo de "carga
+    client-side sin persistir" — al iniciar un desafío, el alumno descarga
+    el CSV desde acá, lo registra en el BlocksService de su navegador y
+    lo manda inline en cada llamada a /runPythonCode. Nunca toca la tabla
+    csv_data.
+    """
+    challenge = _get_challenge(challenge_id)
+    if challenge is None:
+        return jsonify({"error": "Desafío no encontrado, por favor descargá el CSV en tu compu y cargalo con la opción de 'Cargar CSV'"}), 404
+
+    try:
+        csv_content = _resolve_challenge_csv(challenge)
+    except (ValueError, URLError, HTTPError) as e:
+        return jsonify({"error": f"No se pudo obtener el CSV: {str(e)}"}), 502
+
+    filename = challenge.get("csv_filename") or f"challenge_{challenge_id}.csv"
+
+    response = Response(csv_content, mimetype="text/csv; charset=utf-8")
+    # ``attachment`` fuerza el download cuando se abre directo en el navegador;
+    # como utility de fetch sólo importa el body, pero deja el comportamiento
+    # consistente para ambos usos.
+    response.headers["Content-Disposition"] = (
+        f'attachment; filename="{filename}"'
+    )
+    response.headers["X-Challenge-Filename"] = filename
+    response.headers["X-Challenge-Id"] = str(challenge_id)
+    return response
 
 
 @bp.route("/challenges/<int:challenge_id>/validate", methods=["POST"])
@@ -391,7 +819,7 @@ def gamification_status():
     current_level, next_level_points = _get_level_info(total_points)
 
     # Distribución por dificultad
-    difficulty_by_id = {c["id"]: c["difficulty"] for c in CHALLENGES}
+    difficulty_by_id = {c["id"]: c["difficulty"] for c in _all_challenges()}
     by_diff = {"basico": 0, "intermedio": 0, "avanzado": 0}
     for cid in completed_ids:
         d = difficulty_by_id.get(cid)

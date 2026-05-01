@@ -37,6 +37,7 @@ def create_app():
         from .models.user_model import User  # noqa: F401
         from .models.password_reset_token_model import PasswordResetToken  # noqa: F401
         from .models.class_model import Class  # noqa: F401
+        from .models.custom_challenge_model import CustomChallenge  # noqa: F401
 
         app.register_blueprint(health_check_bp)
         app.register_blueprint(bd_check_bp)
@@ -108,6 +109,27 @@ def create_app():
                         )
                     )
                     _conn.commit()
+        except Exception:
+            pass
+
+        # Auto-migración para desafíos custom: agrega columnas nuevas
+        # necesarias para soportar CSV por URL además de CSV embebido.
+        try:
+            from sqlalchemy import text as _sa_text3
+            from sqlalchemy import inspect as _sa_inspect
+
+            with db.engine.connect() as _conn:
+                inspector = _sa_inspect(db.engine)
+                tables = set(inspector.get_table_names())
+                if "custom_challenge" in tables:
+                    custom_cols = {c.get("name") for c in inspector.get_columns("custom_challenge")}
+                    if "csv_url" not in custom_cols:
+                        _conn.execute(
+                            _sa_text3(
+                                "ALTER TABLE custom_challenge ADD COLUMN csv_url VARCHAR(1000)"
+                            )
+                        )
+                        _conn.commit()
         except Exception:
             pass
 

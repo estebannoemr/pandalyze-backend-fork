@@ -66,7 +66,34 @@ def run_code():
 
     code = request.json['code']
 
+    # ``inline_csvs`` permite mandar el contenido del CSV en el mismo request
+    # en lugar de buscarlo por id en la tabla csv_data. Es el mecanismo que
+    # usa el flujo de Desafíos para no persistir el dataset del desafío en
+    # la base de datos del servidor: el cliente lo descarga vía
+    # /challenges/<id>/download y lo adjunta acá. Las claves del dict son
+    # los csv_id stringificados que el frontend asigna determinísticamente
+    # (DJB2 sobre el filename), las mismas que usa el bloque read_csv.
+    inline_csvs_raw = request.json.get('inline_csvs') or {}
+    inline_dataframes = {}
+    if isinstance(inline_csvs_raw, dict):
+        for k, v in inline_csvs_raw.items():
+            if not isinstance(v, str) or not v:
+                continue
+            try:
+                inline_dataframes[str(k)] = pandas.read_csv(io.StringIO(v))
+            except Exception:
+                # CSV mal formado: lo ignoramos silenciosamente para que
+                # el read_csv() del usuario falle con su mensaje habitual
+                # ("No se encontró el CSV solicitado") en lugar de tirar
+                # un 500 acá antes de ejecutar el código.
+                continue
+
     def read_csv(csv_id):
+        # Prioridad: si el csv_id está entre los inline, usamos esa copia.
+        # Sólo si no aparece, caemos al lookup en la tabla csv_data.
+        key = str(csv_id)
+        if key in inline_dataframes:
+            return inline_dataframes[key]
         return _read_csv_scoped(csv_id, user_id=user_id, guest_id=guest_id)
 
     try:

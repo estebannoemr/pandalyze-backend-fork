@@ -26,6 +26,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from ..extensions import db
 from ..models.class_model import Class
+from ..models.custom_challenge_model import CustomChallenge
 from ..models.user_model import (
     User,
     ROLE_ALUMNO,
@@ -75,7 +76,9 @@ def _can_manage(user, klass):
 
 
 def _valid_challenge_ids():
-    return {c["id"] for c in CHALLENGES}
+    static_ids = {c["id"] for c in CHALLENGES}
+    custom_ids = {c.external_id for c in CustomChallenge.query.filter_by(is_active=True).all()}
+    return static_ids | custom_ids
 
 
 def _filter_valid_ids(raw_list):
