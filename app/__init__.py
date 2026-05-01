@@ -30,11 +30,13 @@ def create_app():
         from .endpoints.teacher import bp as teacher_bp
         from .endpoints.admin import bp as admin_bp
         from .endpoints.stats import bp as stats_bp
+        from .endpoints.classes import bp as classes_bp
 
         from .models.csv_model import CSVData  # noqa: F401
         from .models.challenge_result_model import ChallengeResult  # noqa: F401
         from .models.user_model import User  # noqa: F401
         from .models.password_reset_token_model import PasswordResetToken  # noqa: F401
+        from .models.class_model import Class  # noqa: F401
 
         app.register_blueprint(health_check_bp)
         app.register_blueprint(bd_check_bp)
@@ -46,6 +48,7 @@ def create_app():
         app.register_blueprint(teacher_bp)
         app.register_blueprint(admin_bp)
         app.register_blueprint(stats_bp)
+        app.register_blueprint(classes_bp)
 
         # Aseguramos que las tablas existen antes de migrar/bootstrappear.
         # Es idempotente, así que correrlo aquí no rompe el create_all de run.py.
@@ -84,6 +87,63 @@ def create_app():
         except Exception:
             # Si la tabla no existe todavia (primera corrida), create_all se encarga.
             pass
+
+        # Auto-migración para soporte de clases. Agrega user.class_id si no
+        # existe (SQLite tolera ALTER TABLE ADD COLUMN). create_all() de
+        # arriba ya creó la tabla "class" si no existía.
+        try:
+            from sqlalchemy import text as _sa_text2
+
+            with db.engine.connect() as _conn:
+                user_cols = {
+                    row[1]
+                    for row in _conn.exec_driver_sql(
+                        "PRAGMA table_info(user)"
+                    ).fetchall()
+                }
+                if "class_id" not in user_cols:
+                    _conn.execute(
+                        _sa_text2(
+                            "ALTER TABLE user ADD COLUMN class_id INTEGER"
+                        )
+                    )
+                    _conn.commit()
+        except Exception:
+            pass
+
+        # Migración de docentes legacy: para cada docente con class_code y sin
+        # ninguna Class asociada, creamos una "Clase principal" con todos los
+        # desafíos seleccionados y movemos a sus alumnos a esa clase. Idempotente:
+        # si ya existe una clase con ese código, no se toca nada.
+        try:
+            from .models.user_model import User as _User, ROLE_DOCENTE as _ROLE_DOC, ROLE_ALUMNO as _ROLE_AL
+            from .models.class_model import Class as _Class
+            from .endpoints.challenges import CHALLENGES as _CH
+
+            all_challenge_ids = [c["id"] for c in _CH]
+            docentes_legacy = _User.query.filter_by(role=_ROLE_DOC).all()
+            for doc in docentes_legacy:
+                if not doc.class_code:
+                    continue
+                existing = _Class.query.filter_by(class_code=doc.class_code).first()
+                if existing is not None:
+                    continue
+                klass = _Class(
+                    teacher_id=doc.id,
+                    name="Clase principal",
+                    class_code=doc.class_code,
+                )
+                klass.set_selected_ids(all_challenge_ids)
+                db.session.add(klass)
+                db.session.flush()  # para obtener klass.id
+                # Reasignamos a los alumnos del docente que aún no tengan clase.
+                _User.query.filter_by(role=_ROLE_AL, teacher_id=doc.id).filter(
+                    (_User.class_id.is_(None))
+                ).update({"class_id": klass.id})
+            db.session.commit()
+        except Exception as _e:
+            db.session.rollback()
+            app.logger.warning("Migración de clases legacy falló: %s", _e)
 
         # Bootstrap del admin: si ADMIN_EMAIL y ADMIN_PASSWORD están definidos
         # en el entorno, garantizamos que ese usuario exista con rol admin sin

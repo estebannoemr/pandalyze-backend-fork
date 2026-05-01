@@ -79,36 +79,36 @@
     ],
     "hint": "Los clientes frecuentes son los que tienen más de 5 compras. 'Martinez' con 9 compras tiene que aparecer en el resultado.",
     "csv_filename": "clientes.csv",
-    "csv_content": "cliente,compras,gasto_total\nGomez,3,4200\nPerez,7,9800\nMartinez,9,15300\nLopez,2,1500\nFernandez,6,7200\nRodriguez,4,3800\nSanchez,8,11200\nTorres,1,600\n",
+    "csv_content": "cliente,compras,monto\nLopez,3,1500\nMartinez,9,8400\nPerez,2,900\nGonzalez,7,6500\nFernandez,4,2200\nSosa,11,9200\nDiaz,1,400\n",
     "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
     "expected_keyword": "Martinez",
     "solution_code": "df = read_csv(csv_id)\nprint(df[df['compras'] > 5])\n",
-    "feedback_correct": "¡Excelente! Este tipo de segmentación es la base del CRM: separar clientes VIP del resto a partir de una métrica objetiva.",
-    "feedback_incorrect": "'Martinez' (9 compras) tiene que aparecer. Revisá que la condición sea 'compras MAYOR A 5' (estrictamente mayor).",
-    "suggestion": "Usá el filtro ``df[df['compras'] > 5]``."
+    "feedback_correct": "¡Excelente! Filtros como este son el día a día del marketing analítico.",
+    "feedback_incorrect": "El filtro debe quedarse con 'compras > 5'. 'Martinez' (9 compras) tiene que estar en el resultado.",
+    "suggestion": "Usá la comparación ``compras > 5`` dentro del bloque de filtro."
   },
   {
     "id": 11,
-    "title": "Top 3 goleadores",
+    "title": "Top 5 jugadores",
     "difficulty": "intermedio",
     "category": "filtrado",
     "points": 25,
-    "description": "Ordená el dataset de jugadores por goles de forma descendente y mostrá solamente los 3 primeros con ``head(3)``.",
+    "description": "Listá los 5 jugadores con más goles en la temporada. Ordená descendente por la columna 'goles' y quedate con los primeros 5 con ``head(5)``.",
     "instructions": [
       "Cargá 'jugadores.csv'.",
-      "Ordená con ``sort_values`` por 'goles' con ``ascending=False``.",
-      "Aplicá ``head(3)`` al resultado.",
-      "Imprimí."
+      "Ordená el DataFrame de mayor a menor por la columna 'goles' (``ascending=False``).",
+      "Aplicá ``head(5)`` para quedarte con los 5 primeros.",
+      "Imprimí el resultado."
     ],
-    "hint": "El máximo goleador es 'Alvarez' con 18 goles; debería aparecer primero en el top 3.",
+    "hint": "El líder debería ser 'Messi' con 28 goles. Buscá ese nombre en el output.",
     "csv_filename": "jugadores.csv",
-    "csv_content": "jugador,equipo,goles\nAlvarez,Equipo A,18\nSuarez,Equipo B,12\nBenitez,Equipo A,5\nRamos,Equipo C,9\nOrtiz,Equipo B,15\nPena,Equipo C,3\nNavarro,Equipo A,7\nCorrea,Equipo B,11\n",
+    "csv_content": "jugador,equipo,goles\nMessi,Inter Miami,28\nLewandowski,Barcelona,18\nHaaland,Manchester City,24\nMbappé,Real Madrid,22\nKane,Bayern,20\nVinicius,Real Madrid,15\nLautaro,Inter,21\nDybala,Roma,12\n",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html",
-    "expected_keyword": "Alvarez",
-    "solution_code": "df = read_csv(csv_id)\nprint(df.sort_values('goles', ascending=False).head(3))\n",
-    "feedback_correct": "¡Muy bien! Ordenar + ``head`` es el patrón clásico para calcular rankings y tops en cualquier dataset.",
-    "feedback_incorrect": "'Alvarez' (18 goles) tiene que estar entre los 3 primeros. Asegurate de ordenar descendente (``ascending=False``).",
-    "suggestion": "Usá ``df.sort_values('goles', ascending=False).head(3)``."
+    "expected_keyword": "Messi",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.sort_values('goles', ascending=False).head(5))\n",
+    "feedback_correct": "¡Crack! La combinación de ``sort_values`` + ``head`` es la receta clásica para construir rankings.",
+    "feedback_incorrect": "Revisá que estés ordenando descendente y tomando ``head(5)``. 'Messi' (28 goles) debería estar primero.",
+    "suggestion": "Usá ``sort_values('goles', ascending=False).head(5)``."
   },
   {
     "id": 12,

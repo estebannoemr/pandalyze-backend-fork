@@ -92,25 +92,25 @@
   },
   {
     "id": 17,
-    "title": "Días con lluvia fuerte",
+    "title": "Días de calor extremo",
     "difficulty": "avanzado",
     "category": "filtrado",
     "points": 50,
-    "description": "Filtrá los días con lluvia mayor o igual a 20mm en Buenos Aires. Combiná dos condiciones con ``&``: ``ciudad == 'Buenos Aires'`` y ``mm >= 20``.",
+    "description": "Filtrá los días con temperatura mayor a 30°C y humedad menor a 50% combinando dos condiciones con el operador '&'.",
     "instructions": [
-      "Cargá 'clima_diario.csv'.",
-      "Aplicá un filtro combinado: ``df[(df['ciudad'] == 'Buenos Aires') & (df['mm'] >= 20)]``.",
+      "Cargá 'clima.csv'.",
+      "Aplicá un filtro compuesto: ``df[(df['temperatura'] > 30) & (df['humedad'] < 50)]``.",
       "Imprimí el resultado."
     ],
-    "hint": "Solo hay 2 días que cumplen ambas condiciones: los del 2024-03-15 y 2024-03-22. Buscá '2024-03-15' en el resultado.",
-    "csv_filename": "clima_diario.csv",
-    "csv_content": "fecha,ciudad,mm\n2024-03-10,Buenos Aires,5\n2024-03-11,Cordoba,22\n2024-03-12,Buenos Aires,15\n2024-03-15,Buenos Aires,28\n2024-03-18,Rosario,30\n2024-03-20,Buenos Aires,8\n2024-03-22,Buenos Aires,20\n2024-03-25,Cordoba,12\n",
+    "hint": "Sólo deberían aparecer 2 días: el 'L1' y el 'L4'. Buscá 'L1' en el resultado.",
+    "csv_filename": "clima.csv",
+    "csv_content": "dia,temperatura,humedad\nL1,33,40\nL2,28,55\nL3,30,45\nL4,35,30\nL5,29,60\nL6,32,55\nL7,27,70\n",
     "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
-    "expected_keyword": "2024-03-15",
-    "solution_code": "df = read_csv(csv_id)\nprint(df[(df['ciudad'] == 'Buenos Aires') & (df['mm'] >= 20)])\n",
-    "feedback_correct": "¡Brillante! Combinar condiciones con ``&`` y ``|`` te permite armar filtros arbitrariamente complejos. Es la base del análisis exploratorio.",
-    "feedback_incorrect": "La fecha '2024-03-15' tiene que aparecer en el resultado (Buenos Aires, 28mm). Revisá que uses ``&`` y paréntesis alrededor de cada condición.",
-    "suggestion": "Usá ``df[(df['ciudad'] == 'Buenos Aires') & (df['mm'] >= 20)]`` con paréntesis en cada condición."
+    "expected_keyword": "L1",
+    "solution_code": "df = read_csv(csv_id)\nprint(df[(df['temperatura'] > 30) & (df['humedad'] < 50)])\n",
+    "feedback_correct": "¡Tremendo! Los filtros compuestos te permiten responder preguntas reales del análisis exploratorio.",
+    "feedback_incorrect": "Combiná las dos condiciones con '&' y paréntesis. 'L1' (33°C, 40%) tiene que estar en el resultado.",
+    "suggestion": "Usá ``df[(df['temperatura'] > 30) & (df['humedad'] < 50)]``."
   },
   {
     "id": 18,

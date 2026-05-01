@@ -22,6 +22,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from ..extensions import db, limiter
 from ..models.user_model import User, ROLE_ALUMNO, ROLE_DOCENTE, ROLE_ADMIN
 from ..models.password_reset_token_model import PasswordResetToken
+from ..models.class_model import Class
 from ..services.email_service import send_email
 
 
@@ -67,15 +68,25 @@ def register():
     if User.get_by_email(email) is not None:
         return jsonify({"error": "Ya existe un usuario con ese email."}), 409
 
+    # Resolución del código de clase. Prioridad:
+    #   1) tabla `class` (modelo nuevo): si existe ⇒ asociamos class_id y
+    #      copiamos teacher_id desde la clase para mantener el campo legacy.
+    #   2) `User.class_code` con role=docente: legacy, asociamos sólo teacher_id.
+    klass = None
     teacher = None
     if class_code:
-        teacher = User.get_by_class_code(class_code)
-        if teacher is None:
-            return jsonify({"error": "Código de clase inválido."}), 400
+        klass = Class.get_by_code(class_code)
+        if klass is None:
+            teacher = User.get_by_class_code(class_code)
+            if teacher is None:
+                return jsonify({"error": "Código de clase inválido."}), 400
 
     user = User(email=email, role=ROLE_ALUMNO)
     user.set_password(password)
-    if teacher is not None:
+    if klass is not None:
+        user.class_id = klass.id
+        user.teacher_id = klass.teacher_id
+    elif teacher is not None:
         user.teacher_id = teacher.id
 
     _promote_if_admin_email(user)
@@ -167,26 +178,35 @@ def update_me():
         user.set_password(new_password)
         changed.append("password")
 
-    # ---- Asociación a docente vía class_code ----
+    # ---- Asociación a clase vía class_code ----
     # Solo permitido para alumnos. Pasar class_code="" desasocia.
     if class_code_input is not None:
         if user.role != ROLE_ALUMNO:
             return (
                 jsonify({
-                    "error": "Solo los alumnos pueden asociarse a un docente vía class_code."
+                    "error": "Solo los alumnos pueden asociarse a una clase vía class_code."
                 }),
                 400,
             )
         normalized = (class_code_input or "").strip().upper()
         if normalized == "":
+            user.class_id = None
             user.teacher_id = None
-            changed.append("teacher_id")
+            changed.append("class_id")
         else:
-            teacher = User.get_by_class_code(normalized)
-            if teacher is None:
-                return jsonify({"error": "Código de clase inválido."}), 400
-            user.teacher_id = teacher.id
-            changed.append("teacher_id")
+            klass = Class.get_by_code(normalized)
+            if klass is not None:
+                user.class_id = klass.id
+                user.teacher_id = klass.teacher_id
+                changed.append("class_id")
+            else:
+                # Fallback al modelo legacy: User.class_code de un docente.
+                teacher = User.get_by_class_code(normalized)
+                if teacher is None:
+                    return jsonify({"error": "Código de clase inválido."}), 400
+                user.class_id = None
+                user.teacher_id = teacher.id
+                changed.append("teacher_id")
 
     if not changed:
         return jsonify({"user": user.to_dict(), "changed": []}), 200

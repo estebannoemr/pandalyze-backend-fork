@@ -198,7 +198,33 @@ def _compute_badges(completed_ids, first_try_ids, longest_streak):
 @cross_origin()
 @jwt_required()
 def list_challenges():
-    return jsonify([_public_view(c) for c in CHALLENGES]), 200
+    """
+    Lista de desafíos visible para el usuario autenticado.
+
+    - Docentes y admin ven el banco completo (necesitan armar clases con todo
+      el catálogo disponible).
+    - Alumnos asociados a una clase ven sólo los desafíos seleccionados por
+      esa clase.
+    - Alumnos sin clase ven el banco completo (mantiene el comportamiento
+      previo y permite que un alumno suelto siga practicando).
+    """
+    uid = get_jwt_identity()
+    user = User.query.get(int(uid)) if uid is not None else None
+
+    visible = CHALLENGES
+    # Import diferido para evitar ciclo en tiempo de import del módulo.
+    from ..models.user_model import ROLE_ALUMNO as _ROLE_ALUMNO
+
+    if user is not None and user.role == _ROLE_ALUMNO and user.class_id is not None:
+        # Import diferido para evitar ciclo de imports.
+        from ..models.class_model import Class as _Class
+
+        klass = _Class.query.get(user.class_id)
+        if klass is not None:
+            allowed = set(klass.get_selected_ids())
+            visible = [c for c in CHALLENGES if c["id"] in allowed]
+
+    return jsonify([_public_view(c) for c in visible]), 200
 
 
 @bp.route("/challenges/<int:challenge_id>/csv", methods=["GET"])

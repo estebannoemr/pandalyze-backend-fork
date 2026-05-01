@@ -41,8 +41,17 @@ class User(db.Model):
     email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
     role = Column(String(20), nullable=False)
+    # ``class_code`` se mantiene por compatibilidad con el modelo viejo
+    # (un docente con un único código). El modelo nuevo usa la tabla
+    # ``class`` y este campo queda como espejo del código de la "clase
+    # principal" del docente para no romper consumidores legacy.
     class_code = Column(String(16), unique=True, nullable=True, index=True)
     teacher_id = Column(Integer, ForeignKey("user.id"), nullable=True)
+    # FK a la clase a la que pertenece el alumno. NULL para docente/admin
+    # y para alumnos sin clase asignada. Index para filtros frecuentes.
+    class_id = Column(
+        Integer, ForeignKey("class.id"), nullable=True, index=True
+    )
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_seen_at = Column(DateTime, nullable=True)
 
@@ -58,11 +67,20 @@ class User(db.Model):
     def to_dict(self):
         teacher_email = None
         teacher_name = None
+        class_name = None
         if self.teacher_id:
             teacher = self.__class__.query.get(self.teacher_id)
             if teacher is not None:
                 teacher_email = teacher.email
                 teacher_name = _email_to_display_name(teacher.email)
+
+        if self.class_id:
+            # Import diferido para evitar ciclos al cargar modelos.
+            from .class_model import Class
+
+            klass = Class.query.get(self.class_id)
+            if klass is not None:
+                class_name = klass.name
 
         return {
             "id": self.id,
@@ -72,6 +90,8 @@ class User(db.Model):
             "teacher_id": self.teacher_id,
             "teacher_email": teacher_email,
             "teacher_name": teacher_name,
+            "class_id": self.class_id,
+            "class_name": class_name,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "last_seen_at": (
                 self.last_seen_at.isoformat() if self.last_seen_at else None
