@@ -13,17 +13,20 @@ La persistencia de intentos se hace en ``ChallengeResult``.
 """
 
 import json
+import io
 import os
+import re
 from datetime import datetime
 from pathlib import Path
 from functools import wraps
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlencode, urlparse
 from urllib.request import urlopen, Request
 from urllib.error import URLError, HTTPError
 
 from flask import Blueprint, request, jsonify, Response
 from flask_cors import cross_origin
 from flask_jwt_extended import jwt_required, get_jwt_identity
+import pandas as pd
 
 from ..extensions import db, limiter
 from ..models.challenge_result_model import ChallengeResult
@@ -193,6 +196,34 @@ def _public_view(challenge):
     return {k: challenge.get(k) for k in keys}
 
 
+def _normalize_csv_download_url(csv_url):
+    """Convierte links compartidos conocidos a URLs de descarga CSV directa."""
+    parsed = urlparse(csv_url)
+    host = parsed.netloc.lower()
+    path = parsed.path or ""
+
+    if host in ("drive.google.com", "www.drive.google.com"):
+        match = re.search(r"/file/d/([^/]+)", path)
+        file_id = (
+            match.group(1) if match else parse_qs(parsed.query).get("id", [None])[0]
+        )
+        if file_id:
+            query = urlencode({"export": "download", "id": file_id})
+            return f"https://drive.google.com/uc?{query}"
+
+    if host in ("docs.google.com", "www.docs.google.com") and "/spreadsheets/d/" in path:
+        gid = parse_qs(parsed.query).get("gid", ["0"])[0]
+        sheet_path = path.split("/edit", 1)[0].rstrip("/")
+        return f"https://docs.google.com{sheet_path}/export?{urlencode({'format': 'csv', 'gid': gid})}"
+
+    return csv_url
+
+
+def _looks_like_html(content):
+    sample = (content or "").lstrip()[:300].lower()
+    return sample.startswith("<!doctype html") or sample.startswith("<html")
+
+
 def _fetch_csv_from_url(csv_url):
     """Descarga contenido CSV desde una URL http/https de forma acotada."""
     if not csv_url:
@@ -201,10 +232,21 @@ def _fetch_csv_from_url(csv_url):
     if parsed.scheme not in ("http", "https"):
         raise ValueError("La URL del CSV debe empezar con http:// o https://")
 
-    req = Request(csv_url, headers={"User-Agent": "Pandalyze/1.0"})
+    download_url = _normalize_csv_download_url(csv_url)
+    req = Request(download_url, headers={"User-Agent": "Pandalyze/1.0"})
     with urlopen(req, timeout=12) as response:
         raw = response.read()
-    return raw.decode("utf-8", errors="replace")
+    csv_content = raw.decode("utf-8-sig", errors="replace")
+
+    if _looks_like_html(csv_content):
+        raise ValueError(
+            "El link no devolviÃ³ un CSV directo. UsÃ¡ un enlace pÃºblico de descarga CSV."
+        )
+    try:
+        pd.read_csv(io.StringIO(csv_content), nrows=1)
+    except Exception as exc:
+        raise ValueError("El contenido descargado no parece ser un CSV vÃ¡lido.") from exc
+    return csv_content
 
 
 def _resolve_challenge_csv(challenge):
