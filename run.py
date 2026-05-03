@@ -1,3 +1,4 @@
+import os
 from app import create_app
 from flask_cors import CORS
 from app import db
@@ -16,4 +17,5 @@ if __name__ == '__main__':
         CSVData.query.all()
         ChallengeResult.query.all()
 
-    app.run()
+    debug_enabled = os.getenv("FLASK_DEBUG", "0") == "1"
+    app.run(debug=debug_enabled, use_reloader=debug_enabled)

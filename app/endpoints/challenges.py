@@ -44,14 +44,47 @@ _DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 _BASICO_PATH = _DATA_DIR / "basico.json"
 _INTERMEDIO_PATH = _DATA_DIR / "intermedio.json"
 _AVANZADO_PATH = _DATA_DIR / "avanzado.json"
+# _CHALLENGE_PATHS = [_BASICO_PATH, _INTERMEDIO_PATH, _AVANZADO_PATH]
 
 CHALLENGES = []
 for path in [_BASICO_PATH, _INTERMEDIO_PATH, _AVANZADO_PATH]:
     with open(path, "r", encoding="utf-8") as _f:
         CHALLENGES.extend(json.load(_f))
 
+"""
+
+_CHALLENGES_SIGNATURE = None
+
+
+def _challenge_files_signature():
+    # Firma de archivos para detectar cambios sin reiniciar el proceso.
+    return tuple((str(path), path.stat().st_mtime_ns, path.stat().st_size) for path in _CHALLENGE_PATHS)
+
+
+def _reload_static_challenges_if_changed(force=False):
+    # Recarga el banco estático sólo si cambió alguno de los JSON.
+    global CHALLENGES, _CHALLENGES_SIGNATURE
+
+    signature = _challenge_files_signature()
+    if not force and signature == _CHALLENGES_SIGNATURE:
+        return
+
+    loaded = []
+    for path in _CHALLENGE_PATHS:
+        with open(path, "r", encoding="utf-8") as _f:
+            loaded.extend(json.load(_f))
+
+    CHALLENGES = loaded
+    _CHALLENGES_SIGNATURE = signature
+
+
+_reload_static_challenges_if_changed(force=True)
+
+"""
+
 
 def _all_challenges():
+    # _reload_static_challenges_if_changed()
     try:
         custom = [
             c.to_runtime_dict()

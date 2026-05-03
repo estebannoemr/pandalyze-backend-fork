@@ -178,5 +178,29 @@
     "feedback_correct": "¡Perfecto! Combinar ``sort_values`` con ``head`` es una receta clásica para construir rankings.",
     "feedback_incorrect": "Revisá que estés ordenando descendente (``ascending=False``) y tomando ``head(3)``. 'Silvia' tiene que estar en el resultado.",
     "suggestion": "Encadená: ``df.sort_values('ventas', ascending=False).head(3)``."
+  },
+  {
+    "id": 25,
+    "title": "Línea de evolución mensual",
+    "difficulty": "intermedio",
+    "category": "visualizacion",
+    "points": 25,
+    "description": "Visualizá cómo evolucionaron las ventas mes a mes con un ``plotly.line`` usando 'mes' en el eje X y 'ventas' en el eje Y.",
+    "instructions": [
+      "Cargá el archivo 'ventas_mensuales.csv' en una variable.",
+      "Revisá el contenido del DataFrame imprimiéndolo en consola.",
+      "Creá un gráfico de línea para representar la evolución mensual de las ventas.",
+      "Usá los meses como eje horizontal y las ventas como eje vertical.",
+      "Mostrá el gráfico generado."
+    ],
+    "hint": "El pico de ventas del semestre es 7300 (mayo). Ese valor tiene que aparecer en el DataFrame impreso. Pensá qué columna representa el tiempo y qué columna representa el valor numérico a graficar.",
+    "csv_filename": "ventas_mensuales.csv",
+    "csv_content": "mes,ventas\nEnero,4500\nFebrero,5200\nMarzo,6100\nAbril,5800\nMayo,7300\nJunio,6900\n",
+    "theory_url": "https://plotly.com/python/line-charts/",
+    "expected_keyword": "7300",
+    "solution_code": "df = read_csv(csv_id)\nprint(df)\nplotly.line(data_frame=df, x=df['mes'], y=df['ventas'], title='Evolución mensual de ventas').show()\n",
+    "feedback_correct": "¡Muy bien! Los gráficos de línea son la mejor opción para mostrar tendencias temporales.",
+    "feedback_incorrect": "El valor 7300 (mayo) tiene que aparecer en el output. Imprimí el DataFrame antes de graficar para verificarlo.",
+    "suggestion": "Podés guardar el gráfico en una variable, por ejemplo fig, y luego mostrarlo con fig.show(). Recordá que en un gráfico de línea el eje X suele representar la secuencia temporal."
   }
 ]

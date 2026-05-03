@@ -159,5 +159,53 @@
     "feedback_correct": "¡Imparable! Combinar ``groupby`` + ``sum`` + ``sort_values`` es el patrón clásico del trabajo de analista cuando hay que priorizar.",
     "feedback_incorrect": "El total de 'Lácteos' tiene que dar 160 (40 + 15 + 80 + 25). Verificá la cadena ``groupby`` → ``sum`` → ``sort_values``.",
     "suggestion": "Encadená: ``df.groupby('categoria')['stock'].sum().sort_values()`` y después imprimí."
+  },
+    {
+    "id": 24,
+    "title": "Gráfico de barras: ventas por sucursal",
+      "difficulty": "avanzado",
+    "category": "visualizacion",
+    "points": 25,
+    "description": "Calculá el total facturado por sucursal y graficalo con un ``plotly.bar`` para comparar visualmente cuál vendió más.",
+    "instructions": [
+      "Cargá 'ventas_sucursal.csv' y guardalo en una variable (ej: ``df``).",
+      "Creá otra variable (ej: ``totales``) con ``df.groupby('sucursal').sum()``.",
+      "Imprimí ``totales`` para chequear los totales.",
+      "Usá el bloque ``plotly.bar`` con data_frame=totales, x=totales.index (bloque ``.index``), y=totales['monto'] (bloque ``data_frame[]`` con 'monto'), title='Ventas por sucursal'.",
+      "Mostralo con ``.show()``."
+    ],
+    "hint": "Primero verificá que al imprimir el agrupamiento aparezca Centro = 5200. Luego, para graficar, tené en cuenta que 'sucursal' queda como índice del DataFrame agrupado, por eso el eje X debe ser totales.index y el eje Y debe ser totales['monto'].",
+    "csv_filename": "ventas_sucursal.csv",
+    "csv_content": "sucursal,monto\nCentro,1500\nNorte,1200\nCentro,2000\nSur,800\nNorte,1800\nSur,1500\nCentro,1700\n",
+    "theory_url": "https://plotly.com/python/bar-charts/",
+    "expected_keyword": "5200",
+    "solution_code": "df = read_csv(csv_id)\ntotales = df.groupby('sucursal').sum()\nprint(totales)\nplotly.bar(data_frame=totales, x=totales.index, y=totales['monto'], title='Ventas por sucursal').show()\n",
+    "feedback_correct": "¡Excelente! Combinar ``groupby`` con un gráfico de barras es la forma estándar de comunicar comparaciones entre categorías.",
+    "feedback_incorrect": "El total de 'Centro' tiene que ser 5200. Imprimí el DataFrame agrupado antes de graficar para verificarlo.",
+    "suggestion": "Encadená: variable = ``df.groupby('sucursal').sum()`` → ``print(variable)`` → ``plotly.bar`` usando ``variable.index`` y ``variable['monto']``."
+  },
+  {
+    "id": 26,
+    "title": "Pie chart: participación por producto",
+    "difficulty": "avanzado",
+    "category": "visualizacion",
+    "points": 50,
+    "description": "Calculá el total facturado por producto y visualizalo con un ``plotly.pie`` para mostrar la participación de cada uno sobre las ventas totales.",
+    "instructions": [
+      "Cargá el archivo 'ventas_producto.csv' en una variable.",
+      "Calculá el total facturado por cada producto y guardá el resultado en otra variable.",
+      "Imprimí el resultado para verificar los totales.",
+      "Creá un gráfico de torta que muestre qué participación tiene cada producto sobre el total vendido.",
+      "Mostrá el gráfico generado."
+    ],
+    "hint": "El producto 'Leche' suma 1400 (800 + 600). Ese valor tiene que aparecer en el output impreso antes del gráfico. Recordá que, al agrupar por producto, los nombres de los productos pueden quedar como índice del resultado.",
+    "csv_filename": "ventas_producto.csv",
+    "csv_content": "producto,monto\nPan,500\nLeche,800\nYogur,300\nPan,400\nLeche,600\nYogur,200\nPan,300\n",
+    "theory_url": "https://plotly.com/python/pie-charts/",
+    "expected_keyword": "1400",
+    "solution_code": "df = read_csv(csv_id)\ntotal = df.groupby('producto').sum()\nprint(total)\nplotly.pie(data_frame=total, values=total['monto'], names=total.index, title='Participación de ventas por producto').show()\n",
+    "feedback_correct": "¡Tremendo! Los gráficos de torta son ideales para mostrar la distribución porcentual de un total entre pocas categorías.",
+    "feedback_incorrect": "El total de 'Leche' tiene que ser 1400. Primero hacé ``groupby`` + ``sum``, imprimí el resultado y después graficá.",
+    "suggestion": "Primero agrupá las ventas por producto y sumá los montos. Para el gráfico de torta, pensá qué dato representa el valor numérico de cada porción y qué dato representa el nombre de cada porción."
   }
 ]

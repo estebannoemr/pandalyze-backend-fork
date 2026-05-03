@@ -176,5 +176,29 @@
     "feedback_correct": "¡Listo a tiempo! Reportar ``shape`` es uno de los reflejos básicos del análisis: te dice de qué tamaño es el problema.",
     "feedback_incorrect": "Tenés que imprimir ``shape`` del DataFrame entero. Debería verse ``(8, 2)``.",
     "suggestion": "Leer CSV → bloque 'shape' → imprimir en consola."
+  },
+  {
+    "id": 27,
+    "title": "Mapa de sucursales",
+    "difficulty": "basico",
+    "category": "visualizacion",
+    "points": 10,
+    "description": "Visualizá las sucursales de la empresa en un mapa interactivo, marcando cada punto por ciudad. Usá el bloque 'mostrar mapa de' (``generate_map``) con las columnas de latitud, longitud y categoría.",
+    "instructions": [
+      "Cargá el archivo 'sucursales.csv' en una variable.",
+      "Revisá qué columnas contiene el DataFrame.",
+      "Generá un mapa interactivo usando las coordenadas geográficas de cada sucursal.",
+      "Usá una columna descriptiva para identificar cada marcador.",
+      "Ejecutá el bloque correspondiente para visualizar el mapa."
+    ],
+    "hint": "Cada sucursal debe aparecer como un marcador en el mapa. Una de ellas corresponde a Buenos Aires. Buscá en el DataFrame qué columnas representan la latitud, la longitud y el nombre que debería mostrarse en cada punto.",
+    "csv_filename": "sucursales.csv",
+    "csv_content": "sucursal,lat,lng,ciudad\nS1,-34.6037,-58.3816,Buenos Aires\nS2,-31.4201,-64.1888,Cordoba\nS3,-32.9468,-60.6393,Rosario\nS4,-32.8908,-68.8272,Mendoza\nS5,-24.7821,-65.4232,Salta\n",
+    "theory_url": "https://python-visualization.github.io/folium/latest/",
+    "expected_keyword": "Buenos Aires",
+    "solution_code": "df = read_csv(csv_id)\ngenerate_map(dataframe=df, lat_col='lat', long_col='lng', category_col='ciudad')\n",
+    "feedback_correct": "¡Brillante! Los mapas son una forma poderosísima de comunicar datos con componente geográfica: muestran patrones que un gráfico tradicional nunca capturaría.",
+    "feedback_incorrect": "Asegurate de pasarle al bloque 'mostrar mapa de' las columnas 'lat', 'lng' y 'ciudad'. El marcador 'Buenos Aires' tiene que estar presente.",
+    "suggestion": "Primero imprimí el DataFrame para identificar las columnas. Luego usá el bloque de mapa pasando la columna de latitud, la de longitud y una columna categórica o descriptiva para los marcadores."
   }
 ]
