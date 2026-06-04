@@ -749,6 +749,63 @@ def download_challenge_csv(challenge_id):
     return response
 
 
+# ---------------------------------------------------------------------------
+# Chequeo de soluciones por niveles
+# ---------------------------------------------------------------------------
+# La validación clásica sólo comparaba ``expected_keyword in output``. Ahora se
+# evalúa en niveles (tier):
+#   - perfect    : output correcto + código ≡ solution_code (normalizado).
+#   - correct    : output correcto pero código distinto. Aprueba y suma puntos,
+#                  pero avisa "chequealo con tu docente".
+#   - suspicious : output correcto pero el código no lee el CSV (hardcodeado,
+#                  típicamente 1 línea con 1 print). No aprueba.
+#   - wrong      : output no coincide con expected_keyword. No aprueba.
+# Si el frontend no manda código (cliente viejo) se cae a ``correct`` y mantiene
+# el comportamiento anterior (aprueba sin inspección de código).
+
+_READ_CSV_RE = re.compile(r"(?:pandas\s*\.\s*)?read_csv\s*\([^)]*\)")
+
+
+def _normalize_code(code):
+    """Normaliza código para comparar: canonicaliza el arg de read_csv,
+    colapsa espacios, descarta líneas vacías. No renombra variables."""
+    if not isinstance(code, str):
+        return ""
+    code = _READ_CSV_RE.sub("read_csv(csv_id)", code)
+    lines = []
+    for ln in code.splitlines():
+        ln = re.sub(r"\s+", " ", ln).strip()
+        # Quita espacios alrededor de delimitadores para tolerar diferencias de
+        # formato (ej. "print( df.shape )" == "print(df.shape)").
+        ln = re.sub(r"\s*([()\[\],.])\s*", r"\1", ln)
+        if ln:
+            lines.append(ln)
+    return "\n".join(lines)
+
+
+def _evaluate_submission(user_output, user_code, expected_keyword, solution_code):
+    """Devuelve (passed, tier, message) según los niveles descritos arriba."""
+    output_ok = bool(expected_keyword) and expected_keyword in user_output and user_output != ""
+    code = (user_code or "").strip()
+    has_code = len(code) > 0
+
+    if not output_ok:
+        return False, "wrong", "Esta solución no parece correcta, revisá tu solución."
+
+    # Output correcto pero el código no toca el dataset => hardcodeado.
+    if has_code and "read_csv" not in code:
+        return False, "suspicious", "Acá hay algo raro... revisá tu respuesta."
+
+    if has_code and _normalize_code(code) == _normalize_code(solution_code):
+        return True, "perfect", "🎉 ¡Perfecto! Llegaste a la solución esperada."
+
+    if not has_code:
+        # Cliente viejo: sin código no se puede inspeccionar. Comportamiento legacy.
+        return True, "correct", "🎉 ¡Correcto!"
+
+    return True, "correct", "✅ ¡Correcto! Pero chequealo con tu docente."
+
+
 @bp.route("/challenges/<int:challenge_id>/validate", methods=["POST"])
 @cross_origin()
 @jwt_required()
@@ -799,8 +856,12 @@ def validate_challenge(challenge_id):
     )
     already_passed = ChallengeResult.has_passed(challenge_id, user_id)
 
+    user_code = payload.get("user_code") or payload.get("code") or ""
+
     expected = challenge["expected_keyword"]
-    passed = expected in user_output and user_output != ""
+    passed, tier, message = _evaluate_submission(
+        user_output, user_code, expected, challenge["solution_code"]
+    )
 
     # primer_try = pasó y no había intentos previos fallidos para este desafío
     is_first_try = passed and previous_attempts == 0
@@ -826,11 +887,13 @@ def validate_challenge(challenge_id):
     db.session.commit()
 
     if passed:
-        message = "🎉 ¡Correcto!"
         feedback = challenge["feedback_correct"]
-        suggestion = None
+        # En "correct" mostramos también la sugerencia como nota para revisar.
+        suggestion = challenge.get("suggestion") if tier == "correct" else None
+    elif tier == "suspicious":
+        feedback = None
+        suggestion = challenge.get("suggestion")
     else:
-        message = "Todavía no lo lograste. ¡Seguí intentando!"
         feedback = challenge["feedback_incorrect"]
         suggestion = challenge.get("suggestion")
 
@@ -838,6 +901,7 @@ def validate_challenge(challenge_id):
         jsonify(
             {
                 "passed": passed,
+                "tier": tier,
                 "message": message,
                 "points_earned": points_earned,
                 "first_try": is_first_try,
