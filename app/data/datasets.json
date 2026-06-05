@@ -1,0 +1,42 @@
+{
+  "ar_airports": {
+    "filename": "ar-airports.csv",
+    "drive_id": "101G8AsdKftJxW8MxFevCVXdV7paH5iTS",
+    "description": "Aeropuertos de Argentina con tipo, municipio, elevacion y codigo IATA."
+  },
+  "area_protegida": {
+    "filename": "area_protegida.csv",
+    "drive_id": "1WhKpVrNNVWq0z9P2foxqBSGd25m7u_mE",
+    "description": "Areas protegidas de Argentina con nombre, categoria, area y coordenadas."
+  },
+  "establecimientos": {
+    "filename": "establecimientos-educativos-20042026.csv",
+    "drive_id": "1t6koI5ddkwudOtwtnMAX0a-JTmNpiWAl",
+    "description": "Establecimientos educativos de Buenos Aires con nivel, sector, matricula y ubicacion."
+  },
+  "estaciones_ffcc": {
+    "filename": "estaciones-ferrocarril-pba.csv",
+    "drive_id": "1R3NL2hTPl_pXoyfUs9zu4F48hLNnT71_",
+    "description": "Estaciones de ferrocarril de la Provincia de Buenos Aires con coordenadas."
+  },
+  "felinos": {
+    "filename": "felinos_filtrado.csv",
+    "drive_id": "1mCWp9rR8CnnxOK23W-9jnYKJ7HkLump7",
+    "description": "Avistamientos de felinos en Argentina con especie, provincia, anio y coordenadas."
+  },
+  "internet_localidades": {
+    "filename": "Internet_Localidades.csv",
+    "drive_id": "19yoUihMEMwxo3HUHxHOkQ8yWEeFd8J3t",
+    "description": "Accesos a internet por localidad, partido, provincia y tecnologia."
+  },
+  "student_performance": {
+    "filename": "Student_Performance.csv",
+    "drive_id": "1ShdT5B-ERtNu9OKYEPgaWz5nsdTZXvtg",
+    "description": "Performance academica de estudiantes con scores, habitos de estudio y demografia."
+  },
+  "sube_laplata": {
+    "filename": "SUBE_2025_LaPlata.csv",
+    "drive_id": "1RwEMEUXMyeFaGyXmDLZDq8w7SoQtTtdT",
+    "description": "Usos de tarjeta SUBE en La Plata 2025 por linea, dia, empresa y tipo de transporte."
+  }
+}

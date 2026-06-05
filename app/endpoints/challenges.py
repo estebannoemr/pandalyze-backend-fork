@@ -34,6 +34,11 @@ from ..models.user_model import User, ROLE_ALUMNO, ROLE_DOCENTE, ROLE_ADMIN
 from ..models.custom_challenge_model import (
     CustomChallenge,
 )
+from ..services import dataset_service
+from ..services.dataset_service import (
+    DatasetNotFound,
+    DatasetUnavailable,
+)
 
 
 bp = Blueprint("challenges", __name__)
@@ -225,8 +230,22 @@ def _public_view(challenge):
         # frontend muestra un countdown visible al alumno; si no, el desafío
         # se comporta exactamente como antes (sin reloj).
         "time_limit_seconds",
+        # dataset_key apunta al registry de datasets externos (datasets.json).
+        # Si está presente, el filename canónico se resuelve desde el registry
+        # y el contenido se sirve via dataset_service (proxy a Drive + cache).
+        "dataset_key",
     )
-    return {k: challenge.get(k) for k in keys}
+    out = {k: challenge.get(k) for k in keys}
+    # Si el desafío usa dataset_key, sobrescribimos el filename con el del
+    # registry para evitar inconsistencias entre el JSON viejo y el registry.
+    ds_key = out.get("dataset_key")
+    if ds_key:
+        try:
+            meta = dataset_service.get_dataset_meta(ds_key)
+            out["csv_filename"] = meta.get("filename") or out.get("csv_filename")
+        except (DatasetNotFound, DatasetUnavailable):
+            pass
+    return out
 
 
 def _normalize_csv_download_url(csv_url):
@@ -285,9 +304,21 @@ def _fetch_csv_from_url(csv_url):
 def _resolve_challenge_csv(challenge):
     """
     Resuelve el CSV fuente de un desafío:
-    1) csv_content (embebido)
-    2) csv_url (descarga on-demand)
+    1) dataset_key (registry de datasets.json, proxy a Drive + cache)
+    2) csv_content (embebido — legacy)
+    3) csv_url (descarga on-demand — legacy/custom)
     """
+    ds_key = (challenge.get("dataset_key") or "").strip()
+    if ds_key:
+        # Cualquier error del servicio se propaga como ValueError para que el
+        # endpoint lo traduzca a 502/503 con mensaje claro.
+        try:
+            return dataset_service.fetch_dataset(ds_key)
+        except DatasetNotFound as e:
+            raise ValueError(f"dataset_key '{ds_key}' no existe en el registry") from e
+        except DatasetUnavailable as e:
+            raise ValueError(str(e)) from e
+
     csv_content = challenge.get("csv_content") or ""
     if csv_content.strip():
         return csv_content
@@ -297,6 +328,20 @@ def _resolve_challenge_csv(challenge):
         return _fetch_csv_from_url(csv_url)
 
     return ""
+
+
+def _resolve_challenge_filename(challenge):
+    """Filename canónico: del registry si hay dataset_key, sino el del desafío."""
+    ds_key = (challenge.get("dataset_key") or "").strip()
+    if ds_key:
+        try:
+            meta = dataset_service.get_dataset_meta(ds_key)
+            fn = meta.get("filename")
+            if fn:
+                return fn
+        except (DatasetNotFound, DatasetUnavailable):
+            pass
+    return challenge.get("csv_filename") or ""
 
 
 def _ensure_csv_filename(filename):
@@ -703,7 +748,7 @@ def get_challenge_csv(challenge_id):
         jsonify(
             {
                 "csv_content": csv_content,
-                "csv_filename": challenge["csv_filename"],
+                "csv_filename": _resolve_challenge_filename(challenge) or challenge.get("csv_filename"),
             }
         ),
         200,
@@ -735,7 +780,11 @@ def download_challenge_csv(challenge_id):
     except (ValueError, URLError, HTTPError) as e:
         return jsonify({"error": f"No se pudo obtener el CSV: {str(e)}"}), 502
 
-    filename = challenge.get("csv_filename") or f"challenge_{challenge_id}.csv"
+    filename = (
+        _resolve_challenge_filename(challenge)
+        or challenge.get("csv_filename")
+        or f"challenge_{challenge_id}.csv"
+    )
 
     response = Response(csv_content, mimetype="text/csv; charset=utf-8")
     # ``attachment`` fuerza el download cuando se abre directo en el navegador;

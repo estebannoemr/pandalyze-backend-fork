@@ -31,6 +31,7 @@ def create_app():
         from .endpoints.admin import bp as admin_bp
         from .endpoints.stats import bp as stats_bp
         from .endpoints.classes import bp as classes_bp
+        from .endpoints.datasets import bp as datasets_bp
 
         from .models.csv_model import CSVData  # noqa: F401
         from .models.challenge_result_model import ChallengeResult  # noqa: F401
@@ -50,6 +51,7 @@ def create_app():
         app.register_blueprint(admin_bp)
         app.register_blueprint(stats_bp)
         app.register_blueprint(classes_bp)
+        app.register_blueprint(datasets_bp)
 
         # Aseguramos que las tablas existen antes de migrar/bootstrappear.
         # Es idempotente, así que correrlo aquí no rompe el create_all de run.py.
