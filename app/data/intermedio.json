@@ -112,25 +112,25 @@
   },
   {
     "id": 12,
-    "title": "IMC de pacientes",
+    "title": "Peso promedio de pacientes",
     "difficulty": "intermedio",
     "category": "estadisticas",
     "points": 25,
-    "description": "Creá una nueva columna 'imc' a partir del peso y la altura: ``imc = peso / (altura ** 2)``. Después imprimí el DataFrame completo.",
+    "description": "Calculá el peso promedio (``mean``) de los pacientes usando la columna 'peso'.",
     "instructions": [
       "Cargá 'pacientes.csv'.",
-      "Creá una columna nueva: ``df['imc'] = df['peso'] / (df['altura'] ** 2)``.",
-      "Imprimí el DataFrame."
+      "Seleccioná la columna 'peso' y aplicá ``mean``.",
+      "Imprimí el resultado."
     ],
-    "hint": "Para un paciente de 70 kg y 1.75 m el IMC es 22.857 aproximadamente. Ese valor debería aparecer en la columna nueva.",
+    "hint": "Sumá los pesos (70+85+60+95+55 = 365) y dividí por 5 pacientes: el promedio es 73.0.",
     "csv_filename": "pacientes.csv",
     "csv_content": "paciente,peso,altura\nP1,70,1.75\nP2,85,1.80\nP3,60,1.65\nP4,95,1.90\nP5,55,1.60\n",
-    "theory_url": "https://pandas.pydata.org/docs/user_guide/basics.html#creating-new-columns",
-    "expected_keyword": "22.857",
-    "solution_code": "df = read_csv(csv_id)\ndf['imc'] = df['peso'] / (df['altura'] ** 2)\nprint(df)\n",
-    "feedback_correct": "¡Brillante! Crear columnas derivadas es fundamental en ciencia de datos: muchas variables útiles se construyen a partir de otras.",
-    "feedback_incorrect": "Para P1 (70 / 1.75²) el IMC es ≈ 22.857. Revisá que estés dividiendo 'peso' por 'altura' al cuadrado.",
-    "suggestion": "Asigná ``df['imc'] = df['peso'] / (df['altura'] ** 2)`` y después imprimí el DataFrame."
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.mean.html",
+    "expected_keyword": "73.0",
+    "solution_code": "df = read_csv(csv_id)\nprint(df['peso'].mean())\n",
+    "feedback_correct": "¡Muy bien! El promedio (``mean``) es una de las medidas más usadas para resumir una variable numérica.",
+    "feedback_incorrect": "El promedio de la columna 'peso' debería dar 73.0. Aplicá ``mean`` sobre 'peso'.",
+    "suggestion": "Leer CSV → columna 'peso' → bloque 'promedio (mean)' → imprimir."
   },
   {
     "id": 21,

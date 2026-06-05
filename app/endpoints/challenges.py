@@ -752,7 +752,7 @@ def download_challenge_csv(challenge_id):
 # ---------------------------------------------------------------------------
 # Chequeo de soluciones por niveles
 # ---------------------------------------------------------------------------
-# La validación clásica sólo comparaba ``expected_keyword in output``. Ahora se
+# La validación ANTERIOR sólo comparaba ``expected_keyword in output``. Ahora se
 # evalúa en niveles (tier):
 #   - perfect    : output correcto + código ≡ solution_code (normalizado).
 #   - correct    : output correcto pero código distinto. Aprueba y suma puntos,
@@ -792,8 +792,14 @@ def _evaluate_submission(user_output, user_code, expected_keyword, solution_code
     if not output_ok:
         return False, "wrong", "Esta solución no parece correcta, revisá tu solución."
 
-    # Output correcto pero el código no toca el dataset => hardcodeado.
-    if has_code and "read_csv" not in code:
+    # Hardcode/trivial: el output es correcto pero el codigo no lee el CSV,
+    # PESE a que la solucion de referencia si lo lee. Excepcion: si la propia
+    # solucion imprime el valor literal (desafio tipo "print este texto"), la
+    # respuesta correcta ES ese literal, asi que no se marca sospechoso.
+    sol = solution_code or ""
+    solution_uses_csv = "read_csv" in sol
+    solution_prints_keyword = bool(expected_keyword) and expected_keyword in sol
+    if has_code and solution_uses_csv and "read_csv" not in code and not solution_prints_keyword:
         return False, "suspicious", "Acá hay algo raro... revisá tu respuesta."
 
     if has_code and _normalize_code(code) == _normalize_code(solution_code):
