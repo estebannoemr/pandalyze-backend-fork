@@ -199,5 +199,49 @@
     "feedback_correct": "¡Brillante! Los mapas son la forma más potente de comunicar datos con componente geográfica.",
     "feedback_incorrect": "Pasale al bloque 'mostrar mapa de' las columnas ``lat``, ``lng`` y ``gna``. 'Parque Nacional' tiene que aparecer entre las categorías.",
     "suggestion": "Primero imprimí el DataFrame para identificar las columnas. Después usá el bloque de mapa con ``lat``, ``lng`` y ``gna`` como categoría."
+  },
+  {
+    "id": 28,
+    "title": "¿Qué especies de felinos hay?",
+    "difficulty": "basico",
+    "category": "lectura",
+    "points": 10,
+    "description": "Antes de analizar los avistamientos, conocé qué especies de felinos están registradas en Argentina. Usá ``unique()`` sobre la columna 'species' para listarlas todas.",
+    "instructions": [
+      "Cargá el CSV de felinos.",
+      "Seleccioná la columna 'species'.",
+      "Aplicá el bloque ``unique`` e imprimí el resultado."
+    ],
+    "hint": "``unique()`` devuelve un array con los valores distintos. ``Puma concolor`` (el puma común) tiene que aparecer.",
+    "dataset_key": "felinos",
+    "csv_filename": "felinos_filtrado.csv",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.unique.html",
+    "expected_keyword": "Puma concolor",
+    "solution_code": "df = read_csv(csv_id)\nprint(df['species'].unique())\n",
+    "feedback_correct": "¡Muy bien! Hay 9 especies registradas. ``unique`` es la forma más directa de ver el universo de valores de una columna.",
+    "feedback_incorrect": "Aplicá ``unique`` sobre la columna 'species'. ``Puma concolor`` tiene que aparecer en el array.",
+    "suggestion": "Leer CSV → columna 'species' → bloque 'unique' → imprimir."
+  },
+  {
+    "id": 29,
+    "title": "Resumen estadístico de los estudiantes",
+    "difficulty": "basico",
+    "category": "estadisticas",
+    "points": 10,
+    "description": "El método ``describe()`` te da count, mean, std, min, max y cuartiles de cada columna numérica de un dataset, todo en una sola tabla. Aplicalo sobre el dataset de performance académica.",
+    "instructions": [
+      "Cargá el CSV de estudiantes.",
+      "Aplicá el bloque ``describe`` sobre el DataFrame.",
+      "Imprimí el resultado."
+    ],
+    "hint": "``describe()`` muestra una tabla con todas las columnas numéricas como cabecera, incluyendo ``math_score``.",
+    "dataset_key": "student_performance",
+    "csv_filename": "Student_Performance.csv",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html",
+    "expected_keyword": "math_score",
+    "solution_code": "df = read_csv(csv_id)\nprint(df.describe())\n",
+    "feedback_correct": "¡Excelente! ``describe()`` es el primer reporte que un analista pide a un dataset nuevo — te da un retrato completo en una sola tabla.",
+    "feedback_incorrect": "Aplicá ``describe`` sobre el DataFrame completo. La columna ``math_score`` tiene que aparecer en la cabecera.",
+    "suggestion": "Leer CSV → bloque 'describe' → imprimir."
   }
 ]

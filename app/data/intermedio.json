@@ -199,5 +199,49 @@
     "feedback_correct": "¡Brillante! El mapa muestra la distribución geográfica de cada especie — patrones que un gráfico tradicional no captaría.",
     "feedback_incorrect": "Pasale al bloque de mapa las columnas ``lat``, ``lng`` y ``species`` como categoría. 'Puma yagouaroundi' tiene que aparecer.",
     "suggestion": "Leer CSV → bloque de mapa con ``lat``, ``lng`` y ``species`` → ejecutar."
+  },
+  {
+    "id": 30,
+    "title": "Avistamientos del género Leopardus",
+    "difficulty": "intermedio",
+    "category": "filtrado",
+    "points": 25,
+    "description": "El género ``Leopardus`` agrupa los pequeños felinos manchados de Argentina: gato montés, ocelote, tirica, etc. Del dataset de felinos, filtrá los registros cuyo género sea exactamente ``Leopardus`` y mostrá las dimensiones del subconjunto.",
+    "instructions": [
+      "Cargá el CSV de felinos.",
+      "Filtrá ``genus == 'Leopardus'``.",
+      "Aplicá ``shape`` al DataFrame filtrado e imprimilo."
+    ],
+    "hint": "El resultado debería ser ``(218, 19)`` — 218 avistamientos repartidos en 6 especies de Leopardus.",
+    "dataset_key": "felinos",
+    "csv_filename": "felinos_filtrado.csv",
+    "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
+    "expected_keyword": "(218, 19)",
+    "solution_code": "df = read_csv(csv_id)\nfiltrado = df[df['genus'] == 'Leopardus']\nprint(filtrado.shape)\n",
+    "feedback_correct": "¡Muy bien! Filtrar por género agrupa varias especies emparentadas — usar la jerarquía taxonómica abre análisis interesantes.",
+    "feedback_incorrect": "Revisá el filtro: ``df['genus'] == 'Leopardus'`` (con L mayúscula). El resultado tiene que ser ``(218, 19)``.",
+    "suggestion": "Leer CSV → bloque de filtro con 'genus' == 'Leopardus' → ``shape`` → imprimir."
+  },
+  {
+    "id": 31,
+    "title": "Estaciones de ferrocarril en PBA",
+    "difficulty": "intermedio",
+    "category": "filtrado",
+    "points": 25,
+    "description": "El dataset de ferrocarril incluye estaciones, paradas, desvíos, apeaderos y empalmes. Filtrá sólo las que son ``Estación`` (columna ``gna``) y mostrá las dimensiones del subconjunto.",
+    "instructions": [
+      "Cargá el CSV de estaciones de ferrocarril.",
+      "Filtrá ``gna == 'Estación'``.",
+      "Aplicá ``shape`` al DataFrame filtrado e imprimilo."
+    ],
+    "hint": "El resultado es ``(996, 8)`` — 996 estaciones (sin contar paradas, apeaderos, etc.) sobre 8 columnas.",
+    "dataset_key": "estaciones_ffcc",
+    "csv_filename": "estaciones-ferrocarril-pba.csv",
+    "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
+    "expected_keyword": "(996, 8)",
+    "solution_code": "df = read_csv(csv_id)\nfiltrado = df[df['gna'] == 'Estación']\nprint(filtrado.shape)\n",
+    "feedback_correct": "¡Excelente! Acotar a una sola categoría es lo primero que se hace antes de cualquier análisis profundo.",
+    "feedback_incorrect": "Cuidado con la tilde y la mayúscula: el valor es ``'Estación'`` (con tilde, E mayúscula). El resultado es ``(996, 8)``.",
+    "suggestion": "Leer CSV → bloque de filtro con 'gna' == 'Estación' → ``shape`` → imprimir."
   }
 ]

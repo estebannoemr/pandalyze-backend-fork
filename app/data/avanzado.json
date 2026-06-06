@@ -205,5 +205,51 @@
     "feedback_correct": "¡Excelente! Un pie chart sobre frecuencias es la forma clásica de comunicar 'participación relativa'.",
     "feedback_incorrect": "Imprimí primero el ``value_counts`` (tiene que mostrar ``Puma concolor``) y después generá el pie chart.",
     "suggestion": "Leer CSV → ``value_counts`` de 'species' → ``print`` el conteo → ``plotly.pie``."
+  },
+  {
+    "id": 32,
+    "title": "Estacionalidad SUBE: viajes por mes",
+    "difficulty": "avanzado",
+    "category": "agrupamiento",
+    "points": 50,
+    "description": "Agrupá el dataset de SUBE por 'MES_NOMBRE' y sumá la columna 'CANTIDAD' para ver cuántos viajes hubo en cada mes del año. La idea es detectar estacionalidad — meses con picos o caídas de uso del transporte público.",
+    "instructions": [
+      "Cargá el CSV de SUBE.",
+      "Agrupá por la columna 'MES_NOMBRE'.",
+      "Sumá la columna 'CANTIDAD' dentro de cada grupo.",
+      "Imprimí el resultado."
+    ],
+    "hint": "El resultado va a tener una fila por mes. ``Enero`` tiene que aparecer en el índice.",
+    "dataset_key": "sube_laplata",
+    "csv_filename": "SUBE_2025_LaPlata.csv",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html",
+    "expected_keyword": "Enero",
+    "solution_code": "df = read_csv(csv_id)\nagrupado = df.groupby('MES_NOMBRE')['CANTIDAD'].sum()\nprint(agrupado)\n",
+    "feedback_correct": "¡Perfecto! Agrupar por dimensión temporal es la base de cualquier análisis de estacionalidad — patrones que se repiten año a año.",
+    "feedback_incorrect": "Agrupá por 'MES_NOMBRE' y sumá 'CANTIDAD'. ``Enero`` tiene que aparecer entre los meses del resultado.",
+    "suggestion": "Leer CSV → bloque 'agrupar por' con 'MES_NOMBRE' → sumar 'CANTIDAD' → imprimir."
+  },
+  {
+    "id": 33,
+    "title": "Accesos a internet por tecnología",
+    "difficulty": "avanzado",
+    "category": "agrupamiento",
+    "points": 50,
+    "description": "Del dataset de internet, agrupá por la columna 'Tecnologia' y sumá la columna 'Accesos' para ver cuántos accesos a internet hay en Argentina por cada tipo de conexión (ADSL, CABLEMODEM, FIBRA OPTICA, SATELITAL, etc.).",
+    "instructions": [
+      "Cargá el CSV de internet.",
+      "Agrupá por la columna 'Tecnologia'.",
+      "Sumá la columna 'Accesos' dentro de cada grupo.",
+      "Imprimí el resultado."
+    ],
+    "hint": "El resultado va a mostrar una fila por tecnología. ``FIBRA OPTICA`` (sin tilde, mayúscula) tiene que aparecer.",
+    "dataset_key": "internet_localidades",
+    "csv_filename": "Internet_Localidades.csv",
+    "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html",
+    "expected_keyword": "FIBRA OPTICA",
+    "solution_code": "df = read_csv(csv_id)\nagrupado = df.groupby('Tecnologia')['Accesos'].sum()\nprint(agrupado)\n",
+    "feedback_correct": "¡Excelente! Esta agregación te dice de un vistazo qué tecnologías concentran la mayoría de las conexiones del país — insumo clásico de un reporte de telecomunicaciones.",
+    "feedback_incorrect": "Agrupá por 'Tecnologia' y sumá 'Accesos'. ``FIBRA OPTICA`` tiene que aparecer entre las categorías.",
+    "suggestion": "Leer CSV → bloque 'agrupar por' con 'Tecnologia' → sumar 'Accesos' → imprimir."
   }
 ]
