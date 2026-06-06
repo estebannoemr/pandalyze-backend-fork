@@ -222,6 +222,15 @@ def create_app():
             db.session.rollback()
             app.logger.warning("Seed demo fallo: %s", _e)
 
+        # Warm-up de la cache de datasets externos: pre-carga los 8 CSVs en
+        # background para que el primer alumno que arranque un desafío no
+        # pague la latencia de Drive. Controlado por DATASET_WARMUP_ON_BOOT.
+        try:
+            from .services.dataset_service import warmup_in_background
+            warmup_in_background(logger=app.logger)
+        except Exception as _e:
+            app.logger.warning("Dataset warmup fallo: %s", _e)
+
     @app.before_request
     def _update_last_seen():
         if request.method == "OPTIONS":

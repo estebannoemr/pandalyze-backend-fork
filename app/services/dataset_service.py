@@ -103,12 +103,29 @@ def _ttl_seconds():
 
 
 def _local_path_for(filename):
-    """Resuelve ``LOCAL_DATASETS_DIR/<filename>`` si está seteado y existe."""
-    base = os.getenv("LOCAL_DATASETS_DIR")
-    if not base:
-        return None
-    p = Path(base) / filename
-    return p if p.exists() else None
+    """Resuelve un archivo del fallback local.
+
+    Orden de búsqueda:
+    1. ``LOCAL_DATASETS_DIR/<filename>`` si la env var está seteada.
+    2. ``<backend_root>/datasets/<filename>`` (default zero-config: sibling
+       de ``app/``). Útil para que el operador suba los CSVs al deploy sin
+       tocar variables de entorno.
+
+    Devuelve None si ninguno existe (cae a Drive).
+    """
+    base = (os.getenv("LOCAL_DATASETS_DIR") or "").strip()
+    candidates = []
+    if base:
+        candidates.append(Path(base) / filename)
+    # Default: <backend_root>/datasets/<filename>
+    # __file__ = .../app/services/dataset_service.py → backend_root = parent×3
+    backend_root = Path(__file__).resolve().parent.parent.parent
+    candidates.append(backend_root / "datasets" / filename)
+
+    for p in candidates:
+        if p.exists():
+            return p
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -270,3 +287,44 @@ def invalidate(key=None):
             _content_cache.clear()
         else:
             _content_cache.pop(key, None)
+
+
+# ---------------------------------------------------------------------------
+# Warm-up
+# ---------------------------------------------------------------------------
+
+def warmup_in_background(logger=None):
+    """
+    Dispara una corrida de ``fetch_dataset`` para cada key del registry en un
+    thread daemon. El boot del servidor no se bloquea: si Drive está lento,
+    el primer alumno que arranque un desafío puede caer en el path miss y
+    pagar la latencia, pero la mayoría ya encontrará la cache caliente.
+
+    Controlado por la env var ``DATASET_WARMUP_ON_BOOT`` — sólo corre si vale
+    "1", "true", "yes", "on" o "si".
+    """
+    raw = (os.getenv("DATASET_WARMUP_ON_BOOT") or "").strip().lower()
+    if raw not in ("1", "true", "yes", "on", "si"):
+        return
+
+    def _runner():
+        try:
+            registry = list_datasets()
+        except Exception as exc:
+            if logger:
+                logger.warning("dataset warmup: registry load falló: %s", exc)
+            return
+        for key in registry:
+            try:
+                fetch_dataset(key)
+                if logger:
+                    logger.info("dataset warmup OK: %s", key)
+            except Exception as exc:
+                if logger:
+                    logger.warning("dataset warmup FAIL %s: %s", key, exc)
+
+    t = threading.Thread(
+        target=_runner, name="dataset-warmup", daemon=True
+    )
+    t.start()
+    return t

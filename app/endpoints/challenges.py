@@ -758,6 +758,7 @@ def get_challenge_csv(challenge_id):
 @bp.route("/challenges/<int:challenge_id>/download", methods=["GET"])
 @cross_origin()
 @jwt_required()
+@limiter.limit("60 per minute; 600 per hour")
 def download_challenge_csv(challenge_id):
     """
     Devuelve el CSV del desafío como un archivo descargable (text/csv) con
