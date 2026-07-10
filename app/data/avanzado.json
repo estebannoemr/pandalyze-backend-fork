@@ -1,6 +1,7 @@
 [
   {
     "id": 13,
+    "display_id": "3-001",
     "title": "Accesos a internet por provincia",
     "difficulty": "avanzado",
     "category": "agrupamiento",
@@ -24,6 +25,7 @@
   },
   {
     "id": 14,
+    "display_id": "3-002",
     "title": "Promedio académico por tipo de escuela",
     "difficulty": "avanzado",
     "category": "agrupamiento",
@@ -47,6 +49,7 @@
   },
   {
     "id": 15,
+    "display_id": "3-003",
     "title": "Total de usos SUBE por tipo de transporte",
     "difficulty": "avanzado",
     "category": "agrupamiento",
@@ -70,6 +73,7 @@
   },
   {
     "id": 16,
+    "display_id": "3-004",
     "title": "Avistamientos de felinos por provincia",
     "difficulty": "avanzado",
     "category": "agrupamiento",
@@ -93,6 +97,7 @@
   },
   {
     "id": 17,
+    "display_id": "3-005",
     "title": "El área protegida más grande",
     "difficulty": "avanzado",
     "category": "ordenamiento",
@@ -115,6 +120,7 @@
   },
   {
     "id": 18,
+    "display_id": "3-006",
     "title": "Matrícula total por nivel educativo",
     "difficulty": "avanzado",
     "category": "agrupamiento",
@@ -138,6 +144,7 @@
   },
   {
     "id": 23,
+    "display_id": "3-007",
     "title": "Total de pasajeros por línea de colectivo (contrareloj)",
     "difficulty": "avanzado",
     "category": "agrupamiento",
@@ -162,6 +169,7 @@
   },
   {
     "id": 24,
+    "display_id": "3-008",
     "title": "Gráfico de barras: matrícula por nivel",
     "difficulty": "avanzado",
     "category": "visualizacion",
@@ -185,6 +193,7 @@
   },
   {
     "id": 26,
+    "display_id": "3-009",
     "title": "Pie chart: especies de felinos",
     "difficulty": "avanzado",
     "category": "visualizacion",
@@ -208,6 +217,7 @@
   },
   {
     "id": 32,
+    "display_id": "3-010",
     "title": "Estacionalidad SUBE: viajes por mes",
     "difficulty": "avanzado",
     "category": "agrupamiento",
@@ -231,6 +241,7 @@
   },
   {
     "id": 33,
+    "display_id": "3-011",
     "title": "Accesos a internet por tecnología",
     "difficulty": "avanzado",
     "category": "agrupamiento",

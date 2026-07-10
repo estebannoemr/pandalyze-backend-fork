@@ -217,6 +217,7 @@ def _public_view(challenge):
     """Devuelve el desafío sin los campos sensibles (``expected_keyword``, ``solution_code``...)."""
     keys = (
         "id",
+        "display_id",
         "title",
         "difficulty",
         "points",

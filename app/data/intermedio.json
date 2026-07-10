@@ -1,6 +1,7 @@
 [
   {
     "id": 7,
+    "display_id": "2-001",
     "title": "Avistamientos de jaguar",
     "difficulty": "intermedio",
     "category": "filtrado",
@@ -23,6 +24,7 @@
   },
   {
     "id": 8,
+    "display_id": "2-002",
     "title": "Promedio general de los estudiantes",
     "difficulty": "intermedio",
     "category": "estadisticas",
@@ -45,6 +47,7 @@
   },
   {
     "id": 9,
+    "display_id": "2-003",
     "title": "Escuelas en La Plata",
     "difficulty": "intermedio",
     "category": "filtrado",
@@ -67,6 +70,7 @@
   },
   {
     "id": 10,
+    "display_id": "2-004",
     "title": "Aeropuertos grandes en Argentina",
     "difficulty": "intermedio",
     "category": "filtrado",
@@ -89,6 +93,7 @@
   },
   {
     "id": 11,
+    "display_id": "2-005",
     "title": "Localidades con fibra óptica",
     "difficulty": "intermedio",
     "category": "filtrado",
@@ -111,6 +116,7 @@
   },
   {
     "id": 12,
+    "display_id": "2-006",
     "title": "Distribución de notas finales",
     "difficulty": "intermedio",
     "category": "estadisticas",
@@ -133,6 +139,7 @@
   },
   {
     "id": 21,
+    "display_id": "2-007",
     "title": "Top 5 localidades con más accesos (contrareloj)",
     "difficulty": "intermedio",
     "category": "filtrado",
@@ -156,6 +163,7 @@
   },
   {
     "id": 22,
+    "display_id": "2-008",
     "title": "Top 3 días de mayor uso de SUBE (contrareloj)",
     "difficulty": "intermedio",
     "category": "filtrado",
@@ -179,6 +187,7 @@
   },
   {
     "id": 25,
+    "display_id": "2-009",
     "title": "Mapa de avistamientos de felinos",
     "difficulty": "intermedio",
     "category": "visualizacion",
@@ -202,6 +211,7 @@
   },
   {
     "id": 30,
+    "display_id": "2-010",
     "title": "Avistamientos del género Leopardus",
     "difficulty": "intermedio",
     "category": "filtrado",
@@ -224,6 +234,7 @@
   },
   {
     "id": 31,
+    "display_id": "2-011",
     "title": "Estaciones de ferrocarril en PBA",
     "difficulty": "intermedio",
     "category": "filtrado",

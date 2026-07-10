@@ -1,6 +1,7 @@
 [
   {
     "id": 1,
+    "display_id": "1-001",
     "title": "¿Cuántas filas tiene el dataset de estudiantes?",
     "difficulty": "basico",
     "category": "lectura",
@@ -23,6 +24,7 @@
   },
   {
     "id": 2,
+    "display_id": "1-002",
     "title": "Mostrá los primeros aeropuertos",
     "difficulty": "basico",
     "category": "lectura",
@@ -45,6 +47,7 @@
   },
   {
     "id": 3,
+    "display_id": "1-003",
     "title": "¿Qué columnas tiene el dataset de felinos?",
     "difficulty": "basico",
     "category": "lectura",
@@ -67,6 +70,7 @@
   },
   {
     "id": 4,
+    "display_id": "1-004",
     "title": "El acceso a internet más alto",
     "difficulty": "basico",
     "category": "estadisticas",
@@ -89,6 +93,7 @@
   },
   {
     "id": 5,
+    "display_id": "1-005",
     "title": "Últimas áreas protegidas",
     "difficulty": "basico",
     "category": "lectura",
@@ -111,6 +116,7 @@
   },
   {
     "id": 6,
+    "display_id": "1-006",
     "title": "Total de viajes en SUBE",
     "difficulty": "basico",
     "category": "estadisticas",
@@ -133,6 +139,7 @@
   },
   {
     "id": 19,
+    "display_id": "1-007",
     "title": "Aeropuerto más alto (contrareloj)",
     "difficulty": "basico",
     "category": "estadisticas",
@@ -156,6 +163,7 @@
   },
   {
     "id": 20,
+    "display_id": "1-008",
     "title": "Tamaño del padrón escolar (contrareloj)",
     "difficulty": "basico",
     "category": "lectura",
@@ -179,6 +187,7 @@
   },
   {
     "id": 27,
+    "display_id": "1-009",
     "title": "Mapa de áreas protegidas",
     "difficulty": "basico",
     "category": "visualizacion",
@@ -202,6 +211,7 @@
   },
   {
     "id": 28,
+    "display_id": "1-010",
     "title": "¿Qué especies de felinos hay?",
     "difficulty": "basico",
     "category": "lectura",
@@ -224,6 +234,7 @@
   },
   {
     "id": 29,
+    "display_id": "1-011",
     "title": "Resumen estadístico de los estudiantes",
     "difficulty": "basico",
     "category": "estadisticas",
