@@ -6,7 +6,7 @@ detrás hay SMTP, SendGrid, Mailgun o un simple ``logger.info``.
 
 En desarrollo / tesis, el helper detecta si hay configuración SMTP en el
 entorno (``SMTP_HOST`` + credenciales) y envía por SMTP nativo. Si no hay
-configuración, simplemente loguea el contenido del email — útil para
+configuración, simplemente loguea el contenido del email -> útil para
 demos y para iterar sin depender de un MTA real.
 """
 
@@ -38,7 +38,7 @@ def send_email(app, to, subject, body):
     """
     Envia un email plano. Si no hay SMTP configurado, loguea el contenido
     completo en INFO. Devuelve True si se envió por SMTP, False si fue solo
-    log. Cualquier error se loguea como warning sin levantar excepción —
+    log. Cualquier error se loguea como warning sin levantar excepción -
     el endpoint que llama no debería fallar por un problema de mail.
     """
     config = _smtp_config()

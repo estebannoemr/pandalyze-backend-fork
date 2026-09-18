@@ -8,7 +8,7 @@ Endpoints:
 - GET /datasets/cache/status    → snapshot del estado de cache (admin).
 
 El contenido CSV crudo de los datasets de los desafíos se sirve por
-``/challenges/<id>/download`` — esta API es para inspección/operación.
+``/challenges/<id>/download`` -> esta API es para inspección/operación.
 """
 
 from functools import wraps

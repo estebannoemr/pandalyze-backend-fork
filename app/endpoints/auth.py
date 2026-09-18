@@ -223,7 +223,7 @@ def forgot_password():
     Genera un token de reset y lo envía al email del usuario.
 
     Por seguridad respondemos siempre 200 con el mismo mensaje, exista o
-    no el email — esto evita usar el endpoint como oráculo de existencia
+    no el email -> esto evita usar el endpoint como oráculo de existencia
     de cuentas. Si el SMTP está configurado se manda mail; si no, el
     token aparece en los logs.
     """
@@ -262,7 +262,7 @@ def forgot_password():
         "Ingresá al siguiente enlace (válido por una hora) para elegir una nueva:\n\n"
         f"{reset_link}\n\n"
         "Si no fuiste vos, podés ignorar este mensaje.\n\n"
-        "— Pandalyze"
+        "- Pandalyze"
     )
     send_email(current_app, user.email, "Restablecer tu contraseña en Pandalyze", body)
 

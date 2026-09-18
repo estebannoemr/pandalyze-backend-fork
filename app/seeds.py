@@ -69,7 +69,7 @@ def seed_demo_users(app):
     Crea (idempotentemente) los docentes y alumnos demo. Devuelve un dict
     con conteo de creaciones para logging.
 
-    No toca usuarios existentes — si por error algún email demo coincide con
+    No toca usuarios existentes - si por error algún email demo coincide con
     un usuario real, ese usuario se respeta tal cual.
     """
     password = os.getenv("SEED_DEMO_PASSWORD") or "demo1234"

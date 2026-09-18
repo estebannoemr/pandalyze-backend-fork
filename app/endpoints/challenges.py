@@ -306,8 +306,8 @@ def _resolve_challenge_csv(challenge):
     """
     Resuelve el CSV fuente de un desafío:
     1) dataset_key (registry de datasets.json, proxy a Drive + cache)
-    2) csv_content (embebido — legacy)
-    3) csv_url (descarga on-demand — legacy/custom)
+    2) csv_content (embebido - legacy)
+    3) csv_url (descarga on-demand - legacy/custom)
     """
     ds_key = (challenge.get("dataset_key") or "").strip()
     if ds_key:
@@ -768,7 +768,7 @@ def download_challenge_csv(challenge_id):
 
     Esta ruta complementa a ``/csv`` (que devuelve JSON con el contenido):
     es la ruta canónica que el frontend usa para el flujo de "carga
-    client-side sin persistir" — al iniciar un desafío, el alumno descarga
+    client-side sin persistir" - al iniciar un desafío, el alumno descarga
     el CSV desde acá, lo registra en el BlocksService de su navegador y
     lo manda inline en cada llamada a /runPythonCode. Nunca toca la tabla
     csv_data.

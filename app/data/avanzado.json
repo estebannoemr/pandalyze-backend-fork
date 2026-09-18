@@ -19,7 +19,7 @@
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html",
     "expected_keyword": "5290896",
     "solution_code": "df = read_csv(csv_id)\nagrupado = df.groupby('Provincia')['Accesos'].sum()\nprint(agrupado)\n",
-    "feedback_correct": "¡Excelente! ``groupby`` + ``sum`` es uno de los patrones más usados en análisis de datos — agrupar por categoría y agregar una métrica.",
+    "feedback_correct": "¡Excelente! ``groupby`` + ``sum`` es uno de los patrones más usados en análisis de datos - agrupar por categoría y agregar una métrica.",
     "feedback_incorrect": "Agrupá por 'Provincia' y sumá la columna 'Accesos'. El total de Buenos Aires debería ser 5290896.",
     "suggestion": "Leer CSV → bloque 'agrupar por' con 'Provincia' → sumar 'Accesos' → imprimir."
   },
@@ -91,7 +91,7 @@
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html",
     "expected_keyword": "Corrientes",
     "solution_code": "df = read_csv(csv_id)\nagrupado = df.groupby('stateProvince')['species'].count()\nprint(agrupado)\n",
-    "feedback_correct": "¡Excelente! ``groupby`` + ``count`` te dice cuántas observaciones tenés por cada categoría — una métrica básica de cobertura.",
+    "feedback_correct": "¡Excelente! ``groupby`` + ``count`` te dice cuántas observaciones tenés por cada categoría - una métrica básica de cobertura.",
     "feedback_incorrect": "Agrupá por 'stateProvince' y aplicá ``count`` sobre 'species'. 'Corrientes' tiene que aparecer en el resultado.",
     "suggestion": "Leer CSV → bloque 'agrupar por' con 'stateProvince' → count de 'species' → imprimir."
   },
@@ -114,7 +114,7 @@
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html",
     "expected_keyword": "58234860",
     "solution_code": "df = read_csv(csv_id)\nordenado = df.sort_values(by='area', ascending=False)\nprint(ordenado.head(1))\n",
-    "feedback_correct": "¡Muy bien! Ordenar + tomar el primero es el patrón canónico para el 'top-N' — sin necesidad de ``groupby``.",
+    "feedback_correct": "¡Muy bien! Ordenar + tomar el primero es el patrón canónico para el 'top-N' - sin necesidad de ``groupby``.",
     "feedback_incorrect": "Ordená por 'area' descendente y mostrá la primera fila con ``head(1)``. El valor ``58234860`` tiene que aparecer.",
     "suggestion": "Leer CSV → ``sort_values`` por 'area' descendente → ``head(1)`` → imprimir."
   },
@@ -150,7 +150,7 @@
     "category": "agrupamiento",
     "points": 50,
     "time_limit_seconds": 360,
-    "description": "Tenés 360 segundos para agrupar el dataset de SUBE por 'LINEA' y sumar la columna 'CANTIDAD' — vas a ver qué línea de colectivo es la más usada del año en La Plata.",
+    "description": "Tenés 360 segundos para agrupar el dataset de SUBE por 'LINEA' y sumar la columna 'CANTIDAD' - vas a ver qué línea de colectivo es la más usada del año en La Plata.",
     "instructions": [
       "Cargá el CSV de SUBE.",
       "Agrupá por la columna 'LINEA'.",
@@ -222,7 +222,7 @@
     "difficulty": "avanzado",
     "category": "agrupamiento",
     "points": 50,
-    "description": "Agrupá el dataset de SUBE por 'MES_NOMBRE' y sumá la columna 'CANTIDAD' para ver cuántos viajes hubo en cada mes del año. La idea es detectar estacionalidad — meses con picos o caídas de uso del transporte público.",
+    "description": "Agrupá el dataset de SUBE por 'MES_NOMBRE' y sumá la columna 'CANTIDAD' para ver cuántos viajes hubo en cada mes del año. La idea es detectar estacionalidad - meses con picos o caídas de uso del transporte público.",
     "instructions": [
       "Cargá el CSV de SUBE.",
       "Agrupá por la columna 'MES_NOMBRE'.",
@@ -235,7 +235,7 @@
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html",
     "expected_keyword": "Enero",
     "solution_code": "df = read_csv(csv_id)\nagrupado = df.groupby('MES_NOMBRE')['CANTIDAD'].sum()\nprint(agrupado)\n",
-    "feedback_correct": "¡Perfecto! Agrupar por dimensión temporal es la base de cualquier análisis de estacionalidad — patrones que se repiten año a año.",
+    "feedback_correct": "¡Perfecto! Agrupar por dimensión temporal es la base de cualquier análisis de estacionalidad - patrones que se repiten año a año.",
     "feedback_incorrect": "Agrupá por 'MES_NOMBRE' y sumá 'CANTIDAD'. ``Enero`` tiene que aparecer entre los meses del resultado.",
     "suggestion": "Leer CSV → bloque 'agrupar por' con 'MES_NOMBRE' → sumar 'CANTIDAD' → imprimir."
   },
@@ -259,7 +259,7 @@
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html",
     "expected_keyword": "FIBRA OPTICA",
     "solution_code": "df = read_csv(csv_id)\nagrupado = df.groupby('Tecnologia')['Accesos'].sum()\nprint(agrupado)\n",
-    "feedback_correct": "¡Excelente! Esta agregación te dice de un vistazo qué tecnologías concentran la mayoría de las conexiones del país — insumo clásico de un reporte de telecomunicaciones.",
+    "feedback_correct": "¡Excelente! Esta agregación te dice de un vistazo qué tecnologías concentran la mayoría de las conexiones del país - insumo clásico de un reporte de telecomunicaciones.",
     "feedback_incorrect": "Agrupá por 'Tecnologia' y sumá 'Accesos'. ``FIBRA OPTICA`` tiene que aparecer entre las categorías.",
     "suggestion": "Leer CSV → bloque 'agrupar por' con 'Tecnologia' → sumar 'Accesos' → imprimir."
   }

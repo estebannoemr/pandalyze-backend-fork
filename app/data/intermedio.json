@@ -19,7 +19,7 @@
     "expected_keyword": "(172, 19)",
     "solution_code": "df = read_csv(csv_id)\nfiltrado = df[df['species'] == 'Panthera onca']\nprint(filtrado.shape)\n",
     "feedback_correct": "¡Excelente! Filtrar por valor exacto es uno de los reflejos básicos del análisis de datos.",
-    "feedback_incorrect": "El resultado tiene que ser ``(172, 19)``. Revisá la condición — la columna se llama 'species' y el valor 'Panthera onca'.",
+    "feedback_incorrect": "El resultado tiene que ser ``(172, 19)``. Revisá la condición - la columna se llama 'species' y el valor 'Panthera onca'.",
     "suggestion": "Leer CSV → bloque de filtro con 'species' == 'Panthera onca' → ``shape`` → imprimir."
   },
   {
@@ -145,7 +145,7 @@
     "category": "filtrado",
     "points": 25,
     "time_limit_seconds": 180,
-    "description": "Tenés 180 segundos para ordenar el dataset de internet por la columna 'Accesos' en forma descendente y mostrar las primeras 5 filas — son los servicios con más accesos del país.",
+    "description": "Tenés 180 segundos para ordenar el dataset de internet por la columna 'Accesos' en forma descendente y mostrar las primeras 5 filas - son los servicios con más accesos del país.",
     "instructions": [
       "Cargá el CSV de internet.",
       "Aplicá ``sort_values`` por 'Accesos' en orden descendente.",
@@ -157,7 +157,7 @@
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html",
     "expected_keyword": "CABA",
     "solution_code": "df = read_csv(csv_id)\nordenado = df.sort_values(by='Accesos', ascending=False)\nprint(ordenado.head(5))\n",
-    "feedback_correct": "¡Listo a tiempo! ``sort_values`` + ``head`` es el patrón canónico de ranking — uno de los más usados a diario.",
+    "feedback_correct": "¡Listo a tiempo! ``sort_values`` + ``head`` es el patrón canónico de ranking - uno de los más usados a diario.",
     "feedback_incorrect": "Ordená por 'Accesos' descendente y mostrá las primeras 5 filas. Tenés que ver ``CABA`` en alguna fila.",
     "suggestion": "Leer CSV → ``sort_values`` por 'Accesos' descendente → ``head(5)`` → imprimir."
   },
@@ -205,7 +205,7 @@
     "theory_url": "https://python-visualization.github.io/folium/latest/",
     "expected_keyword": "Puma yagouaroundi",
     "solution_code": "df = read_csv(csv_id)\ngenerate_map(dataframe=df, lat_col='lat', long_col='lng', category_col='species')\n",
-    "feedback_correct": "¡Brillante! El mapa muestra la distribución geográfica de cada especie — patrones que un gráfico tradicional no captaría.",
+    "feedback_correct": "¡Brillante! El mapa muestra la distribución geográfica de cada especie - patrones que un gráfico tradicional no captaría.",
     "feedback_incorrect": "Pasale al bloque de mapa las columnas ``lat``, ``lng`` y ``species`` como categoría. 'Puma yagouaroundi' tiene que aparecer.",
     "suggestion": "Leer CSV → bloque de mapa con ``lat``, ``lng`` y ``species`` → ejecutar."
   },
@@ -222,13 +222,13 @@
       "Filtrá ``genus == 'Leopardus'``.",
       "Aplicá ``shape`` al DataFrame filtrado e imprimilo."
     ],
-    "hint": "El resultado debería ser ``(218, 19)`` — 218 avistamientos repartidos en 6 especies de Leopardus.",
+    "hint": "El resultado debería ser ``(218, 19)`` - 218 avistamientos repartidos en 6 especies de Leopardus.",
     "dataset_key": "felinos",
     "csv_filename": "felinos_filtrado.csv",
     "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
     "expected_keyword": "(218, 19)",
     "solution_code": "df = read_csv(csv_id)\nfiltrado = df[df['genus'] == 'Leopardus']\nprint(filtrado.shape)\n",
-    "feedback_correct": "¡Muy bien! Filtrar por género agrupa varias especies emparentadas — usar la jerarquía taxonómica abre análisis interesantes.",
+    "feedback_correct": "¡Muy bien! Filtrar por género agrupa varias especies emparentadas - usar la jerarquía taxonómica abre análisis interesantes.",
     "feedback_incorrect": "Revisá el filtro: ``df['genus'] == 'Leopardus'`` (con L mayúscula). El resultado tiene que ser ``(218, 19)``.",
     "suggestion": "Leer CSV → bloque de filtro con 'genus' == 'Leopardus' → ``shape`` → imprimir."
   },
@@ -245,7 +245,7 @@
       "Filtrá ``gna == 'Estación'``.",
       "Aplicá ``shape`` al DataFrame filtrado e imprimilo."
     ],
-    "hint": "El resultado es ``(996, 8)`` — 996 estaciones (sin contar paradas, apeaderos, etc.) sobre 8 columnas.",
+    "hint": "El resultado es ``(996, 8)`` - 996 estaciones (sin contar paradas, apeaderos, etc.) sobre 8 columnas.",
     "dataset_key": "estaciones_ffcc",
     "csv_filename": "estaciones-ferrocarril-pba.csv",
     "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",

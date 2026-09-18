@@ -333,7 +333,7 @@ def overview():
 
 
 # ---------------------------------------------------------------------------
-# Etapa 3: agregados por clase, distribución de tiempos, desempeño por desafío
+# Agregados por clase, distribución de tiempos, desempeño por desafío
 # ---------------------------------------------------------------------------
 
 
@@ -373,7 +373,7 @@ def stats_by_class():
 
     Por cada clase del scope devolvemos número de alumnos, promedio de
     desafíos completados (primer pass por desafío) y promedio de puntos
-    acumulados. Los promedios son por alumno con clase asignada — un
+    acumulados. Los promedios son por alumno con clase asignada -> un
     alumno sin resultados cuenta como 0 completados, 0 puntos, así dos
     clases con cantidades distintas de alumnos siguen siendo comparables.
     """
@@ -540,7 +540,7 @@ def stats_by_challenge():
             ChallengeResult.user_id.in_(student_ids)
         ).all()
 
-        # Agregamos por (challenge_id, user_id) primero — para distinguir
+        # Agregamos por (challenge_id, user_id) primero -> para distinguir
         # cuántos alumnos distintos lo intentaron / aprobaron.
         # Estructura: per_ch[cid] = {
         #   "users_attempts": {uid: total_attempts},

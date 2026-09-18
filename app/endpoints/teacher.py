@@ -9,6 +9,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from ..models.user_model import User, ROLE_DOCENTE
 from ..models.challenge_result_model import ChallengeResult
+from ..models.class_model import Class
 from .challenges import _get_level_info, CHALLENGES
 
 
@@ -80,6 +81,14 @@ def list_students():
         .all()
     )
 
+    # Nombre de la comisión (clase) de cada alumno. Resolvemos los nombres en
+    # una sola query (evita N+1 al recorrer los alumnos).
+    class_ids = {s.class_id for s in students if s.class_id}
+    class_names = {}
+    if class_ids:
+        for c in Class.query.filter(Class.id.in_(class_ids)).all():
+            class_names[c.id] = c.name
+
     result = []
     for s in students:
         passed = ChallengeResult.all_passed_for_user(s.id)
@@ -100,6 +109,8 @@ def list_students():
             {
                 "id": s.id,
                 "email": s.email,
+                "class_id": s.class_id,
+                "class_name": class_names.get(s.class_id),
                 "total_points": total_points,
                 "level": level["level"],
                 "level_title": level["title"],

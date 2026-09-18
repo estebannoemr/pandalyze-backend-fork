@@ -81,7 +81,7 @@
       "Seleccioná la columna 'Accesos'.",
       "Aplicá el bloque ``max`` e imprimí el resultado."
     ],
-    "hint": "El valor máximo es 1.068.665 — corresponde a un servicio en CABA.",
+    "hint": "El valor máximo es 1.068.665 - corresponde a un servicio en CABA.",
     "dataset_key": "internet_localidades",
     "csv_filename": "Internet_Localidades.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.max.html",
@@ -251,7 +251,7 @@
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html",
     "expected_keyword": "math_score",
     "solution_code": "df = read_csv(csv_id)\nprint(df.describe())\n",
-    "feedback_correct": "¡Excelente! ``describe()`` es el primer reporte que un analista pide a un dataset nuevo — te da un retrato completo en una sola tabla.",
+    "feedback_correct": "¡Excelente! ``describe()`` es el primer reporte que un analista pide a un dataset nuevo - te da un retrato completo en una sola tabla.",
     "feedback_incorrect": "Aplicá ``describe`` sobre el DataFrame completo. La columna ``math_score`` tiene que aparecer en la cabecera.",
     "suggestion": "Leer CSV → bloque 'describe' → imprimir."
   }

@@ -4,7 +4,7 @@ Dataset service: resuelve CSVs de los desafíos por ``dataset_key``.
 Source of truth: ``app/data/datasets.json`` (registry de 8 datasets con drive_id).
 El servicio:
 1) Cachea en memoria por TTL (default 24h, configurable por env DATASET_CACHE_TTL).
-2) Hace de proxy a Google Drive — evita CORS en el browser y centraliza el manejo
+2) Hace de proxy a Google Drive -> evita CORS en el browser y centraliza el manejo
    de confirm-token para archivos grandes.
 3) Fallback local: si la env var ``LOCAL_DATASETS_DIR`` apunta a una carpeta con
    los CSVs, los lee del disco. Útil para dev/CI sin red.
@@ -300,7 +300,7 @@ def warmup_in_background(logger=None):
     el primer alumno que arranque un desafío puede caer en el path miss y
     pagar la latencia, pero la mayoría ya encontrará la cache caliente.
 
-    Controlado por la env var ``DATASET_WARMUP_ON_BOOT`` — sólo corre si vale
+    Controlado por la env var ``DATASET_WARMUP_ON_BOOT`` -> sólo corre si vale
     "1", "true", "yes", "on" o "si".
     """
     raw = (os.getenv("DATASET_WARMUP_ON_BOOT") or "").strip().lower()

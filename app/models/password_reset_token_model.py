@@ -19,7 +19,7 @@ from app.extensions import db
 # 60 minutos: largo suficiente para que el alumno revise su mail con
 # tranquilidad, corto suficiente para acotar el riesgo si el token leakea.
 TOKEN_TTL_MINUTES = 60
-# 64 hex chars (256 bits) — overkill pero gratis dado secrets.token_hex.
+# 64 hex chars (256 bits) -> overkill pero gratis dado secrets.token_hex.
 TOKEN_NBYTES = 32
 
 

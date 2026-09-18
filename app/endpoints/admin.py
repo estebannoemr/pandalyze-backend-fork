@@ -161,7 +161,7 @@ def list_users():
             "teacher_name": (
                 User.query.get(c.teacher_id).email.split("@")[0]
                 if User.query.get(c.teacher_id)
-                else "—"
+                else "-"
             ),
         }
         for c in all_classes
