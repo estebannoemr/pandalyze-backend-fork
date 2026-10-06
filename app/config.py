@@ -52,7 +52,17 @@ class Config:
         _jwt_secret = "dev-insecure-pandalyze-secret-change-me"
 
     JWT_SECRET_KEY = _jwt_secret
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)
+    # Duración de la sesión. Pasado ese tiempo el token vence y el usuario
+    # tiene que volver a iniciar sesión. El default (8 horas) cubre una
+    # jornada de clase sin dejar la cuenta abierta durante días en una
+    # computadora compartida. Se puede ajustar con JWT_EXPIRES_HOURS.
+    try:
+        _jwt_hours = float(os.getenv("JWT_EXPIRES_HOURS") or 8)
+        if _jwt_hours <= 0:
+            _jwt_hours = 8
+    except ValueError:
+        _jwt_hours = 8
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=_jwt_hours)
 
     # ---------- Admin ----------
     # Email del usuario admin. Si ADMIN_PASSWORD también está definido, el
