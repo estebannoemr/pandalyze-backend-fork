@@ -169,6 +169,21 @@ POINTS_BY_DIFFICULTY = {
     "avanzado": 50,
 }
 
+# Qué desafíos ve un estudiante que NO está inscripto en ninguna comisión.
+# Se elige con la variable de entorno CATALOGO_SIN_COMISION:
+#   "base" (default): sólo el catálogo base (los JSON de app/data). No ve los
+#                     desafíos creados por docentes, que son de sus comisiones.
+#   "todo":           catálogo base + todos los desafíos creados por docentes.
+#   "nada":           ninguno; la interfaz le pide que se sume a una comisión.
+# No afecta a docentes ni administradores (siempre ven todo) ni a estudiantes
+# con comisión (ven lo que eligió su docente).
+CATALOGO_SIN_COMISION_OPCIONES = ("base", "todo", "nada")
+
+
+def _catalogo_sin_comision():
+    valor = (os.getenv("CATALOGO_SIN_COMISION") or "base").strip().lower()
+    return valor if valor in CATALOGO_SIN_COMISION_OPCIONES else "base"
+
 
 
 
@@ -439,22 +454,32 @@ def list_challenges():
       el catálogo disponible).
     - Alumnos asociados a una clase ven sólo los desafíos seleccionados por
       esa clase.
-    - Alumnos sin clase ven el banco completo (mantiene el comportamiento
-      previo y permite que un alumno suelto siga practicando).
+    - Alumnos sin clase: depende de CATALOGO_SIN_COMISION (por defecto ven
+      sólo el catálogo base, para que puedan practicar por su cuenta).
     """
     uid = get_jwt_identity()
     user = User.query.get(int(uid)) if uid is not None else None
 
     visible = _all_challenges()
 
-    if user is not None and user.role == ROLE_ALUMNO and user.class_id is not None:
-        # Import diferido para evitar ciclo de imports.
-        from ..models.class_model import Class as _Class
+    if user is not None and user.role == ROLE_ALUMNO:
+        klass = None
+        if user.class_id is not None:
+            # Import diferido para evitar ciclo de imports.
+            from ..models.class_model import Class as _Class
 
-        klass = _Class.query.get(user.class_id)
+            klass = _Class.query.get(user.class_id)
         if klass is not None:
             allowed = set(klass.get_selected_ids())
             visible = [c for c in visible if c["id"] in allowed]
+        else:
+            # Estudiante sin comisión.
+            modo = _catalogo_sin_comision()
+            if modo == "base":
+                visible = [c for c in visible if not c.get("is_custom")]
+            elif modo == "nada":
+                visible = []
+            # "todo": se deja el catálogo completo.
 
     public_rows = []
     for c in visible:
