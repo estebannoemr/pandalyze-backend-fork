@@ -9,10 +9,10 @@
     "description": "El dataset 'Student_Performance.csv' tiene información de miles de estudiantes con sus notas y hábitos. Averiguá cuántos registros tiene en total usando la propiedad ``shape``.",
     "instructions": [
       "Cargá el CSV de estudiantes con el bloque de leer CSV.",
-      "Aplicá el bloque 'shape' sobre el DataFrame.",
+      "Aplicá el bloque ``shape`` sobre el DataFrame.",
       "Imprimí el resultado en consola."
     ],
-    "hint": "``shape`` devuelve una tupla (filas, columnas). El dataset tiene 25.000 filas y 16 columnas.",
+    "hint": "Usá el bloque ``.shape``, que está en la categoría Información. Devuelve un par (filas, columnas): el primer número es la cantidad de registros. Para ver el resultado, encastralo dentro de ``print( )``.",
     "dataset_key": "student_performance",
     "csv_filename": "Student_Performance.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.shape.html",
@@ -20,7 +20,7 @@
     "solution_code": "df = read_csv(csv_id)\nprint(df.shape)\n",
     "feedback_correct": "¡Excelente! El dataset tiene 25.000 alumnos. Conocer el tamaño es lo primero que mira un analista al abrir cualquier dataset.",
     "feedback_incorrect": "Asegurate de imprimir ``shape`` del DataFrame completo, no de una columna.",
-    "suggestion": "Leer CSV → bloque 'shape' → imprimir."
+    "suggestion": "Leer CSV → bloque ``shape`` → imprimir."
   },
   {
     "id": 2,
@@ -35,15 +35,15 @@
       "Aplicá el bloque ``head`` con parámetro 3.",
       "Imprimí el resultado."
     ],
-    "hint": "El primer aeropuerto del catálogo es Ezeiza, código ICAO ``SAEZ``. Buscá ``SAEZ`` en el resultado.",
+    "hint": "Usá el bloque ``.head( )`` de la categoría Información y escribí 3 entre los paréntesis. Para ver el resultado, encastralo dentro de ``print( )``.",
     "dataset_key": "ar_airports",
     "csv_filename": "ar-airports.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.head.html",
     "expected_keyword": "SAEZ",
     "solution_code": "df = read_csv(csv_id)\nprint(df.head(3))\n",
     "feedback_correct": "¡Muy bien! ``head`` es la forma estándar de espiar un dataset antes de analizarlo.",
-    "feedback_incorrect": "Probá con ``head(3)``: si ponés otro número quizás ``SAEZ`` no aparezca.",
-    "suggestion": "Leer CSV → bloque 'head' con 3 → imprimir."
+    "feedback_incorrect": "Probá con ``head(3)`` sobre el DataFrame completo y acordate de imprimir el resultado.",
+    "suggestion": "Leer CSV → bloque ``head`` con 3 → imprimir."
   },
   {
     "id": 3,
@@ -55,18 +55,18 @@
     "description": "El dataset 'felinos_filtrado.csv' registra avistamientos de felinos en Argentina. Listá todas las columnas para saber con qué variables vas a trabajar.",
     "instructions": [
       "Cargá el CSV de felinos.",
-      "Aplicá el bloque 'columnas' sobre el DataFrame.",
+      "Aplicá el bloque ``columns`` sobre el DataFrame.",
       "Imprimí el resultado."
     ],
-    "hint": "El atributo ``columns`` devuelve un Index con los nombres. Una de las columnas se llama 'species'.",
+    "hint": "Usá el bloque ``.columns`` de la categoría Información: devuelve la lista con los nombres de todas las columnas. Para ver el resultado, encastralo dentro de ``print( )``.",
     "dataset_key": "felinos",
     "csv_filename": "felinos_filtrado.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.columns.html",
     "expected_keyword": "species",
     "solution_code": "df = read_csv(csv_id)\nprint(df.columns)\n",
     "feedback_correct": "¡Perfecto! Conocer las columnas es el paso previo a cualquier análisis.",
-    "feedback_incorrect": "Listá las columnas del DataFrame con el bloque 'columnas' e imprimilo en consola.",
-    "suggestion": "Leer CSV → bloque 'columnas' → imprimir."
+    "feedback_incorrect": "Listá las columnas del DataFrame con el bloque ``columns`` e imprimilo en consola.",
+    "suggestion": "Leer CSV → bloque ``columns`` → imprimir."
   },
   {
     "id": 4,
@@ -81,15 +81,15 @@
       "Seleccioná la columna 'Accesos'.",
       "Aplicá el bloque ``max`` e imprimí el resultado."
     ],
-    "hint": "El valor máximo es 1.068.665 - corresponde a un servicio en CABA.",
+    "hint": "Son dos pasos: primero quedarse con una sola columna (categoría Filtros) y recién después calcular su máximo (categoría Cálculos).",
     "dataset_key": "internet_localidades",
     "csv_filename": "Internet_Localidades.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.max.html",
     "expected_keyword": "1068665",
     "solution_code": "df = read_csv(csv_id)\nprint(df['Accesos'].max())\n",
     "feedback_correct": "¡Muy bien! ``max`` aplicado sobre una columna es la operación más directa para detectar valores extremos.",
-    "feedback_incorrect": "Aplicá ``max`` sobre la columna 'Accesos', no sobre el DataFrame entero. El valor buscado es 1068665.",
-    "suggestion": "Leer CSV → columna 'Accesos' → bloque 'máximo' → imprimir."
+    "feedback_incorrect": "Aplicá ``max`` sobre la columna 'Accesos', no sobre el DataFrame entero.",
+    "suggestion": "Leer CSV → columna 'Accesos' → bloque ``max`` → imprimir."
   },
   {
     "id": 5,
@@ -104,15 +104,15 @@
       "Aplicá el bloque ``tail`` con parámetro 3.",
       "Imprimí el resultado."
     ],
-    "hint": "``tail(n)`` muestra las últimas filas del dataset. El área de la última fila es 3.712.676.",
+    "hint": "``tail`` es el espejo de ``head``: en lugar de las primeras filas, muestra las últimas.",
     "dataset_key": "area_protegida",
     "csv_filename": "area_protegida.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.tail.html",
     "expected_keyword": "3712676",
     "solution_code": "df = read_csv(csv_id)\nprint(df.tail(3))\n",
     "feedback_correct": "¡Muy bien! ``tail`` complementa a ``head``: te deja ver el final del dataset.",
-    "feedback_incorrect": "Usá ``tail(3)`` sobre el DataFrame: si pasás otro número 3712676 puede no estar visible.",
-    "suggestion": "Leer CSV → bloque 'tail' con 3 → imprimir."
+    "feedback_incorrect": "Usá ``tail(3)`` sobre el DataFrame completo y acordate de imprimir el resultado.",
+    "suggestion": "Leer CSV → bloque ``tail`` con 3 → imprimir."
   },
   {
     "id": 6,
@@ -127,15 +127,15 @@
       "Seleccioná la columna 'CANTIDAD'.",
       "Aplicá ``sum`` e imprimí el resultado."
     ],
-    "hint": "El total acumulado es 42.458.759 viajes. ``sum()`` sobre la columna devuelve ese número.",
+    "hint": "``sum()`` suma todos los valores de una columna numérica. Si lo aplicás sobre el DataFrame entero vas a obtener una suma por columna, no un único total.",
     "dataset_key": "sube_laplata",
     "csv_filename": "SUBE_2025_LaPlata.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.sum.html",
     "expected_keyword": "42458759",
     "solution_code": "df = read_csv(csv_id)\nprint(df['CANTIDAD'].sum())\n",
     "feedback_correct": "¡Perfecto! ``sum()`` es la operación de acumulación más básica. La vas a usar muchísimo combinada con ``groupby``.",
-    "feedback_incorrect": "El total buscado es 42458759. Asegurate de aplicar ``sum`` sólo sobre la columna 'CANTIDAD'.",
-    "suggestion": "Leer CSV → columna 'CANTIDAD' → bloque 'suma' → imprimir."
+    "feedback_incorrect": "Asegurate de aplicar ``sum`` solo sobre la columna 'CANTIDAD'.",
+    "suggestion": "Leer CSV → columna 'CANTIDAD' → bloque ``sum`` → imprimir."
   },
   {
     "id": 19,
@@ -151,15 +151,15 @@
       "Seleccioná la columna 'elevation_ft'.",
       "Aplicá ``max`` e imprimí el resultado antes de que se acabe el tiempo."
     ],
-    "hint": "La elevación máxima son 13000 pies (un aeródromo de gran altura). Buscá ese número en el output.",
+    "hint": "Es el mismo procedimiento que usarías para buscar el máximo de cualquier columna numérica: seleccionar la columna y aplicar el cálculo.",
     "dataset_key": "ar_airports",
     "csv_filename": "ar-airports.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.max.html",
     "expected_keyword": "13000",
     "solution_code": "df = read_csv(csv_id)\nprint(df['elevation_ft'].max())\n",
     "feedback_correct": "¡Listo a tiempo! ``max`` sobre una columna es una de las operaciones más rápidas y útiles.",
-    "feedback_incorrect": "Aplicá ``max`` SÓLO sobre la columna 'elevation_ft'. El valor buscado es 13000.",
-    "suggestion": "Leer CSV → columna 'elevation_ft' → bloque 'máximo' → imprimir."
+    "feedback_incorrect": "Aplicá ``max`` solo sobre la columna 'elevation_ft'.",
+    "suggestion": "Leer CSV → columna 'elevation_ft' → bloque ``max`` → imprimir."
   },
   {
     "id": 20,
@@ -175,15 +175,15 @@
       "Aplicá el bloque ``shape`` sobre el DataFrame.",
       "Imprimilo en consola antes de que el reloj llegue a cero."
     ],
-    "hint": "``shape`` devuelve ``(filas, columnas)``. El resultado correcto es ``(21652, 35)``.",
+    "hint": "Las dimensiones se obtienen con una propiedad del DataFrame que devuelve un par (filas, columnas).",
     "dataset_key": "establecimientos",
     "csv_filename": "establecimientos-educativos-20042026.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.shape.html",
     "expected_keyword": "(21652, 35)",
     "solution_code": "df = read_csv(csv_id)\nprint(df.shape)\n",
     "feedback_correct": "¡Listo a tiempo! Reportar ``shape`` es uno de los reflejos básicos: te dice de qué tamaño es el problema.",
-    "feedback_incorrect": "Imprimí ``shape`` del DataFrame entero. Debería verse ``(21652, 35)``.",
-    "suggestion": "Leer CSV → bloque 'shape' → imprimir."
+    "feedback_incorrect": "Imprimí ``shape`` del DataFrame entero, no de una columna.",
+    "suggestion": "Leer CSV → bloque ``shape`` → imprimir."
   },
   {
     "id": 27,
@@ -199,14 +199,14 @@
       "Generá un mapa interactivo pasando ``lat``, ``lng`` y ``gna`` como argumentos.",
       "Ejecutá el bloque para visualizar el mapa."
     ],
-    "hint": "Las columnas geográficas son ``lat`` y ``lng``. Usá ``gna`` (tipo de área) como categoría. ``Parque Nacional`` tiene que aparecer entre los marcadores.",
+    "hint": "El bloque de mapa necesita tres columnas: la de latitud, la de longitud y la que define la categoría de cada marcador. Si no recordás cómo se llaman, imprimí antes ``.columns``.",
     "dataset_key": "area_protegida",
     "csv_filename": "area_protegida.csv",
     "theory_url": "https://python-visualization.github.io/folium/latest/",
     "expected_keyword": "Parque Nacional",
     "solution_code": "df = read_csv(csv_id)\ngenerate_map(dataframe=df, lat_col='lat', long_col='lng', category_col='gna')\n",
     "feedback_correct": "¡Brillante! Los mapas son la forma más potente de comunicar datos con componente geográfica.",
-    "feedback_incorrect": "Pasale al bloque 'mostrar mapa de' las columnas ``lat``, ``lng`` y ``gna``. 'Parque Nacional' tiene que aparecer entre las categorías.",
+    "feedback_incorrect": "Pasale al bloque 'mostrar mapa de' las columnas ``lat``, ``lng`` y ``gna``: latitud, longitud y categoría.",
     "suggestion": "Primero imprimí el DataFrame para identificar las columnas. Después usá el bloque de mapa con ``lat``, ``lng`` y ``gna`` como categoría."
   },
   {
@@ -222,15 +222,15 @@
       "Seleccioná la columna 'species'.",
       "Aplicá el bloque ``unique`` e imprimí el resultado."
     ],
-    "hint": "``unique()`` devuelve un array con los valores distintos. ``Puma concolor`` (el puma común) tiene que aparecer.",
+    "hint": "``unique()`` devuelve los valores distintos de una columna, sin repetidos. Se aplica sobre una columna, no sobre el DataFrame completo.",
     "dataset_key": "felinos",
     "csv_filename": "felinos_filtrado.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.unique.html",
     "expected_keyword": "Puma concolor",
     "solution_code": "df = read_csv(csv_id)\nprint(df['species'].unique())\n",
     "feedback_correct": "¡Muy bien! Hay 9 especies registradas. ``unique`` es la forma más directa de ver el universo de valores de una columna.",
-    "feedback_incorrect": "Aplicá ``unique`` sobre la columna 'species'. ``Puma concolor`` tiene que aparecer en el array.",
-    "suggestion": "Leer CSV → columna 'species' → bloque 'unique' → imprimir."
+    "feedback_incorrect": "Aplicá ``unique`` sobre la columna 'species', no sobre el DataFrame entero.",
+    "suggestion": "Leer CSV → columna 'species' → bloque ``unique`` → imprimir."
   },
   {
     "id": 29,
@@ -245,14 +245,14 @@
       "Aplicá el bloque ``describe`` sobre el DataFrame.",
       "Imprimí el resultado."
     ],
-    "hint": "``describe()`` muestra una tabla con todas las columnas numéricas como cabecera, incluyendo ``math_score``.",
+    "hint": "``describe()`` se aplica sobre el DataFrame completo y resume solo las columnas numéricas.",
     "dataset_key": "student_performance",
     "csv_filename": "Student_Performance.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html",
     "expected_keyword": "math_score",
     "solution_code": "df = read_csv(csv_id)\nprint(df.describe())\n",
     "feedback_correct": "¡Excelente! ``describe()`` es el primer reporte que un analista pide a un dataset nuevo - te da un retrato completo en una sola tabla.",
-    "feedback_incorrect": "Aplicá ``describe`` sobre el DataFrame completo. La columna ``math_score`` tiene que aparecer en la cabecera.",
-    "suggestion": "Leer CSV → bloque 'describe' → imprimir."
+    "feedback_incorrect": "Aplicá ``describe`` sobre el DataFrame completo e imprimí el resultado.",
+    "suggestion": "Leer CSV → bloque ``describe`` → imprimir."
   }
 ]

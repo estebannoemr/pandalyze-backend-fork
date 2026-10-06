@@ -13,15 +13,15 @@
       "Sumá la columna 'Accesos' dentro de cada grupo.",
       "Imprimí el resultado de la agrupación."
     ],
-    "hint": "El total de Buenos Aires es 5290896 accesos. Buscá ese número en el output.",
+    "hint": "Un agrupamiento tiene tres partes: la columna por la que se agrupa, la columna sobre la que se calcula y la operación que se aplica a cada grupo.",
     "dataset_key": "internet_localidades",
     "csv_filename": "Internet_Localidades.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html",
     "expected_keyword": "5290896",
     "solution_code": "df = read_csv(csv_id)\nagrupado = df.groupby('Provincia')['Accesos'].sum()\nprint(agrupado)\n",
     "feedback_correct": "¡Excelente! ``groupby`` + ``sum`` es uno de los patrones más usados en análisis de datos - agrupar por categoría y agregar una métrica.",
-    "feedback_incorrect": "Agrupá por 'Provincia' y sumá la columna 'Accesos'. El total de Buenos Aires debería ser 5290896.",
-    "suggestion": "Leer CSV → bloque 'agrupar por' con 'Provincia' → sumar 'Accesos' → imprimir."
+    "feedback_incorrect": "Agrupá por 'Provincia' y sumá la columna 'Accesos'. El resultado tiene que mostrar un total por provincia.",
+    "suggestion": "Leer CSV → bloque ``groupby`` con 'Provincia' → sumar 'Accesos' → imprimir."
   },
   {
     "id": 14,
@@ -37,15 +37,15 @@
       "Calculá el promedio de 'overall_score' en cada grupo.",
       "Imprimí el resultado."
     ],
-    "hint": "El promedio de las escuelas privadas es aproximadamente ``63.98``. Buscá ``63.98`` en el output.",
+    "hint": "Tiene la misma estructura que un agrupamiento con suma, pero la operación que se aplica a cada grupo es el promedio.",
     "dataset_key": "student_performance",
     "csv_filename": "Student_Performance.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html",
     "expected_keyword": "63.98",
     "solution_code": "df = read_csv(csv_id)\nagrupado = df.groupby('school_type')['overall_score'].mean()\nprint(agrupado)\n",
     "feedback_correct": "¡Muy bien! Agrupar por categoría y promediar una métrica numérica es la base de cualquier comparación entre cohortes.",
-    "feedback_incorrect": "Agrupá por 'school_type' y aplicá ``mean`` sobre 'overall_score'. Tenés que ver ``63.98`` en el resultado.",
-    "suggestion": "Leer CSV → bloque 'agrupar por' con 'school_type' → promedio de 'overall_score' → imprimir."
+    "feedback_incorrect": "Agrupá por 'school_type' y aplicá ``mean`` sobre 'overall_score'. El resultado tiene que mostrar un promedio por tipo de escuela.",
+    "suggestion": "Leer CSV → bloque ``groupby`` con 'school_type' → promedio de 'overall_score' → imprimir."
   },
   {
     "id": 15,
@@ -61,15 +61,15 @@
       "Sumá la columna 'CANTIDAD' dentro de cada grupo.",
       "Imprimí el resultado."
     ],
-    "hint": "El único tipo de transporte en La Plata es 'COLECTIVO'. Buscá ``COLECTIVO`` en el output.",
+    "hint": "Fijate cuántos grupos aparecen en el resultado: eso te dice cuántos tipos de transporte distintos hay en el dataset.",
     "dataset_key": "sube_laplata",
     "csv_filename": "SUBE_2025_LaPlata.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html",
     "expected_keyword": "COLECTIVO",
     "solution_code": "df = read_csv(csv_id)\nagrupado = df.groupby('TIPO_TRANSPORTE')['CANTIDAD'].sum()\nprint(agrupado)\n",
     "feedback_correct": "¡Perfecto! Esta agregación te dice de un vistazo cuánto pesa cada modalidad de transporte en el sistema.",
-    "feedback_incorrect": "Agrupá por 'TIPO_TRANSPORTE' y sumá 'CANTIDAD'. 'COLECTIVO' tiene que aparecer.",
-    "suggestion": "Leer CSV → bloque 'agrupar por' con 'TIPO_TRANSPORTE' → sumar 'CANTIDAD' → imprimir."
+    "feedback_incorrect": "Agrupá por 'TIPO_TRANSPORTE' y sumá 'CANTIDAD'. El resultado tiene que mostrar un total por tipo de transporte.",
+    "suggestion": "Leer CSV → bloque ``groupby`` con 'TIPO_TRANSPORTE' → sumar 'CANTIDAD' → imprimir."
   },
   {
     "id": 16,
@@ -85,15 +85,15 @@
       "Aplicá ``count`` sobre la columna 'species' dentro de cada grupo.",
       "Imprimí el resultado."
     ],
-    "hint": "Corrientes tiene 178 avistamientos. Buscá ``Corrientes`` en el output.",
+    "hint": "``count()`` cuenta filas en lugar de sumar valores. Por eso sirve aplicarlo sobre una columna que no tenga datos faltantes.",
     "dataset_key": "felinos",
     "csv_filename": "felinos_filtrado.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html",
     "expected_keyword": "Corrientes",
     "solution_code": "df = read_csv(csv_id)\nagrupado = df.groupby('stateProvince')['species'].count()\nprint(agrupado)\n",
     "feedback_correct": "¡Excelente! ``groupby`` + ``count`` te dice cuántas observaciones tenés por cada categoría - una métrica básica de cobertura.",
-    "feedback_incorrect": "Agrupá por 'stateProvince' y aplicá ``count`` sobre 'species'. 'Corrientes' tiene que aparecer en el resultado.",
-    "suggestion": "Leer CSV → bloque 'agrupar por' con 'stateProvince' → count de 'species' → imprimir."
+    "feedback_incorrect": "Agrupá por 'stateProvince' y aplicá ``count`` sobre 'species'. El resultado tiene que mostrar una cantidad por provincia.",
+    "suggestion": "Leer CSV → bloque ``groupby`` con 'stateProvince' → count de 'species' → imprimir."
   },
   {
     "id": 17,
@@ -108,14 +108,14 @@
       "Ordená por la columna 'area' en orden descendente.",
       "Imprimí la primera fila con ``head(1)``."
     ],
-    "hint": "El área más grande mide 58234860. Buscá ``58234860`` en el output.",
+    "hint": "Al ordenar de mayor a menor, el valor más grande queda en la primera fila. ``head(1)`` se queda solo con esa.",
     "dataset_key": "area_protegida",
     "csv_filename": "area_protegida.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html",
     "expected_keyword": "58234860",
     "solution_code": "df = read_csv(csv_id)\nordenado = df.sort_values(by='area', ascending=False)\nprint(ordenado.head(1))\n",
     "feedback_correct": "¡Muy bien! Ordenar + tomar el primero es el patrón canónico para el 'top-N' - sin necesidad de ``groupby``.",
-    "feedback_incorrect": "Ordená por 'area' descendente y mostrá la primera fila con ``head(1)``. El valor ``58234860`` tiene que aparecer.",
+    "feedback_incorrect": "Ordená por 'area' en forma descendente y mostrá solo la primera fila con ``head(1)``.",
     "suggestion": "Leer CSV → ``sort_values`` por 'area' descendente → ``head(1)`` → imprimir."
   },
   {
@@ -132,15 +132,15 @@
       "Sumá la columna 'matricula' dentro de cada grupo.",
       "Imprimí el resultado."
     ],
-    "hint": "El nivel 'Ciclo Medio' aparece en el resultado. Buscá ``Ciclo Medio`` en el output.",
+    "hint": "El resultado tiene que mostrar una fila por cada nivel educativo. Si ves una sola cifra, falta el agrupamiento.",
     "dataset_key": "establecimientos",
     "csv_filename": "establecimientos-educativos-20042026.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html",
     "expected_keyword": "Ciclo Medio",
     "solution_code": "df = read_csv(csv_id)\nagrupado = df.groupby('nivel')['matricula'].sum()\nprint(agrupado)\n",
     "feedback_correct": "¡Excelente! ``groupby`` + ``sum`` por nivel educativo es exactamente el tipo de reporte que pediría un funcionario de educación.",
-    "feedback_incorrect": "Agrupá por 'nivel' y sumá 'matricula'. ``Ciclo Medio`` tiene que aparecer en el resultado.",
-    "suggestion": "Leer CSV → bloque 'agrupar por' con 'nivel' → sumar 'matricula' → imprimir."
+    "feedback_incorrect": "Agrupá por 'nivel' y sumá 'matricula'. El resultado tiene que mostrar un total por nivel educativo.",
+    "suggestion": "Leer CSV → bloque ``groupby`` con 'nivel' → sumar 'matricula' → imprimir."
   },
   {
     "id": 23,
@@ -157,15 +157,15 @@
       "Sumá la columna 'CANTIDAD' dentro de cada grupo.",
       "Imprimí el resultado antes de que se acabe el tiempo."
     ],
-    "hint": "La línea más usada es 'LINEA OESTE' con más de 17 millones de viajes. Buscá ``LINEA OESTE`` en el output.",
+    "hint": "Agrupá por línea y sumá los usos. Para saber cuál es la más usada, compará los totales del resultado.",
     "dataset_key": "sube_laplata",
     "csv_filename": "SUBE_2025_LaPlata.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html",
     "expected_keyword": "LINEA OESTE",
     "solution_code": "df = read_csv(csv_id)\nagrupado = df.groupby('LINEA')['CANTIDAD'].sum()\nprint(agrupado)\n",
     "feedback_correct": "¡Llegaste a tiempo! Esta agregación es la base de cualquier dashboard de movilidad urbana.",
-    "feedback_incorrect": "Agrupá por 'LINEA' y sumá 'CANTIDAD'. ``LINEA OESTE`` tiene que aparecer en el resultado.",
-    "suggestion": "Leer CSV → bloque 'agrupar por' con 'LINEA' → sumar 'CANTIDAD' → imprimir."
+    "feedback_incorrect": "Agrupá por 'LINEA' y sumá 'CANTIDAD'. El resultado tiene que mostrar un total por línea.",
+    "suggestion": "Leer CSV → bloque ``groupby`` con 'LINEA' → sumar 'CANTIDAD' → imprimir."
   },
   {
     "id": 24,
@@ -181,14 +181,14 @@
       "Imprimí la agrupación.",
       "Generá un gráfico de barras con ``plotly.bar`` usando el índice como x y los valores como y."
     ],
-    "hint": "Antes de graficar, el ``print`` de la agrupación tiene que mostrar ``Ciclo Medio`` entre los niveles.",
+    "hint": "Guardá el agrupamiento en una variable: la vas a usar dos veces, una para imprimirla y otra para graficarla.",
     "dataset_key": "establecimientos",
     "csv_filename": "establecimientos-educativos-20042026.csv",
     "theory_url": "https://plotly.com/python/bar-charts/",
     "expected_keyword": "Ciclo Medio",
     "solution_code": "df = read_csv(csv_id)\nagrupado = df.groupby('nivel')['matricula'].sum()\nprint(agrupado)\nplotly.bar(data_frame=agrupado, x=agrupado.index, y=agrupado.values, title='Matrícula por nivel educativo').show()\n",
     "feedback_correct": "¡Brillante! Un bar chart sobre una agregación por categoría es la forma estándar de comunicar 'distribución por grupo'.",
-    "feedback_incorrect": "Imprimí primero la agrupación (tiene que aparecer ``Ciclo Medio``) y después generá el gráfico de barras.",
+    "feedback_incorrect": "Imprimí primero la agrupación por nivel y después generá el gráfico de barras.",
     "suggestion": "Leer CSV → agrupar 'nivel' sumando 'matricula' → ``print`` la agrupación → ``plotly.bar``."
   },
   {
@@ -205,14 +205,14 @@
       "Imprimí el conteo.",
       "Generá un pie chart con ``plotly.pie`` usando los valores como 'values' y los nombres como 'names'."
     ],
-    "hint": "Antes de graficar, el ``print`` del ``value_counts`` tiene que mostrar la especie ``Puma concolor``.",
+    "hint": "Guardá el conteo en una variable. Para el gráfico, los nombres de las especies están en el índice del conteo y las cantidades en sus valores.",
     "dataset_key": "felinos",
     "csv_filename": "felinos_filtrado.csv",
     "theory_url": "https://plotly.com/python/pie-charts/",
     "expected_keyword": "Puma concolor",
     "solution_code": "df = read_csv(csv_id)\nconteo = df['species'].value_counts()\nprint(conteo)\nplotly.pie(data_frame=conteo, values=conteo.values, names=conteo.index, title='Especies de felinos avistadas').show()\n",
     "feedback_correct": "¡Excelente! Un pie chart sobre frecuencias es la forma clásica de comunicar 'participación relativa'.",
-    "feedback_incorrect": "Imprimí primero el ``value_counts`` (tiene que mostrar ``Puma concolor``) y después generá el pie chart.",
+    "feedback_incorrect": "Imprimí primero el ``value_counts`` de las especies y después generá el gráfico de torta.",
     "suggestion": "Leer CSV → ``value_counts`` de 'species' → ``print`` el conteo → ``plotly.pie``."
   },
   {
@@ -229,15 +229,15 @@
       "Sumá la columna 'CANTIDAD' dentro de cada grupo.",
       "Imprimí el resultado."
     ],
-    "hint": "El resultado va a tener una fila por mes. ``Enero`` tiene que aparecer en el índice.",
+    "hint": "El resultado tiene que mostrar una fila por mes. Ojo: los meses salen ordenados alfabéticamente, no según el calendario.",
     "dataset_key": "sube_laplata",
     "csv_filename": "SUBE_2025_LaPlata.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html",
     "expected_keyword": "Enero",
     "solution_code": "df = read_csv(csv_id)\nagrupado = df.groupby('MES_NOMBRE')['CANTIDAD'].sum()\nprint(agrupado)\n",
     "feedback_correct": "¡Perfecto! Agrupar por dimensión temporal es la base de cualquier análisis de estacionalidad - patrones que se repiten año a año.",
-    "feedback_incorrect": "Agrupá por 'MES_NOMBRE' y sumá 'CANTIDAD'. ``Enero`` tiene que aparecer entre los meses del resultado.",
-    "suggestion": "Leer CSV → bloque 'agrupar por' con 'MES_NOMBRE' → sumar 'CANTIDAD' → imprimir."
+    "feedback_incorrect": "Agrupá por 'MES_NOMBRE' y sumá 'CANTIDAD'. El resultado tiene que mostrar un total por mes.",
+    "suggestion": "Leer CSV → bloque ``groupby`` con 'MES_NOMBRE' → sumar 'CANTIDAD' → imprimir."
   },
   {
     "id": 33,
@@ -253,14 +253,14 @@
       "Sumá la columna 'Accesos' dentro de cada grupo.",
       "Imprimí el resultado."
     ],
-    "hint": "El resultado va a mostrar una fila por tecnología. ``FIBRA OPTICA`` (sin tilde, mayúscula) tiene que aparecer.",
+    "hint": "El resultado tiene una fila por tecnología. Comparando los totales podés ver cuál es la más extendida.",
     "dataset_key": "internet_localidades",
     "csv_filename": "Internet_Localidades.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html",
     "expected_keyword": "FIBRA OPTICA",
     "solution_code": "df = read_csv(csv_id)\nagrupado = df.groupby('Tecnologia')['Accesos'].sum()\nprint(agrupado)\n",
     "feedback_correct": "¡Excelente! Esta agregación te dice de un vistazo qué tecnologías concentran la mayoría de las conexiones del país - insumo clásico de un reporte de telecomunicaciones.",
-    "feedback_incorrect": "Agrupá por 'Tecnologia' y sumá 'Accesos'. ``FIBRA OPTICA`` tiene que aparecer entre las categorías.",
-    "suggestion": "Leer CSV → bloque 'agrupar por' con 'Tecnologia' → sumar 'Accesos' → imprimir."
+    "feedback_incorrect": "Agrupá por 'Tecnologia' y sumá 'Accesos'. El resultado tiene que mostrar un total por tecnología.",
+    "suggestion": "Leer CSV → bloque ``groupby`` con 'Tecnologia' → sumar 'Accesos' → imprimir."
   }
 ]

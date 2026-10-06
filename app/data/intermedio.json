@@ -12,14 +12,14 @@
       "Filtrá las filas donde 'species' sea igual a 'Panthera onca'.",
       "Aplicá ``shape`` al DataFrame filtrado e imprimilo."
     ],
-    "hint": "El filtro booleano es ``df[df['species'] == 'Panthera onca']``. El resultado es ``(172, 19)``: 172 registros y 19 columnas.",
+    "hint": "Un filtro compara una columna con un valor y se queda con las filas que cumplen la condición. El texto tiene que coincidir exactamente, con mayúsculas y espacios incluidos.",
     "dataset_key": "felinos",
     "csv_filename": "felinos_filtrado.csv",
     "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
     "expected_keyword": "(172, 19)",
     "solution_code": "df = read_csv(csv_id)\nfiltrado = df[df['species'] == 'Panthera onca']\nprint(filtrado.shape)\n",
     "feedback_correct": "¡Excelente! Filtrar por valor exacto es uno de los reflejos básicos del análisis de datos.",
-    "feedback_incorrect": "El resultado tiene que ser ``(172, 19)``. Revisá la condición - la columna se llama 'species' y el valor 'Panthera onca'.",
+    "feedback_incorrect": "Revisá la condición del filtro: la columna es 'species' y el valor 'Panthera onca', escrito exactamente así. Después imprimí el ``shape`` del DataFrame filtrado.",
     "suggestion": "Leer CSV → bloque de filtro con 'species' == 'Panthera onca' → ``shape`` → imprimir."
   },
   {
@@ -35,15 +35,15 @@
       "Seleccioná la columna 'overall_score'.",
       "Aplicá ``mean`` e imprimí el resultado."
     ],
-    "hint": "El promedio es aproximadamente ``64.00``. Buscá ese valor en el output.",
+    "hint": "``mean()`` calcula el promedio de una columna numérica. Acordate de seleccionar la columna antes de aplicarlo.",
     "dataset_key": "student_performance",
     "csv_filename": "Student_Performance.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.mean.html",
     "expected_keyword": "64.00",
     "solution_code": "df = read_csv(csv_id)\nprint(df['overall_score'].mean())\n",
     "feedback_correct": "¡Muy bien! ``mean`` sobre una columna numérica es la métrica de tendencia central por excelencia.",
-    "feedback_incorrect": "Aplicá ``mean`` sobre la columna 'overall_score'. El resultado empieza con ``64.00``.",
-    "suggestion": "Leer CSV → columna 'overall_score' → bloque 'promedio' → imprimir."
+    "feedback_incorrect": "Aplicá ``mean`` sobre la columna 'overall_score', no sobre el DataFrame entero.",
+    "suggestion": "Leer CSV → columna 'overall_score' → bloque ``mean`` → imprimir."
   },
   {
     "id": 9,
@@ -58,14 +58,14 @@
       "Filtrá ``municipio_nombre == 'La Plata'``.",
       "Imprimí el ``shape`` del DataFrame filtrado."
     ],
-    "hint": "Hay 941 registros en La Plata (sobre 35 columnas). El resultado es ``(941, 35)``.",
+    "hint": "El nombre del municipio va escrito tal como aparece en el dataset, con mayúsculas y el espacio. Si el filtro devuelve cero filas, revisá cómo lo escribiste.",
     "dataset_key": "establecimientos",
     "csv_filename": "establecimientos-educativos-20042026.csv",
     "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
     "expected_keyword": "(941, 35)",
     "solution_code": "df = read_csv(csv_id)\nfiltrado = df[df['municipio_nombre'] == 'La Plata']\nprint(filtrado.shape)\n",
     "feedback_correct": "¡Perfecto! Filtrar por municipio te permite restringir el análisis a un territorio puntual.",
-    "feedback_incorrect": "Revisá el filtro: ``df['municipio_nombre'] == 'La Plata'``. Resultado: ``(941, 35)``.",
+    "feedback_incorrect": "Revisá el filtro: la columna es 'municipio_nombre' y el valor 'La Plata'. Después imprimí el ``shape`` del DataFrame filtrado.",
     "suggestion": "Leer CSV → bloque de filtro con 'municipio_nombre' == 'La Plata' → ``shape`` → imprimir."
   },
   {
@@ -81,14 +81,14 @@
       "Filtrá ``type == 'large_airport'``.",
       "Imprimí el ``shape`` del DataFrame filtrado."
     ],
-    "hint": "Sólo 2 aeropuertos califican como ``large_airport``: Ezeiza y Aeroparque. El resultado es ``(2, 24)``.",
+    "hint": "El valor a comparar va en minúsculas y con guion bajo, tal como figura en la consigna. Si el filtro devuelve cero filas, revisá cómo lo escribiste.",
     "dataset_key": "ar_airports",
     "csv_filename": "ar-airports.csv",
     "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
     "expected_keyword": "(2, 24)",
     "solution_code": "df = read_csv(csv_id)\nfiltrado = df[df['type'] == 'large_airport']\nprint(filtrado.shape)\n",
     "feedback_correct": "¡Excelente! Los filtros booleanos son la herramienta más usada para acotar el universo de análisis.",
-    "feedback_incorrect": "El resultado tiene que ser ``(2, 24)``. Revisá la condición: ``type == 'large_airport'``.",
+    "feedback_incorrect": "Revisá la condición: la columna es 'type' y el valor 'large_airport'. Después imprimí el ``shape`` del DataFrame filtrado.",
     "suggestion": "Leer CSV → filtro 'type' == 'large_airport' → ``shape`` → imprimir."
   },
   {
@@ -104,14 +104,14 @@
       "Filtrá ``Tecnologia == 'FIBRA OPTICA'``.",
       "Imprimí el ``shape`` del DataFrame filtrado."
     ],
-    "hint": "Hay 1592 registros con fibra óptica. El resultado es ``(1592, 6)``.",
+    "hint": "En el dataset la tecnología está escrita en mayúsculas y sin tilde. Un filtro con otra escritura no va a encontrar filas.",
     "dataset_key": "internet_localidades",
     "csv_filename": "Internet_Localidades.csv",
     "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
     "expected_keyword": "(1592, 6)",
     "solution_code": "df = read_csv(csv_id)\nfiltrado = df[df['Tecnologia'] == 'FIBRA OPTICA']\nprint(filtrado.shape)\n",
     "feedback_correct": "¡Muy bien! Filtros sobre columnas categóricas te permiten segmentar el universo de datos con precisión.",
-    "feedback_incorrect": "Cuidado con las mayúsculas: el valor exacto en la columna es ``'FIBRA OPTICA'`` (sin tilde). El resultado es ``(1592, 6)``.",
+    "feedback_incorrect": "Cuidado con las mayúsculas: el valor exacto en la columna es 'FIBRA OPTICA', sin tilde. Después imprimí el ``shape`` del DataFrame filtrado.",
     "suggestion": "Leer CSV → filtro 'Tecnologia' == 'FIBRA OPTICA' → ``shape`` → imprimir."
   },
   {
@@ -127,15 +127,15 @@
       "Seleccioná la columna 'final_grade'.",
       "Aplicá ``value_counts`` e imprimí el resultado."
     ],
-    "hint": "La nota más frecuente es la 'd' con 6311 alumnos. Buscá ``6311`` en el output.",
+    "hint": "``value_counts()`` cuenta cuántas veces aparece cada valor de una columna y los ordena del más frecuente al menos frecuente.",
     "dataset_key": "student_performance",
     "csv_filename": "Student_Performance.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html",
     "expected_keyword": "6311",
     "solution_code": "df = read_csv(csv_id)\nprint(df['final_grade'].value_counts())\n",
     "feedback_correct": "¡Perfecto! ``value_counts`` es la mejor forma de ver la distribución de una variable categórica.",
-    "feedback_incorrect": "Aplicá ``value_counts`` sobre la columna 'final_grade'. La nota 'd' aparece 6311 veces.",
-    "suggestion": "Leer CSV → columna 'final_grade' → bloque 'value_counts' → imprimir."
+    "feedback_incorrect": "Aplicá ``value_counts`` sobre la columna 'final_grade' e imprimí el resultado.",
+    "suggestion": "Leer CSV → columna 'final_grade' → bloque ``value_counts`` → imprimir."
   },
   {
     "id": 21,
@@ -151,14 +151,14 @@
       "Aplicá ``sort_values`` por 'Accesos' en orden descendente.",
       "Imprimí las primeras 5 filas del resultado con ``head(5)`` antes de que se acabe el tiempo."
     ],
-    "hint": "CABA aparece en el top. Buscá ``CABA`` en el output.",
+    "hint": "Hacen falta dos pasos encadenados: primero ordenar y después quedarse con las primeras filas. Fijate que el orden sea descendente.",
     "dataset_key": "internet_localidades",
     "csv_filename": "Internet_Localidades.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html",
     "expected_keyword": "CABA",
     "solution_code": "df = read_csv(csv_id)\nordenado = df.sort_values(by='Accesos', ascending=False)\nprint(ordenado.head(5))\n",
     "feedback_correct": "¡Listo a tiempo! ``sort_values`` + ``head`` es el patrón canónico de ranking - uno de los más usados a diario.",
-    "feedback_incorrect": "Ordená por 'Accesos' descendente y mostrá las primeras 5 filas. Tenés que ver ``CABA`` en alguna fila.",
+    "feedback_incorrect": "Ordená por 'Accesos' en forma descendente y mostrá las primeras 5 filas.",
     "suggestion": "Leer CSV → ``sort_values`` por 'Accesos' descendente → ``head(5)`` → imprimir."
   },
   {
@@ -175,14 +175,14 @@
       "Aplicá ``sort_values`` por 'CANTIDAD' en orden descendente.",
       "Imprimí las primeras 3 filas con ``head(3)``."
     ],
-    "hint": "El día con más usos registró 78756 viajes. Buscá ``78756`` en la columna CANTIDAD del output.",
+    "hint": "Si te aparecen los días con menos usos en lugar de los de más usos, el orden quedó ascendente.",
     "dataset_key": "sube_laplata",
     "csv_filename": "SUBE_2025_LaPlata.csv",
     "theory_url": "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html",
     "expected_keyword": "78756",
     "solution_code": "df = read_csv(csv_id)\nordenado = df.sort_values(by='CANTIDAD', ascending=False)\nprint(ordenado.head(3))\n",
     "feedback_correct": "¡Llegaste a tiempo! Sortear + tomar el top es lo que vas a hacer todo el día en cualquier análisis serio.",
-    "feedback_incorrect": "Ordená por 'CANTIDAD' descendente y mostrá las primeras 3 filas. La CANTIDAD del top es 78756.",
+    "feedback_incorrect": "Ordená por 'CANTIDAD' en forma descendente y mostrá las primeras 3 filas.",
     "suggestion": "Leer CSV → ``sort_values`` por 'CANTIDAD' descendente → ``head(3)`` → imprimir."
   },
   {
@@ -199,14 +199,14 @@
       "Usá ``species`` como categoría para colorear los marcadores.",
       "Ejecutá el bloque para visualizar el mapa."
     ],
-    "hint": "Una de las especies más comunes en el dataset es 'Puma yagouaroundi' (yaguarundí). Tiene que aparecer en los marcadores.",
+    "hint": "El bloque de mapa necesita tres columnas: la de latitud, la de longitud y la que define la categoría de cada marcador.",
     "dataset_key": "felinos",
     "csv_filename": "felinos_filtrado.csv",
     "theory_url": "https://python-visualization.github.io/folium/latest/",
     "expected_keyword": "Puma yagouaroundi",
     "solution_code": "df = read_csv(csv_id)\ngenerate_map(dataframe=df, lat_col='lat', long_col='lng', category_col='species')\n",
     "feedback_correct": "¡Brillante! El mapa muestra la distribución geográfica de cada especie - patrones que un gráfico tradicional no captaría.",
-    "feedback_incorrect": "Pasale al bloque de mapa las columnas ``lat``, ``lng`` y ``species`` como categoría. 'Puma yagouaroundi' tiene que aparecer.",
+    "feedback_incorrect": "Pasale al bloque de mapa las columnas ``lat`` y ``lng`` como coordenadas y ``species`` como categoría.",
     "suggestion": "Leer CSV → bloque de mapa con ``lat``, ``lng`` y ``species`` → ejecutar."
   },
   {
@@ -222,14 +222,14 @@
       "Filtrá ``genus == 'Leopardus'``.",
       "Aplicá ``shape`` al DataFrame filtrado e imprimilo."
     ],
-    "hint": "El resultado debería ser ``(218, 19)`` - 218 avistamientos repartidos en 6 especies de Leopardus.",
+    "hint": "La columna que hay que comparar es la del género (``genus``), no la de la especie.",
     "dataset_key": "felinos",
     "csv_filename": "felinos_filtrado.csv",
     "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
     "expected_keyword": "(218, 19)",
     "solution_code": "df = read_csv(csv_id)\nfiltrado = df[df['genus'] == 'Leopardus']\nprint(filtrado.shape)\n",
     "feedback_correct": "¡Muy bien! Filtrar por género agrupa varias especies emparentadas - usar la jerarquía taxonómica abre análisis interesantes.",
-    "feedback_incorrect": "Revisá el filtro: ``df['genus'] == 'Leopardus'`` (con L mayúscula). El resultado tiene que ser ``(218, 19)``.",
+    "feedback_incorrect": "Revisá el filtro: la columna es 'genus' y el valor 'Leopardus', con L mayúscula. Después imprimí el ``shape`` del DataFrame filtrado.",
     "suggestion": "Leer CSV → bloque de filtro con 'genus' == 'Leopardus' → ``shape`` → imprimir."
   },
   {
@@ -245,14 +245,14 @@
       "Filtrá ``gna == 'Estación'``.",
       "Aplicá ``shape`` al DataFrame filtrado e imprimilo."
     ],
-    "hint": "El resultado es ``(996, 8)`` - 996 estaciones (sin contar paradas, apeaderos, etc.) sobre 8 columnas.",
+    "hint": "El valor a comparar lleva tilde. Sin la tilde, el filtro no encuentra filas.",
     "dataset_key": "estaciones_ffcc",
     "csv_filename": "estaciones-ferrocarril-pba.csv",
     "theory_url": "https://pandas.pydata.org/docs/user_guide/indexing.html#boolean-indexing",
     "expected_keyword": "(996, 8)",
     "solution_code": "df = read_csv(csv_id)\nfiltrado = df[df['gna'] == 'Estación']\nprint(filtrado.shape)\n",
     "feedback_correct": "¡Excelente! Acotar a una sola categoría es lo primero que se hace antes de cualquier análisis profundo.",
-    "feedback_incorrect": "Cuidado con la tilde y la mayúscula: el valor es ``'Estación'`` (con tilde, E mayúscula). El resultado es ``(996, 8)``.",
+    "feedback_incorrect": "Cuidado con la tilde y la mayúscula: el valor es 'Estación'. Después imprimí el ``shape`` del DataFrame filtrado.",
     "suggestion": "Leer CSV → bloque de filtro con 'gna' == 'Estación' → ``shape`` → imprimir."
   }
 ]
