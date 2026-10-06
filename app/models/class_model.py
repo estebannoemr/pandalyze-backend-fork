@@ -8,9 +8,8 @@ al crear la clase. Un mismo docente puede tener varias clases (por ejemplo,
 desafíos seleccionados.
 
 La asociación alumno↔clase se hace mediante ``User.class_id`` (FK), que se
-agrega vía auto-migración en ``app/__init__.py``. ``User.teacher_id`` se
-mantiene por compatibilidad y se actualiza en cascada cuando se asigna una
-clase, para no romper queries legacy.
+agrega vía auto-migración en ``app/__init__.py``. ``User.teacher_id`` guarda
+el docente de esa comisión y se actualiza junto con ``class_id``.
 """
 
 import json
@@ -85,19 +84,12 @@ class Class(db.Model):
     # ------------------------------------------------------------------
     @classmethod
     def generate_unique_class_code(cls):
-        """Genera un código único contra esta tabla y contra ``user.class_code``
-        (el legacy del modelo viejo). Esto evita colisiones durante la
-        migración."""
-        # Import diferido para evitar ciclo import → usuario.
-        from .user_model import User
-
+        """Genera un código de inscripción único entre las comisiones."""
         while True:
             code = "".join(
                 secrets.choice(CLASS_CODE_ALPHABET) for _ in range(CLASS_CODE_LENGTH)
             )
-            collision_class = cls.query.filter_by(class_code=code).first()
-            collision_user = User.query.filter_by(class_code=code).first()
-            if not collision_class and not collision_user:
+            if not cls.query.filter_by(class_code=code).first():
                 return code
 
     @classmethod

@@ -140,7 +140,7 @@
   {
     "id": 19,
     "display_id": "1-007",
-    "title": "Aeropuerto más alto (contrareloj)",
+    "title": "Aeropuerto más alto (contrarreloj)",
     "difficulty": "basico",
     "category": "estadisticas",
     "points": 10,
@@ -164,7 +164,7 @@
   {
     "id": 20,
     "display_id": "1-008",
-    "title": "Tamaño del padrón escolar (contrareloj)",
+    "title": "Tamaño del padrón escolar (contrarreloj)",
     "difficulty": "basico",
     "category": "lectura",
     "points": 10,

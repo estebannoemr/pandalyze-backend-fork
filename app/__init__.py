@@ -135,39 +135,68 @@ def create_app():
         except Exception:
             pass
 
-        # Migración de docentes legacy: para cada docente con class_code y sin
-        # ninguna Class asociada, creamos una "Clase principal" con todos los
-        # desafíos seleccionados y movemos a sus alumnos a esa clase. Idempotente:
-        # si ya existe una clase con ese código, no se toca nada.
+        # Migración del modelo viejo (un código por docente) al de comisiones.
+        # Para cada docente que todavía tenga ``class_code``:
+        #   - si ya existe una comisión con ese código, se usa esa;
+        #   - si no existe y el docente tiene alumnos sin comisión, se crea una
+        #     "Comisión principal" con ese mismo código y todos los desafíos
+        #     base (así las invitaciones ya repartidas siguen sirviendo);
+        #   - los alumnos del docente que no tengan comisión pasan a ella;
+        #   - por último se borra el código del docente: desde ese momento sólo
+        #     existen códigos de comisión.
+        # Es idempotente: una vez migrado, el docente ya no tiene ``class_code``.
         try:
             from .models.user_model import User as _User, ROLE_DOCENTE as _ROLE_DOC, ROLE_ALUMNO as _ROLE_AL
             from .models.class_model import Class as _Class
             from .endpoints.challenges import CHALLENGES as _CH
 
             all_challenge_ids = [c["id"] for c in _CH]
-            docentes_legacy = _User.query.filter_by(role=_ROLE_DOC).all()
+            docentes_legacy = (
+                _User.query.filter_by(role=_ROLE_DOC)
+                .filter(_User.class_code.isnot(None))
+                .all()
+            )
             for doc in docentes_legacy:
-                if not doc.class_code:
-                    continue
-                existing = _Class.query.filter_by(class_code=doc.class_code).first()
-                if existing is not None:
-                    continue
-                klass = _Class(
-                    teacher_id=doc.id,
-                    name="Clase principal",
-                    class_code=doc.class_code,
-                )
-                klass.set_selected_ids(all_challenge_ids)
-                db.session.add(klass)
-                db.session.flush()  # para obtener klass.id
-                # Reasignamos a los alumnos del docente que aún no tengan clase.
-                _User.query.filter_by(role=_ROLE_AL, teacher_id=doc.id).filter(
-                    (_User.class_id.is_(None))
-                ).update({"class_id": klass.id})
+                sin_comision = _User.query.filter_by(
+                    role=_ROLE_AL, teacher_id=doc.id
+                ).filter(_User.class_id.is_(None))
+                klass = _Class.query.filter_by(class_code=doc.class_code).first()
+                if klass is None and sin_comision.count() > 0:
+                    klass = _Class(
+                        teacher_id=doc.id,
+                        name="Comisión principal",
+                        class_code=doc.class_code,
+                    )
+                    klass.set_selected_ids(all_challenge_ids)
+                    db.session.add(klass)
+                    db.session.flush()  # para obtener klass.id
+                if klass is not None and klass.teacher_id == doc.id:
+                    sin_comision.update(
+                        {"class_id": klass.id}, synchronize_session=False
+                    )
+                doc.class_code = None
             db.session.commit()
         except Exception as _e:
             db.session.rollback()
-            app.logger.warning("Migración de clases legacy falló: %s", _e)
+            app.logger.warning("Migración de códigos de docente falló: %s", _e)
+
+        # Renombre de datos: las comisiones creadas automáticamente por
+        # versiones anteriores se llamaban "Clase principal". Idempotente.
+        try:
+            from .models.class_model import Class as _ClassRen
+
+            renamed = _ClassRen.query.filter_by(name="Clase principal").update(
+                {"name": "Comisión principal"}, synchronize_session=False
+            )
+            if renamed:
+                db.session.commit()
+                app.logger.info(
+                    "Renombradas %d comisión(es) 'Clase principal' a 'Comisión principal'.",
+                    renamed,
+                )
+        except Exception as _e:
+            db.session.rollback()
+            app.logger.warning("Renombre de comisiones falló: %s", _e)
 
         # Bootstrap del admin: si ADMIN_EMAIL y ADMIN_PASSWORD están definidos
         # en el entorno, garantizamos que ese usuario exista con rol admin sin

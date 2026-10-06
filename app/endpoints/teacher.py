@@ -131,7 +131,6 @@ def list_students():
                 "teacher": {
                     "id": teacher.id,
                     "email": teacher.email,
-                    "class_code": teacher.class_code,
                 },
                 "students": result,
             }

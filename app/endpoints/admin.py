@@ -63,29 +63,28 @@ def _serialize_user_row(u):
         t = User.query.get(u.teacher_id)
         teacher_email = t.email if t else None
 
-    # Obtener todos los códigos de clase si es docente
+    # Códigos de las comisiones del docente.
     class_codes = []
     if u.role == ROLE_DOCENTE:
         classes = Class.query.filter_by(teacher_id=u.id).order_by(Class.name).all()
         class_codes = [c.class_code for c in classes]
-        # Incluir también el class_code legacy si existe
-        if u.class_code and u.class_code not in class_codes:
-            class_codes.append(u.class_code)
 
-    # Para alumnos: obtener datos de la clase a la que está asociado
+    # Para alumnos: datos de la comisión a la que está asociado.
     class_id = None
     class_name = None
+    class_code = None
     if u.role == ROLE_ALUMNO and u.class_id:
         klass = Class.query.get(u.class_id)
         if klass:
             class_id = klass.id
             class_name = klass.name
+            class_code = klass.class_code
 
     return {
         "id": u.id,
         "email": u.email,
         "role": u.role,
-        "class_code": u.class_code,
+        "class_code": class_code,
         "class_codes": class_codes,
         "class_id": class_id,
         "class_name": class_name,
@@ -209,12 +208,12 @@ def update_user(user_id):
         if new_role != user.role:
             user.role = new_role
             if new_role == ROLE_DOCENTE:
-                # Los docentes tienen class_code y no tienen teacher_id.
-                if not user.class_code:
-                    user.class_code = User.generate_unique_class_code()
+                # Un docente no pertenece a ninguna comisión ni tiene docente
+                # asignado. Sus códigos de inscripción son los de las
+                # comisiones que cree desde "Mis comisiones".
                 user.teacher_id = None
+                user.class_id = None
             else:  # ROLE_ALUMNO
-                # Los alumnos no tienen class_code. Limpiamos.
                 user.class_code = None
                 # Los alumnos que antes eran docentes pierden a sus alumnos:
                 # los alumnos asociados quedan sin teacher.
@@ -252,7 +251,7 @@ def update_user(user_id):
         if user.role != ROLE_ALUMNO:
             return (
                 jsonify(
-                    {"error": "Solo los alumnos pueden estar asociados a una clase."}
+                    {"error": "Solo los alumnos pueden estar asociados a una comisión."}
                 ),
                 400,
             )
@@ -267,7 +266,7 @@ def update_user(user_id):
             klass = Class.query.get(cid)
             if klass is None:
                 return (
-                    jsonify({"error": "La clase indicada no existe."}),
+                    jsonify({"error": "La comisión indicada no existe."}),
                     400,
                 )
             user.class_id = klass.id

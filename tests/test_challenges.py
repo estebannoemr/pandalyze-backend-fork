@@ -1,6 +1,6 @@
 """Tests automaticos del banco de desafios.
 
-Para cada uno de los 27 desafios:
+Para cada uno de los 33 desafios:
   1. Verifica los campos obligatorios.
   2. Resuelve el dataset via dataset_service.fetch_dataset(dataset_key).
   3. Ejecuta solution_code reemplazando read_csv(csv_id) por el DataFrame.
@@ -128,11 +128,11 @@ def test_unique_ids():
 
 
 def test_total_count():
-    assert len(CHALLENGES) == 27, f"Esperado 27, encontrado {len(CHALLENGES)}"
+    assert len(CHALLENGES) == 33, f"Esperado 33, encontrado {len(CHALLENGES)}"
     by_diff = {"basico": 0, "intermedio": 0, "avanzado": 0}
     for c in CHALLENGES:
         by_diff[c["difficulty"]] += 1
-    assert by_diff == {"basico": 9, "intermedio": 9, "avanzado": 9}, by_diff
+    assert by_diff == {"basico": 11, "intermedio": 11, "avanzado": 11}, by_diff
 
 
 @pytest.mark.parametrize("ch", CHALLENGES, ids=[str(i) for i in CHALLENGE_IDS])

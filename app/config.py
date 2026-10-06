@@ -9,6 +9,18 @@ class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    # ---------- CORS ----------
+    # Orígenes permitidos, separados por coma en la variable de entorno
+    # CORS_ORIGINS. Flask-Cors (los decoradores @cross_origin de los
+    # endpoints) toma esta config. Default: localhost para desarrollo.
+    # En producción setear, por ejemplo:
+    #   CORS_ORIGINS=https://pandalyze2.netlify.app,http://localhost:3000
+    CORS_ORIGINS = [
+        o.strip()
+        for o in os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+        if o.strip()
+    ]
+
     # Determina el entorno segun la variable de entorno FLASK_ENV, o defaultea a development
     env = os.getenv("FLASK_ENV", "development")
 

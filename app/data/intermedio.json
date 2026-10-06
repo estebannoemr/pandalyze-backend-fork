@@ -140,7 +140,7 @@
   {
     "id": 21,
     "display_id": "2-007",
-    "title": "Top 5 localidades con más accesos (contrareloj)",
+    "title": "Top 5 localidades con más accesos (contrarreloj)",
     "difficulty": "intermedio",
     "category": "filtrado",
     "points": 25,
@@ -164,7 +164,7 @@
   {
     "id": 22,
     "display_id": "2-008",
-    "title": "Top 3 días de mayor uso de SUBE (contrareloj)",
+    "title": "Top 3 días de mayor uso de SUBE (contrarreloj)",
     "difficulty": "intermedio",
     "category": "filtrado",
     "points": 25,

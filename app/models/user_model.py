@@ -41,10 +41,11 @@ class User(db.Model):
     email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
     role = Column(String(20), nullable=False)
-    # ``class_code`` se mantiene por compatibilidad con el modelo viejo
-    # (un docente con un único código). El modelo nuevo usa la tabla
-    # ``class`` y este campo queda como espejo del código de la "clase
-    # principal" del docente para no romper consumidores legacy.
+    # OBSOLETO: código único por docente del modelo viejo. Los códigos de
+    # inscripción ahora son los de cada comisión (tabla ``class``). La columna
+    # se conserva sólo para no alterar el esquema de bases existentes: al
+    # arrancar, ``create_app()`` migra cada código viejo a una comisión y deja
+    # este campo en NULL. Ningún endpoint lo lee ni lo escribe.
     class_code = Column(String(16), unique=True, nullable=True, index=True)
     teacher_id = Column(Integer, ForeignKey("user.id"), nullable=True)
     # FK a la clase a la que pertenece el alumno. NULL para docente/admin
@@ -86,7 +87,6 @@ class User(db.Model):
             "id": self.id,
             "email": self.email,
             "role": self.role,
-            "class_code": self.class_code,
             "teacher_id": self.teacher_id,
             "teacher_email": teacher_email,
             "teacher_name": teacher_name,
@@ -99,24 +99,7 @@ class User(db.Model):
         }
 
     @classmethod
-    def generate_unique_class_code(cls):
-        while True:
-            code = "".join(
-                secrets.choice(CLASS_CODE_ALPHABET) for _ in range(CLASS_CODE_LENGTH)
-            )
-            if not cls.query.filter_by(class_code=code).first():
-                return code
-
-    @classmethod
     def get_by_email(cls, email):
         if not email:
             return None
         return cls.query.filter_by(email=email.strip().lower()).first()
-
-    @classmethod
-    def get_by_class_code(cls, code):
-        if not code:
-            return None
-        return cls.query.filter_by(
-            class_code=code.strip().upper(), role=ROLE_DOCENTE
-        ).first()

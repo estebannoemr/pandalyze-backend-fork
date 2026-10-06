@@ -1,6 +1,24 @@
 """Pytest fixtures y configuración compartida."""
 
+import pandas
 import pytest
+
+
+@pytest.fixture(autouse=True)
+def _pandas_display_como_en_la_app():
+    """Usa las mismas opciones de impresión que /runPythonCode.
+
+    El endpoint real imprime los DataFrames sin truncar columnas. Sin esto,
+    pandas recorta la salida con "..." y los tests de desafíos cuyo resultado
+    esperado está en una columna del medio fallan aunque en la app aprueben.
+    """
+    with pandas.option_context(
+        "display.max_columns", None,
+        "display.max_colwidth", 20,
+        "display.colheader_justify", "center",
+        "display.width", 9999,
+    ):
+        yield
 
 
 def pytest_configure(config):

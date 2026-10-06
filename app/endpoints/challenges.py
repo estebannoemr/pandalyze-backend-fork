@@ -115,8 +115,8 @@ LEVELS = [
     {"min": 300, "max": 499,  "title": "Analista Semi Senior", "level": 4},
     {"min": 500, "max": 9999, "title": "Analista Senior",      "level": 5},
 ]
-# Nota: con 18 desafíos el máximo teórico de puntos es 510 (6×10 + 6×25 + 6×50).
-# El nivel 5 cubre holgadamente ese tope.
+# Nota: con los 33 desafíos del catálogo base el máximo de puntos es 935
+# (11×10 + 11×25 + 11×50). El nivel 5 cubre holgadamente ese tope.
 
 BADGES = [
     {
@@ -159,7 +159,7 @@ BADGES = [
         "id": "racha_3",
         "name": "En racha",
         "emoji": "🔥",
-        "description": "Completá 3 desafíos seguidos",
+        "description": "Aprobá 3 desafíos seguidos en el primer intento",
     },
 ]
 
@@ -293,12 +293,12 @@ def _fetch_csv_from_url(csv_url):
 
     if _looks_like_html(csv_content):
         raise ValueError(
-            "El link no devolviÃ³ un CSV directo. UsÃ¡ un enlace pÃºblico de descarga CSV."
+            "El link no devolvió un CSV directo. Usá un enlace público de descarga CSV."
         )
     try:
         pd.read_csv(io.StringIO(csv_content), nrows=1)
     except Exception as exc:
-        raise ValueError("El contenido descargado no parece ser un CSV vÃ¡lido.") from exc
+        raise ValueError("El contenido descargado no parece ser un CSV válido.") from exc
     return csv_content
 
 
@@ -914,11 +914,40 @@ def validate_challenge(challenge_id):
     already_passed = ChallengeResult.has_passed(challenge_id, user_id)
 
     user_code = payload.get("user_code") or payload.get("code") or ""
-
     expected = challenge["expected_keyword"]
     passed, tier, message = _evaluate_submission(
         user_output, user_code, expected, challenge["solution_code"]
     )
+
+    # Vista previa: docentes y administradores pueden probar un desafío, pero
+    # sus intentos no se registran ni suman puntos o emblemas. La gamificación
+    # y las estadísticas son sólo de estudiantes.
+    requester = User.query.get(user_id)
+    if requester is None or requester.role != ROLE_ALUMNO:
+        if passed:
+            feedback = challenge["feedback_correct"]
+            suggestion = challenge.get("suggestion") if tier == "correct" else None
+        elif tier == "suspicious":
+            feedback = None
+            suggestion = challenge.get("suggestion")
+        else:
+            feedback = challenge["feedback_incorrect"]
+            suggestion = challenge.get("suggestion")
+        return (
+            jsonify(
+                {
+                    "passed": passed,
+                    "tier": tier,
+                    "message": message,
+                    "points_earned": 0,
+                    "first_try": False,
+                    "feedback": feedback,
+                    "suggestion": suggestion,
+                    "preview": True,
+                }
+            ),
+            200,
+        )
 
     # primer_try = pasó y no había intentos previos fallidos para este desafío
     is_first_try = passed and previous_attempts == 0
@@ -986,8 +1015,17 @@ def get_challenge_solution(challenge_id):
 @jwt_required()
 def gamification_status():
     user_id = int(get_jwt_identity())
+
+    # La gamificación es sólo de estudiantes: docentes y administradores no
+    # acumulan puntos, niveles ni emblemas (aunque existan resultados viejos
+    # de cuando sus pruebas sí se registraban).
+    requester = User.query.get(user_id)
+    if requester is None or requester.role != ROLE_ALUMNO:
+        passed_results = []
+    else:
+        passed_results = ChallengeResult.all_passed_for_user(user_id)
+
     # Nos quedamos con el primer "pass" por challenge_id (así no sumamos puntos duplicados).
-    passed_results = ChallengeResult.all_passed_for_user(user_id)
 
     seen = set()
     first_passes = []
@@ -1001,12 +1039,13 @@ def gamification_status():
     first_try_ids = [r.challenge_id for r in first_passes if r.first_try]
     total_points = sum(r.points_earned for r in first_passes)
 
-    # Racha: cantidad máxima de "passes" consecutivos en orden cronológico,
-    # considerando intentos aprobados (primer pass por desafío).
+    # Racha: cantidad máxima de desafíos consecutivos (en orden cronológico)
+    # aprobados en el primer intento. Un desafío que necesitó más de un
+    # intento corta la racha.
     longest_streak = 0
     current_streak = 0
     for r in first_passes:
-        if r.passed:
+        if r.first_try:
             current_streak += 1
             longest_streak = max(longest_streak, current_streak)
         else:

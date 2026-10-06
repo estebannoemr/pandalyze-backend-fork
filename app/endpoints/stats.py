@@ -177,7 +177,7 @@ def list_teachers():
         jsonify(
             {
                 "teachers": [
-                    {"id": t.id, "email": t.email, "class_code": t.class_code}
+                    {"id": t.id, "email": t.email}
                     for t in teachers
                 ]
             }

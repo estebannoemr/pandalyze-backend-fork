@@ -3,7 +3,7 @@ Seed de usuarios demo para presentaciones / desarrollo.
 
 Crea dos docentes (Sofía y Claudia) y tres alumnos por cada una. Es
 idempotente: si los usuarios ya existen, no se tocan ni sus contraseñas
-ni sus class_codes (para no invalidar invitaciones ya repartidas).
+ni los códigos de sus comisiones (para no invalidar invitaciones ya repartidas).
 
 El seed se controla con la variable de entorno ``SEED_DEMO_USERS``:
 - "1" / "true" / "yes"  → corre el seed al arrancar la app.
@@ -21,6 +21,7 @@ from datetime import datetime, timedelta
 
 from .extensions import db
 from .models.challenge_result_model import ChallengeResult
+from .models.class_model import Class
 from .models.user_model import User, ROLE_DOCENTE, ROLE_ALUMNO
 
 
@@ -89,11 +90,33 @@ def seed_demo_users(app):
             continue
         teacher = User(email=email, role=ROLE_DOCENTE)
         teacher.set_password(password)
-        teacher.class_code = User.generate_unique_class_code()
         db.session.add(teacher)
         db.session.flush()  # asignar id antes de usarlo como teacher_id
         teacher_by_email[email] = teacher
         created_teachers += 1
+
+    # 1b) Una comisión por docente demo (si todavía no tiene ninguna), con
+    #     todo el catálogo base seleccionado. Los alumnos demo se inscriben
+    #     en ella.
+    from .endpoints.challenges import CHALLENGES as _BASE_CHALLENGES
+
+    class_by_teacher_id = {}
+    for teacher in teacher_by_email.values():
+        klass = (
+            Class.query.filter_by(teacher_id=teacher.id)
+            .order_by(Class.created_at.asc())
+            .first()
+        )
+        if klass is None:
+            klass = Class(
+                teacher_id=teacher.id,
+                name="Comisión principal",
+                class_code=Class.generate_unique_class_code(),
+            )
+            klass.set_selected_ids([c["id"] for c in _BASE_CHALLENGES])
+            db.session.add(klass)
+            db.session.flush()
+        class_by_teacher_id[teacher.id] = klass
 
     # 2) Alumnos
     for spec in DEMO_STUDENTS:
@@ -115,6 +138,7 @@ def seed_demo_users(app):
         student = User(email=email, role=ROLE_ALUMNO)
         student.set_password(password)
         student.teacher_id = teacher.id
+        student.class_id = class_by_teacher_id[teacher.id].id
         db.session.add(student)
         created_students += 1
 

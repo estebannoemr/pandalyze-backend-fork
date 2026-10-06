@@ -109,7 +109,7 @@ def create_class():
     data = _json()
     name = (data.get("name") or "").strip()
     if not name:
-        return jsonify({"error": "El nombre de la clase es obligatorio."}), 400
+        return jsonify({"error": "El nombre de la comisión es obligatorio."}), 400
     if len(name) > 120:
         return jsonify({"error": "El nombre es demasiado largo (máx 120)."}), 400
 
@@ -172,9 +172,9 @@ def get_class(class_id):
     user = request._pandalyze_user
     klass = Class.query.get(class_id)
     if klass is None:
-        return jsonify({"error": "Clase no encontrada."}), 404
+        return jsonify({"error": "Comisión no encontrada."}), 404
     if not _can_manage(user, klass):
-        return jsonify({"error": "No autorizado para ver esta clase."}), 403
+        return jsonify({"error": "No autorizado para ver esta comisión."}), 403
     return jsonify({"class": klass.to_dict(include_students_count=True)}), 200
 
 
@@ -185,7 +185,7 @@ def update_class(class_id):
     user = request._pandalyze_user
     klass = Class.query.get(class_id)
     if klass is None:
-        return jsonify({"error": "Clase no encontrada."}), 404
+        return jsonify({"error": "Comisión no encontrada."}), 404
     if not _can_manage(user, klass):
         return jsonify({"error": "No autorizado."}), 403
 
@@ -232,7 +232,7 @@ def delete_class(class_id):
     user = request._pandalyze_user
     klass = Class.query.get(class_id)
     if klass is None:
-        return jsonify({"error": "Clase no encontrada."}), 404
+        return jsonify({"error": "Comisión no encontrada."}), 404
     if not _can_manage(user, klass):
         return jsonify({"error": "No autorizado."}), 403
 
@@ -251,7 +251,7 @@ def list_students_of_class(class_id):
     user = request._pandalyze_user
     klass = Class.query.get(class_id)
     if klass is None:
-        return jsonify({"error": "Clase no encontrada."}), 404
+        return jsonify({"error": "Comisión no encontrada."}), 404
     if not _can_manage(user, klass):
         return jsonify({"error": "No autorizado."}), 403
     students = (
