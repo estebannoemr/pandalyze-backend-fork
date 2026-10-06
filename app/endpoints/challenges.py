@@ -185,6 +185,33 @@ def _catalogo_sin_comision():
     return valor if valor in CATALOGO_SIN_COMISION_OPCIONES else "base"
 
 
+# Qué desafíos creados por docentes ve un DOCENTE (además del catálogo base,
+# que ve siempre). Se elige con la variable de entorno DOCENTE_VE_DESAFIOS:
+#   "propios" (default): sólo los que creó él. Cada docente arma su material
+#                        sin ver ni poder asignar el de otra cátedra.
+#   "todos":             los de todos los docentes (puede verlos y asignarlos a
+#                        sus comisiones, pero sólo edita y borra los propios).
+# El administrador ve siempre todo.
+DOCENTE_VE_DESAFIOS_OPCIONES = ("propios", "todos")
+
+
+def _docente_ve_desafios():
+    valor = (os.getenv("DOCENTE_VE_DESAFIOS") or "propios").strip().lower()
+    return valor if valor in DOCENTE_VE_DESAFIOS_OPCIONES else "propios"
+
+
+def visible_challenges_for_staff(user):
+    """Desafíos que puede ver (y asignar a sus comisiones) un docente o admin."""
+    todos = _all_challenges()
+    if user is None or user.role != ROLE_DOCENTE or _docente_ve_desafios() == "todos":
+        return todos
+    return [
+        c for c in todos
+        if not c.get("is_custom")
+        or (c.get("creator_id") is not None and int(c["creator_id"]) == int(user.id))
+    ]
+
+
 
 
 
@@ -450,8 +477,9 @@ def list_challenges():
     """
     Lista de desafíos visible para el usuario autenticado.
 
-    - Docentes y admin ven el banco completo (necesitan armar clases con todo
-      el catálogo disponible).
+    - El admin ve el banco completo. El docente ve el catálogo base y, de los
+      desafíos creados por docentes, los propios o los de todos según
+      DOCENTE_VE_DESAFIOS (por defecto, sólo los propios).
     - Alumnos asociados a una clase ven sólo los desafíos seleccionados por
       esa clase.
     - Alumnos sin clase: depende de CATALOGO_SIN_COMISION (por defecto ven
@@ -461,6 +489,9 @@ def list_challenges():
     user = User.query.get(int(uid)) if uid is not None else None
 
     visible = _all_challenges()
+
+    if user is not None and user.role == ROLE_DOCENTE:
+        visible = visible_challenges_for_staff(user)
 
     if user is not None and user.role == ROLE_ALUMNO:
         klass = None

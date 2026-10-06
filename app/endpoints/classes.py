@@ -33,7 +33,7 @@ from ..models.user_model import (
     ROLE_DOCENTE,
     ROLE_ADMIN,
 )
-from .challenges import CHALLENGES
+from .challenges import CHALLENGES, visible_challenges_for_staff
 
 
 bp = Blueprint("classes", __name__, url_prefix="/classes")
@@ -75,15 +75,35 @@ def _can_manage(user, klass):
     return user.role == ROLE_DOCENTE and klass.teacher_id == user.id
 
 
-def _valid_challenge_ids():
+def _all_active_challenge_ids():
+    """IDs de todo el banco: catálogo base + desafíos de docentes activos."""
     static_ids = {c["id"] for c in CHALLENGES}
     custom_ids = {c.external_id for c in CustomChallenge.query.filter_by(is_active=True).all()}
     return static_ids | custom_ids
 
 
-def _filter_valid_ids(raw_list):
-    """Devuelve sólo los IDs que existen en el banco actual."""
-    valid = _valid_challenge_ids()
+def _valid_challenge_ids(user=None):
+    """IDs que el usuario puede asignar a una comisión.
+
+    El admin puede asignar cualquiera. El docente, los que ve: el catálogo
+    base y, de los creados por docentes, los propios o los de todos según
+    DOCENTE_VE_DESAFIOS.
+    """
+    if user is None or user.role == ROLE_ADMIN:
+        return _all_active_challenge_ids()
+    return {c["id"] for c in visible_challenges_for_staff(user)}
+
+
+def _filter_valid_ids(raw_list, user=None, keep=None):
+    """Devuelve sólo los IDs asignables por ``user``.
+
+    ``keep``: IDs que la comisión ya tenía seleccionados. Se conservan aunque
+    el docente no los vea (por ejemplo, desafíos de otro docente asignados
+    cuando DOCENTE_VE_DESAFIOS valía "todos"), siempre que sigan existiendo.
+    """
+    valid = _valid_challenge_ids(user)
+    if keep:
+        valid = valid | (set(keep) & _all_active_challenge_ids())
     out = []
     seen = set()
     for x in raw_list or []:
@@ -117,11 +137,11 @@ def create_class():
     if raw_ids is None:
         # Compatibilidad: 'select_all' como atajo.
         if data.get("select_all"):
-            ids = sorted(_valid_challenge_ids())
+            ids = sorted(_valid_challenge_ids(user))
         else:
             ids = []
     else:
-        ids = _filter_valid_ids(raw_ids)
+        ids = _filter_valid_ids(raw_ids, user)
 
     # El admin puede asignar la clase a un docente específico vía teacher_id;
     # el docente sólo puede crear clases para sí mismo.
@@ -203,9 +223,11 @@ def update_class(class_id):
 
     if "selected_challenge_ids" in data or data.get("select_all"):
         if data.get("select_all"):
-            ids = sorted(_valid_challenge_ids())
+            ids = sorted(_valid_challenge_ids(user))
         else:
-            ids = _filter_valid_ids(data.get("selected_challenge_ids"))
+            ids = _filter_valid_ids(
+                data.get("selected_challenge_ids"), user, keep=klass.get_selected_ids()
+            )
         klass.set_selected_ids(ids)
         changed.append("selected_challenge_ids")
 
