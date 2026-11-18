@@ -10,7 +10,13 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from ..models.user_model import User, ROLE_DOCENTE
 from ..models.challenge_result_model import ChallengeResult
 from ..models.class_model import Class
-from .challenges import _get_level_info, CHALLENGES
+from .challenges import (
+    _get_level_info,
+    _all_challenges,
+    _student_challenge_ids,
+    _first_passes_in_scope,
+    CHALLENGES,
+)
 
 
 bp = Blueprint("teacher", __name__, url_prefix="/teacher")
@@ -90,15 +96,14 @@ def list_students():
             class_names[c.id] = c.name
 
     result = []
+    all_ch = _all_challenges()
+    class_cache = {}
     for s in students:
-        passed = ChallengeResult.all_passed_for_user(s.id)
-        seen = set()
-        first_passes = []
-        for r in passed:
-            if r.challenge_id in seen:
-                continue
-            seen.add(r.challenge_id)
-            first_passes.append(r)
+        # Sólo cuentan los desafíos de la comisión actual del alumno.
+        allowed = _student_challenge_ids(s, all_ch, class_cache)
+        first_passes = _first_passes_in_scope(
+            ChallengeResult.all_passed_for_user(s.id), allowed
+        )
 
         total_points = sum(r.points_earned for r in first_passes)
         completed_count = len(first_passes)

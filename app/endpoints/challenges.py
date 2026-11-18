@@ -212,17 +212,23 @@ def visible_challenges_for_staff(user):
     ]
 
 
-def _visible_challenges_for_student(user):
+def _visible_challenges_for_student(user, all_challenges=None, class_cache=None):
     """Desafíos que ve un alumno: los de su comisión o, sin comisión, el
-    catálogo según CATALOGO_SIN_COMISION. Es la misma regla para el listado
-    y para calcular los emblemas."""
-    visible = _all_challenges()
+    catálogo según CATALOGO_SIN_COMISION. Es la misma regla para el listado,
+    los emblemas y los puntos. ``all_challenges`` y ``class_cache`` (dict)
+    evitan repetir consultas cuando se llama para muchos alumnos."""
+    visible = _all_challenges() if all_challenges is None else all_challenges
     klass = None
     if user.class_id is not None:
-        # Import diferido para evitar ciclo de imports.
-        from ..models.class_model import Class as _Class
+        if class_cache is not None and user.class_id in class_cache:
+            klass = class_cache[user.class_id]
+        else:
+            # Import diferido para evitar ciclo de imports.
+            from ..models.class_model import Class as _Class
 
-        klass = _Class.query.get(user.class_id)
+            klass = _Class.query.get(user.class_id)
+            if class_cache is not None:
+                class_cache[user.class_id] = klass
     if klass is not None:
         allowed = set(klass.get_selected_ids())
         return [c for c in visible if c["id"] in allowed]
@@ -234,6 +240,30 @@ def _visible_challenges_for_student(user):
         return []
     # "todo": se deja el catálogo completo.
     return visible
+
+
+def _student_challenge_ids(user, all_challenges=None, class_cache=None):
+    """IDs de los desafíos que cuentan para un alumno (los de su comisión)."""
+    return {
+        c["id"]
+        for c in _visible_challenges_for_student(user, all_challenges, class_cache)
+    }
+
+
+def _first_passes_in_scope(passed_results, allowed_ids):
+    """Primer pass por desafío, sólo de los desafíos en ``allowed_ids``.
+
+    Los puntos, el nivel y los completados se calculan así: si el docente saca
+    un desafío de la comisión, deja de contar para sus alumnos (y vuelve a
+    contar si lo agrega de nuevo, porque el resultado queda guardado)."""
+    seen = set()
+    out = []
+    for r in passed_results:
+        if r.challenge_id in seen or r.challenge_id not in allowed_ids:
+            continue
+        seen.add(r.challenge_id)
+        out.append(r)
+    return out
 
 
 
@@ -1107,18 +1137,17 @@ def gamification_status():
     requester = User.query.get(user_id)
     if requester is None or requester.role != ROLE_ALUMNO:
         passed_results = []
+        student_pool = []
     else:
         passed_results = ChallengeResult.all_passed_for_user(user_id)
+        # Sólo cuentan los desafíos que hoy ve el alumno (los de su comisión).
+        student_pool = _visible_challenges_for_student(requester)
 
-    # Nos quedamos con el primer "pass" por challenge_id (así no sumamos puntos duplicados).
-
-    seen = set()
-    first_passes = []
-    for r in passed_results:
-        if r.challenge_id in seen:
-            continue
-        seen.add(r.challenge_id)
-        first_passes.append(r)
+    # Primer "pass" por challenge_id (así no sumamos puntos duplicados), sólo
+    # de los desafíos de la comisión actual.
+    first_passes = _first_passes_in_scope(
+        passed_results, {c["id"] for c in student_pool}
+    )
 
     completed_ids = [r.challenge_id for r in first_passes]
     first_try_ids = [r.challenge_id for r in first_passes if r.first_try]
@@ -1148,11 +1177,6 @@ def gamification_status():
 
     # Los emblemas por nivel y "todo completo" se evalúan sobre los desafíos
     # que ve el alumno (los de su comisión), no sobre el catálogo base entero.
-    student_pool = (
-        _visible_challenges_for_student(requester)
-        if requester is not None and requester.role == ROLE_ALUMNO
-        else []
-    )
     earned_badges = _compute_badges(
         completed_ids, first_try_ids, longest_streak, challenges=student_pool
     )
@@ -1207,17 +1231,16 @@ def leaderboard():
     # Traemos en una sola query: alumnos + sus aprobaciones únicas por desafío.
     # Nos quedamos con el primer pass por challenge_id para no contar duplicados.
     students = User.query.filter_by(role="alumno").all()
+    all_ch = _all_challenges()
+    class_cache = {}
 
     rows = []
     for s in students:
-        passed = ChallengeResult.all_passed_for_user(s.id)
-        seen = set()
-        unique_first = []
-        for r in passed:
-            if r.challenge_id in seen:
-                continue
-            seen.add(r.challenge_id)
-            unique_first.append(r)
+        # Sólo cuentan los desafíos de la comisión actual de cada alumno.
+        allowed = _student_challenge_ids(s, all_ch, class_cache)
+        unique_first = _first_passes_in_scope(
+            ChallengeResult.all_passed_for_user(s.id), allowed
+        )
         if not unique_first:
             continue
         total_points = sum(r.points_earned for r in unique_first)
@@ -1243,14 +1266,10 @@ def leaderboard():
         # (que perdimos en `rows` al anonimizar) para localizar al requester.
         ranked = []
         for s in students:
-            passed = ChallengeResult.all_passed_for_user(s.id)
-            seen2 = set()
-            uniq2 = []
-            for r in passed:
-                if r.challenge_id in seen2:
-                    continue
-                seen2.add(r.challenge_id)
-                uniq2.append(r)
+            allowed = _student_challenge_ids(s, all_ch, class_cache)
+            uniq2 = _first_passes_in_scope(
+                ChallengeResult.all_passed_for_user(s.id), allowed
+            )
             pts = sum(r.points_earned for r in uniq2)
             ranked.append((s.id, pts, len(uniq2)))
         ranked.sort(key=lambda t: (-t[1], -t[2]))

@@ -21,6 +21,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from ..models.user_model import User, ROLE_ALUMNO, ROLE_DOCENTE, ROLE_ADMIN
 from ..models.challenge_result_model import ChallengeResult
 from ..models.class_model import Class
+from .challenges import _all_challenges, _student_challenge_ids
 
 
 bp = Blueprint("stats", __name__, url_prefix="/stats")
@@ -248,8 +249,16 @@ def overview():
             if r.challenge_id not in per_user_first_pass[r.user_id]:
                 per_user_first_pass[r.user_id][r.challenge_id] = r
 
+        all_ch = _all_challenges()
+        class_cache = {}
         for s in students:
-            first_passes = list(per_user_first_pass.get(s.id, {}).values())
+            # Sólo cuentan los desafíos de la comisión actual del alumno.
+            allowed = _student_challenge_ids(s, all_ch, class_cache)
+            first_passes = [
+                r
+                for r in per_user_first_pass.get(s.id, {}).values()
+                if r.challenge_id in allowed
+            ]
             # Ordenados cronologicamente gracias al order_by de la query.
             pts = sum(r.points_earned for r in first_passes)
             per_student.append(
@@ -394,6 +403,8 @@ def stats_by_class():
             User.query.filter_by(class_id=klass.id, role=ROLE_ALUMNO).all()
         )
         student_ids = [s.id for s in students]
+        # Sólo cuentan los desafíos que hoy están en la comisión (y activos).
+        allowed_ids = set(klass.get_selected_ids()) & {c["id"] for c in _all_challenges()}
 
         total_completed = 0
         total_points = 0
@@ -408,7 +419,10 @@ def stats_by_class():
             )
             seen_per_user = defaultdict(set)
             for r in results:
-                if r.challenge_id in seen_per_user[r.user_id]:
+                if (
+                    r.challenge_id not in allowed_ids
+                    or r.challenge_id in seen_per_user[r.user_id]
+                ):
                     continue
                 seen_per_user[r.user_id].add(r.challenge_id)
                 total_completed += 1

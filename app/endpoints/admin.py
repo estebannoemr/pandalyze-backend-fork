@@ -26,6 +26,7 @@ from ..models.user_model import (
 from ..models.class_model import Class
 from ..models.csv_model import CSVData
 from ..models.challenge_result_model import ChallengeResult
+from .challenges import _student_challenge_ids, _first_passes_in_scope
 
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -48,13 +49,17 @@ def admin_required(fn):
 
 def _serialize_user_row(u):
     completed = ChallengeResult.all_passed_for_user(u.id)
-    seen = set()
-    unique_passes = []
-    for r in completed:
-        if r.challenge_id in seen:
-            continue
-        seen.add(r.challenge_id)
-        unique_passes.append(r)
+    if u.role == ROLE_ALUMNO:
+        # Sólo cuentan los desafíos de la comisión actual del alumno.
+        unique_passes = _first_passes_in_scope(completed, _student_challenge_ids(u))
+    else:
+        seen = set()
+        unique_passes = []
+        for r in completed:
+            if r.challenge_id in seen:
+                continue
+            seen.add(r.challenge_id)
+            unique_passes.append(r)
 
     total_points = sum(r.points_earned for r in unique_passes)
 
