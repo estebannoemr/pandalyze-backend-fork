@@ -951,7 +951,7 @@ def _evaluate_submission(user_output, user_code, expected_keyword, solution_code
 @bp.route("/challenges/<int:challenge_id>/validate", methods=["POST"])
 @cross_origin()
 @jwt_required()
-@limiter.limit("200 per minute", key_func=_rate_limit_key_user)
+@limiter.limit("500 per minute", key_func=_rate_limit_key_user)
 def validate_challenge(challenge_id):
     user_id = int(get_jwt_identity())
     challenge = _get_challenge(challenge_id)

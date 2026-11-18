@@ -10,11 +10,19 @@ jwt = JWTManager()
 # Esto permite que la app arranque incluso sin la dependencia, y los
 # decoradores @limiter.limit(...) en los endpoints se vuelven no-ops.
 try:
+    from flask import request
     from flask_limiter import Limiter
     from flask_limiter.util import get_remote_address
 
+    def _client_ip():
+        """IP real del cliente para los límites de pedidos. Detrás de Render
+        (y su Cloudflare) get_remote_address() devuelve siempre la IP del
+        proxy; ahí el cliente real viene en True-Client-IP. Sin ese header
+        (desarrollo local) se usa la IP de la conexión."""
+        return request.headers.get("True-Client-IP") or get_remote_address()
+
     limiter = Limiter(
-        key_func=get_remote_address,
+        key_func=_client_ip,
         default_limits=[],  # Sin límite por defecto; cada endpoint elige.
         storage_uri="memory://",
         # En producción real cambiar a redis://... para que los límites

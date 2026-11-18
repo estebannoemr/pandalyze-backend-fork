@@ -96,7 +96,7 @@ def register():
 
 @bp.route("/login", methods=["POST"])
 @cross_origin()
-@limiter.limit("10 per minute; 50 per hour")
+@limiter.limit("1000 per minute; 10000 per hour")
 def login():
     data = _json()
     email = (data.get("email") or "").strip().lower()
@@ -203,7 +203,7 @@ def update_me():
 
 @bp.route("/forgot-password", methods=["POST"])
 @cross_origin()
-@limiter.limit("5 per minute; 20 per hour")
+@limiter.limit("20 per minute; 100 per hour")
 def forgot_password():
     """
     Genera un token de reset y lo envía al email del usuario.
@@ -257,7 +257,7 @@ def forgot_password():
 
 @bp.route("/reset-password", methods=["POST"])
 @cross_origin()
-@limiter.limit("10 per minute; 30 per hour")
+@limiter.limit("30 per minute; 200 per hour")
 def reset_password():
     """Consume un token de reset y setea la nueva password."""
     data = _json()
