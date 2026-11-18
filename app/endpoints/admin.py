@@ -114,6 +114,10 @@ def list_users():
     - role  : alumno | docente | admin (filtra por rol exacto).
     - page  : número de página (1-indexado, default 1).
     - per_page : elementos por página (default 20, máximo 100).
+    - sort  : points | completed. Ordena TODOS los usuarios que matchean (no
+              sólo la página) por puntos o por desafíos completados. Sin
+              este parámetro el orden es por email.
+    - order : desc (default) | asc. Sólo se usa junto con ``sort``.
 
     Respuesta:
     {
@@ -145,14 +149,31 @@ def list_users():
     if role_filter in {ROLE_ALUMNO, ROLE_DOCENTE, ROLE_ADMIN}:
         query = query.filter(User.role == role_filter)
 
+    sort = (request.args.get("sort") or "").strip().lower()
+    order = (request.args.get("order") or "desc").strip().lower()
+    sort_keys = {"points": "total_points", "completed": "completed_count"}
+
     total = query.count()
     pages = (total + per_page - 1) // per_page if per_page else 1
-    users = (
-        query.order_by(User.email.asc())
-        .offset((page - 1) * per_page)
-        .limit(per_page)
-        .all()
-    )
+    if sort in sort_keys:
+        # Los puntos y completados se calculan en Python (no son columnas), así
+        # que para ordenar entre páginas hay que calcularlos para todos los
+        # usuarios que matchean y recién después paginar. A igual valor se
+        # mantiene el orden por email (el sort de Python es estable).
+        rows = [
+            _serialize_user_row(u) for u in query.order_by(User.email.asc()).all()
+        ]
+        key = sort_keys[sort]
+        rows.sort(key=lambda r: r.get(key) or 0, reverse=(order != "asc"))
+        user_rows = rows[(page - 1) * per_page : page * per_page]
+    else:
+        users = (
+            query.order_by(User.email.asc())
+            .offset((page - 1) * per_page)
+            .limit(per_page)
+            .all()
+        )
+        user_rows = [_serialize_user_row(u) for u in users]
     
     # Obtener todas las clases disponibles para el selector en el frontend
     all_classes = Class.query.order_by(Class.name).all()
@@ -173,7 +194,7 @@ def list_users():
     
     return (
         jsonify({
-            "users": [_serialize_user_row(u) for u in users],
+            "users": user_rows,
             "classes": classes_data,
             "total": total,
             "page": page,
