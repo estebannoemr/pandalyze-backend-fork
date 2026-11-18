@@ -212,6 +212,30 @@ def visible_challenges_for_staff(user):
     ]
 
 
+def _visible_challenges_for_student(user):
+    """Desafíos que ve un alumno: los de su comisión o, sin comisión, el
+    catálogo según CATALOGO_SIN_COMISION. Es la misma regla para el listado
+    y para calcular los emblemas."""
+    visible = _all_challenges()
+    klass = None
+    if user.class_id is not None:
+        # Import diferido para evitar ciclo de imports.
+        from ..models.class_model import Class as _Class
+
+        klass = _Class.query.get(user.class_id)
+    if klass is not None:
+        allowed = set(klass.get_selected_ids())
+        return [c for c in visible if c["id"] in allowed]
+    # Estudiante sin comisión.
+    modo = _catalogo_sin_comision()
+    if modo == "base":
+        return [c for c in visible if not c.get("is_custom")]
+    if modo == "nada":
+        return []
+    # "todo": se deja el catálogo completo.
+    return visible
+
+
 
 
 
@@ -435,9 +459,15 @@ def _get_level_info(total_points):
     return current, next_points
 
 
-def _compute_badges(completed_ids, first_try_ids, longest_streak):
-    """Calcula qué emblemas se obtuvieron en base a los resultados persistidos."""
+def _compute_badges(completed_ids, first_try_ids, longest_streak, challenges=None):
+    """Calcula qué emblemas se obtuvieron en base a los resultados persistidos.
+
+    ``challenges`` son los desafíos sobre los que se evalúan los emblemas por
+    nivel y "todo completo" (los de la comisión del alumno). Si es None se usa
+    el catálogo base completo.
+    """
     earned = []
+    pool = CHALLENGES if challenges is None else challenges
 
     if len(completed_ids) >= 1:
         earned.append("primer_desafio")
@@ -445,9 +475,9 @@ def _compute_badges(completed_ids, first_try_ids, longest_streak):
     if len(first_try_ids) >= 1:
         earned.append("sin_errores")
 
-    basicos = [c["id"] for c in CHALLENGES if c["difficulty"] == "basico"]
-    intermedios = [c["id"] for c in CHALLENGES if c["difficulty"] == "intermedio"]
-    avanzados = [c["id"] for c in CHALLENGES if c["difficulty"] == "avanzado"]
+    basicos = [c["id"] for c in pool if c["difficulty"] == "basico"]
+    intermedios = [c["id"] for c in pool if c["difficulty"] == "intermedio"]
+    avanzados = [c["id"] for c in pool if c["difficulty"] == "avanzado"]
 
     if basicos and all(cid in completed_ids for cid in basicos):
         earned.append("basico_completo")
@@ -456,7 +486,7 @@ def _compute_badges(completed_ids, first_try_ids, longest_streak):
     if avanzados and all(cid in completed_ids for cid in avanzados):
         earned.append("avanzado_completo")
 
-    total_ids = [c["id"] for c in CHALLENGES]
+    total_ids = [c["id"] for c in pool]
     if total_ids and all(cid in completed_ids for cid in total_ids):
         earned.append("todo_completo")
 
@@ -494,23 +524,7 @@ def list_challenges():
         visible = visible_challenges_for_staff(user)
 
     if user is not None and user.role == ROLE_ALUMNO:
-        klass = None
-        if user.class_id is not None:
-            # Import diferido para evitar ciclo de imports.
-            from ..models.class_model import Class as _Class
-
-            klass = _Class.query.get(user.class_id)
-        if klass is not None:
-            allowed = set(klass.get_selected_ids())
-            visible = [c for c in visible if c["id"] in allowed]
-        else:
-            # Estudiante sin comisión.
-            modo = _catalogo_sin_comision()
-            if modo == "base":
-                visible = [c for c in visible if not c.get("is_custom")]
-            elif modo == "nada":
-                visible = []
-            # "todo": se deja el catálogo completo.
+        visible = _visible_challenges_for_student(user)
 
     public_rows = []
     for c in visible:
@@ -1117,7 +1131,16 @@ def gamification_status():
         if d in by_diff:
             by_diff[d] += 1
 
-    earned_badges = _compute_badges(completed_ids, first_try_ids, longest_streak)
+    # Los emblemas por nivel y "todo completo" se evalúan sobre los desafíos
+    # que ve el alumno (los de su comisión), no sobre el catálogo base entero.
+    student_pool = (
+        _visible_challenges_for_student(requester)
+        if requester is not None and requester.role == ROLE_ALUMNO
+        else []
+    )
+    earned_badges = _compute_badges(
+        completed_ids, first_try_ids, longest_streak, challenges=student_pool
+    )
 
     return (
         jsonify(
