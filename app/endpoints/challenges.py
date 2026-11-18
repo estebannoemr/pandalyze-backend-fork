@@ -25,7 +25,7 @@ from urllib.error import URLError, HTTPError
 
 from flask import Blueprint, request, jsonify, Response
 from flask_cors import cross_origin
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
 import pandas as pd
 
 from ..extensions import db, limiter
@@ -277,6 +277,21 @@ def teacher_or_admin_required(fn):
         return fn(*args, **kwargs)
 
     return wrapper
+
+
+def _rate_limit_key_user():
+    """Clave del límite de pedidos: el usuario del JWT, para que los alumnos
+    que comparten IP (wifi de la escuela, proxy) no compartan el cupo. Sin
+    token válido cae a la IP. Flask-Limiter evalúa el límite antes que
+    @jwt_required, por eso el token se lee acá."""
+    try:
+        verify_jwt_in_request(optional=True)
+        uid = get_jwt_identity()
+        if uid is not None:
+            return f"user:{uid}"
+    except Exception:
+        pass
+    return request.remote_addr or "unknown"
 
 
 def _public_view(challenge):
@@ -936,7 +951,7 @@ def _evaluate_submission(user_output, user_code, expected_keyword, solution_code
 @bp.route("/challenges/<int:challenge_id>/validate", methods=["POST"])
 @cross_origin()
 @jwt_required()
-@limiter.limit("30 per minute; 200 per hour")
+@limiter.limit("200 per minute", key_func=_rate_limit_key_user)
 def validate_challenge(challenge_id):
     user_id = int(get_jwt_identity())
     challenge = _get_challenge(challenge_id)
